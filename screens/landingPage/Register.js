@@ -38,8 +38,8 @@ export default function Register({navigation}) {
         <View style={{ flex: 1, justifyContent: 'center' }}>
             <Text>Register</Text>
             <TextInput onChangeText={text => onHandleChange(text, 'email')} placeholder="Email" style={ styles.textInput } placeholderTextColor="#838383" />
-            <TextInput onChangeText={text => onHandleChange(text, 'rekTabungan')} placeholder="Rekening Tabungan Anda" style={ styles.textInput } placeholderTextColor="#838383" />
-            <TextInput onChangeText={text => onHandleChange(text, 'rekDompet')} placeholder="Rekening Dompet Anda" style={ styles.textInput } placeholderTextColor="#838383" />
+            <TextInput onChangeText={text => onHandleChange(text, 'rekTabungan')} keyboardType='number-pad' placeholder="Rekening Tabungan Anda" style={ styles.textInput } placeholderTextColor="#838383" />
+            <TextInput onChangeText={text => onHandleChange(text, 'rekDompet')} keyboardType='number-pad' placeholder="Rekening Dompet Anda" style={ styles.textInput } placeholderTextColor="#838383" />
 
             <TouchableOpacity onPress={ handleSubmit } style={ { backgroundColor: '#ea8685' } }>
                 <Text style={ { ...styles.buttonText, color: 'white' } }>Submit</Text>

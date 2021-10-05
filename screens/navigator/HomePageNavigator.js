@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react'
 import { View, Text, Button } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux'
-import { resetData } from '../../store/profile/function'
+import { resetData, resetDataProfile } from '../../store/profile/function'
 
 // Sreens
 export default function HomepageNavigator({ navigation }) {
@@ -10,7 +10,7 @@ export default function HomepageNavigator({ navigation }) {
 
     useEffect(() => {
         if(!rekTabungan&&!rekDompet&&!email) {
-            navigation.navigate("Intro")
+            navigation.navigate("Splash")
         }
     }, [rekTabungan, rekDompet, email])
 
@@ -21,7 +21,9 @@ export default function HomepageNavigator({ navigation }) {
             <Text>rek tabungan: {rekTabungan}</Text>
             <Text>rek dompet: {rekDompet}</Text>
 
-            <Button title="Logout" onPress={() => resetData(dispatch, navigation)}/>
+            <View style={{paddingVertical: 5}}>
+                <Button title="Logout" onPress={() => resetData(dispatch, navigation)}/>
+            </View>
         </View>
     )
 }

@@ -26,9 +26,9 @@ export async function fetchProfile(dispatch, cb) {
         if(stringParse) {
             dispatch(setDataProfile(stringParse))
         }
-        cb(false)
+        cb({message: "success"})
     } catch(err) {
-        cb(false)
+        cb({message: "error"})
     }
 }
 
