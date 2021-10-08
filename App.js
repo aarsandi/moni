@@ -1,12 +1,12 @@
 import React from 'react'
 import { Provider } from 'react-redux'
-import LandingPageNavigator from './screens/navigator/LandingPageNavigator';
+import LandingScreenNavigator from './screens/navigator/LandingScreenNavigator';
 import store from './store/index'
 
 const App = () => {
   return (
     <Provider store={store}>
-      <LandingPageNavigator/>
+      <LandingScreenNavigator/>
     </Provider>
   )
 }

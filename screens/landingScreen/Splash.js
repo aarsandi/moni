@@ -1,25 +1,21 @@
 import React, { useEffect } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
-import { fetchProfile } from '../../store/profile/function';
+import { fetchFinance } from '../../store/finance/function';
 import { useIsFocused } from "@react-navigation/native";
 
 export default function Splash({navigation}) {
     const isFocused = useIsFocused();
     const dispatch = useDispatch()
-    const { rekTabungan, rekDompet, email } = useSelector((state) => state.profileReducer)
+    const { nama, amountTabungan, amountDompet } = useSelector((state) => state.financeReducer)
 
     useEffect(() => {
-        if(rekTabungan&&rekDompet&&email) {
-            navigation.navigate("HomePageNavigator")
+        if(nama&&amountTabungan&&amountDompet) {
+            navigation.navigate("AppScreenNavigator")
         }else{
-            fetchProfile(dispatch, (el) => {
+            fetchFinance(dispatch, (el) => {
                 if(el.message === "success") {
-                    if(rekTabungan&&rekDompet&&email) {
-                        navigation.navigate("HomePageNavigator")
-                    }else{
-                        navigation.navigate("Intro")
-                    }
+                    navigation.navigate("AppScreenNavigator")
                 }else{
                     navigation.navigate("Intro")
                 }

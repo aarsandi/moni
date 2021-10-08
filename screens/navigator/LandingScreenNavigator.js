@@ -6,12 +6,12 @@ import { setIsDarkMode } from '../../store/data/function';
 import { useDispatch } from 'react-redux'
 
 // Sreens
-import HomePageNavigator from '../navigator/HomePageNavigator';
-import Intro from '../landingPage/Intro';
-import Register from '../landingPage/Register';
-import Splash from '../landingPage/Splash';
+import AppScreenNavigator from './AppScreenNavigator';
+import Intro from '../landingScreen/Intro';
+import Register from '../landingScreen/Register';
+import Splash from '../landingScreen/Splash';
 
-export default function LandingPageNavigator() {
+export default function LandingScreenNavigator() {
     const Stack = createNativeStackNavigator();
     const darkMode = useColorScheme();
     const dispatch = useDispatch()
@@ -24,9 +24,9 @@ export default function LandingPageNavigator() {
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Splash" component={Splash} />
-            <Stack.Screen name="Intro" component={Intro} />
+            <Stack.Screen name="AppScreenNavigator" component={AppScreenNavigator} />
             <Stack.Screen name="Register" component={Register} />
-            <Stack.Screen name="HomePageNavigator" component={HomePageNavigator} />
+            <Stack.Screen name="Intro" component={Intro} />
           </Stack.Navigator>
         </NavigationContainer>
     )
