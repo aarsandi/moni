@@ -5,9 +5,10 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useIsFocused } from "@react-navigation/native";
 
 // Sreens
-import PlanScreenNavigator from "./PlanScreenNavigator"
-import FinanceScreenNavigator from "./FinanceScreenNavigator"
 import HomeScreenNavigator from "./HomeScreenNavigator"
+import PlanScreenNavigator from "./PlanScreenNavigator"
+import SettingScreen from "../settingScreen/setting"
+import FinanceScreenNavigator from "./FinanceScreenNavigator"
 import ReactNativeDoc from "../ReactNativeDoc"
 
 export default function AppScreenNavigator({ navigation }) {
@@ -31,8 +32,8 @@ export default function AppScreenNavigator({ navigation }) {
                         iconName = focused ? 'home' : 'home-outline';
                     } else if (route.name === 'PlanScreenNavigator') {
                         iconName = focused ? 'reader' : 'reader-outline';
-                    } else if (route.name === 'FinanceScreenNavigator') {
-                        iconName = focused ? 'cash' : 'cash-outline';
+                    } else if (route.name === 'SettingScreen') {
+                        iconName = focused ? 'settings' : 'settings-outline';
                     } else if (route.name === 'ReactNativeDoc') {
                         iconName = focused ? 'help-circle' : 'help-circle-outline';
                     }
@@ -46,7 +47,7 @@ export default function AppScreenNavigator({ navigation }) {
         >
             <Tab.Screen name="HomeScreenNavigator" component={HomeScreenNavigator} options={{ title: 'Home', headerShown: false }} />
             <Tab.Screen name="PlanScreenNavigator" component={PlanScreenNavigator} options={{ title: 'Plan', headerShown: false }} />
-            <Tab.Screen name="FinanceScreenNavigator" component={FinanceScreenNavigator} options={{ title: 'Finance' }} />
+            <Tab.Screen name="SettingScreen" component={SettingScreen} options={{ title: 'Setting' }} />
             <Tab.Screen name="ReactNativeDoc" component={ReactNativeDoc} options={{ title: 'React Native Doc' }} />
         </Tab.Navigator>
     )

@@ -1,46 +1,75 @@
 import React, { useEffect } from 'react'
 import { StyleSheet, Text, View, Button, Alert } from 'react-native'
-import { fetchPlan, resetPlan } from '../../store/plan/function'
-import { fetchHistPeng, resetHistPeng } from '../../store/historyPengeluaran/function'
-import { resetFinance } from '../../store/finance'
 import { useDispatch, useSelector } from 'react-redux'
 import moment from "moment"
-import {toRupiah} from '../../helpers/NumberToString'
+import { toRupiah } from '../../helpers/NumberToString'
+
+import { fetchPlan } from '../../store/plan/function'
+import { fetchHistPeng } from '../../store/historyPengeluaran/function'
+import { fetchHistTab } from '../../store/historyActivityTabungan/function'
+import { fetchHistDom } from '../../store/historyActivityDompet/function'
+import { fetchFinance } from '../../store/finance/function'
 
 export default function Home({ navigation }) {
     const dispatch = useDispatch()
     const { nama, amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
-    const { status,penghasilan,jumlahDitabung,uangHarian,uangBulanan,uangLainnya,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
-    const { allData } = useSelector((state) => state.historyPengeluaranReducer)
+    const { status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
+    const dataHistPeng = useSelector((state) => state.historyPengeluaranReducer.allData)
+    const dataHistTab = useSelector((state) => state.historyActivityTabunganReducer.allData)
+    const dataHistDom = useSelector((state) => state.historyActivityDompetReducer.allData)
+
+    // console.log(dataHistPeng)
+    console.log(status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan)
+    // console.log(dataHistDom)
     
     useEffect(() => {
-        if(penghasilan===null&&jumlahDitabung===null&&uangHarian===null) {
+        if(status===null&&type===null&&uangHariIni===null) {
             fetchPlan(dispatch, (el) => {
-                if(el.message === 500) {
-                    Alert.alert( "Alert Title", "Error Function", [ { text: "Oke", style: "cancel", } ]);
+                if(el.message !== "success") {
+                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
                 }
             })
         }
-    }, [penghasilan, jumlahDitabung, uangHarian])
+    }, [status, type, uangHariIni])
+    
+    useEffect(() => {
+        if(dataHistPeng===null) {
+            fetchHistPeng(dispatch, (el) => {
+                if(el.message !== "success") {
+                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
+                }
+            })
+        }
+    }, [dataHistPeng])
 
     useEffect(() => {
-        if(allData===null) {
-            fetchHistPeng(dispatch, (el) => {
-                if(el.message === 500) {
-                    Alert.alert( "Alert Title", "Error Function", [ { text: "Oke", style: "cancel", } ]);
+        if(dataHistTab===null) {
+            fetchHistTab(dispatch, (el) => {
+                if(el.message !== "success") {
+                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
                 }
             })
         }
-    }, [allData])
+    }, [dataHistTab])
+
+    useEffect(() => {
+        if(dataHistDom===null) {
+            fetchHistDom(dispatch, (el) => {
+                if(el.message !== "success") {
+                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
+                }
+            })
+        }
+    }, [dataHistDom])
 
     return (
         <View>
             <Text>Selamat Datang {nama}</Text>
             { status?
                 <View style={{paddingVertical: 20}}>
-                    <Text>Uang Harian : {uangHarian}</Text>
-                    <Text>Pengeluaran Bulanan: {uangBulanan}</Text>
-                    <Text>Uang Sisa: {uangLainnya}</Text>
+                    <Text>status : {status}</Text>
+                    <Text>type: {type}</Text>
+                    <Text>Uang Hariini: {uangHariIni}</Text>
                 </View>:
                 <View style={{paddingVertical: 20}}>
                     <Text>Anda Belum mengaktifkan finansial plan</Text>
@@ -60,30 +89,12 @@ export default function Home({ navigation }) {
             }} />
             <View>
                 {
-                    allData&&allData.slice(0, 10).map((el, index) => {
+                    dataHistPeng&&dataHistPeng.slice(0, 10).map((el, index) => {
                         return (
                             <Text key={index}>{el.type} - {el.title} - {toRupiah(el.amount, "Rp. ")} - {moment(el.date).format('lll')}</Text>
                         )
                     })
                 }
-            </View>
-            
-            <View style={{paddingVertical: 5}}>
-                <Button title="Reset Data" onPress={() => {
-                    resetFinance(dispatch, (el) => {
-                        if(el.message === "success") {
-                            resetPlan(dispatch, (el) => {
-                                if(el.message === "success") {
-                                    resetHistPeng(dispatch, (el) => {
-                                        if(el.message === "success") {
-                                            navigation.navigate("Splash")
-                                        }
-                                    })
-                                }
-                            })
-                        }
-                    })
-                }}/>
             </View>
         </View>
     )

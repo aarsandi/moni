@@ -10,6 +10,7 @@ export function resetDataHistPeng() {
     return { type: 'RESETHISTPENG'}
 }
 
+// action
 export async function fetchHistPeng(dispatch, cb) {
     try {
         const dataHistPeng = await AsyncStorage.getItem('DATAHISTPENG')
@@ -23,7 +24,7 @@ export async function fetchHistPeng(dispatch, cb) {
             cb({message: "success"})
         }
     } catch(err) {
-        cb({message: 500})
+        cb({message: "error system"})
     }
 }
 
@@ -43,7 +44,7 @@ export async function addHistPeng(dispatch, val, cb) {
             cb({message: "success"})
         }
     } catch(err) {
-        cb({message: 500})
+        cb({message: "error system"})
     }
 }
 
@@ -53,6 +54,6 @@ export async function resetHistPeng(dispatch, cb) {
         dispatch(resetDataHistPeng())
         cb({message: "success"})
     } catch(err) {
-        cb({message: 500})
+        cb({message: "error system"})
     }
 }

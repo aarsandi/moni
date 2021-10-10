@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from 'react'
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native'
 import { setupFinance } from "../../store/finance/function"
-import {useSelector, useDispatch} from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useIsFocused } from "@react-navigation/native";
 import MaskInput, { createNumberMask }  from 'react-native-mask-input';
 
@@ -43,45 +43,47 @@ export default function Register({navigation}) {
 
     return (
         <View style={{ flex: 1, justifyContent: 'center' }}>
-            <Text>Input Data Finansial</Text>
-            
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Nama :</Text>
-            <TextInput onChangeText={text => onHandleChange(text, 'nama')} placeholder="nama lengkap" style={ styles.textInput } placeholderTextColor="#838383" />
-            
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Tabungan :</Text>
-            <MaskInput keyboardType='number-pad' 
-                value={dataRegister.amountTabungan} onChangeText={(masked, unmasked, obfuscated) => { onHandleChange(unmasked, 'amountTabungan') }}
-                mask={createNumberMask({
-                  prefix: ['Rp.', ' '],
-                  delimiter: ',',
-                  precision: 3,
-                })}
-            />
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Dompet (Cash) :</Text>
-            <MaskInput keyboardType='number-pad' 
-                value={dataRegister.amountRealDompet} onChangeText={(masked, unmasked, obfuscated) => { onHandleChange(unmasked, 'amountRealDompet') }}
-                mask={createNumberMask({
-                  prefix: ['Rp.', ' '],
-                  delimiter: ',',
-                  precision: 3,
-                })}
-            />
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Dompet (Non Cash) :</Text>
-            <MaskInput keyboardType='number-pad' 
-                value={dataRegister.amountDompet} onChangeText={(masked, unmasked, obfuscated) => { onHandleChange(unmasked, 'amountDompet') }}
-                mask={createNumberMask({
-                  prefix: ['Rp.', ' '],
-                  delimiter: ',',
-                  precision: 3,
-                })}
-            />
-            
-            <TouchableOpacity onPress={ handleSubmit } style={ { backgroundColor: '#ea8685' } }>
-                <Text style={ { ...styles.buttonText, color: 'white' } }>Submit</Text>
-            </TouchableOpacity>
-            { 
-                error && <Text>{error}</Text>
-            }
+            <ScrollView contentInsetAdjustmentBehavior="automatic" >
+                <Text>Input Data Finansial</Text>
+                
+                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Nama :</Text>
+                <TextInput onChangeText={text => onHandleChange(text, 'nama')} placeholder="nama lengkap" style={ styles.textInput } placeholderTextColor="#838383" />
+                
+                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Tabungan :</Text>
+                <MaskInput keyboardType='number-pad' 
+                    value={dataRegister.amountTabungan} onChangeText={(masked, unmasked, obfuscated) => { onHandleChange(unmasked, 'amountTabungan') }}
+                    mask={createNumberMask({
+                    prefix: ['Rp.', ' '],
+                    delimiter: ',',
+                    precision: 3,
+                    })}
+                />
+                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Dompet (Cash) :</Text>
+                <MaskInput keyboardType='number-pad' 
+                    value={dataRegister.amountRealDompet} onChangeText={(masked, unmasked, obfuscated) => { onHandleChange(unmasked, 'amountRealDompet') }}
+                    mask={createNumberMask({
+                    prefix: ['Rp.', ' '],
+                    delimiter: ',',
+                    precision: 3,
+                    })}
+                />
+                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Dompet (Non Cash) :</Text>
+                <MaskInput keyboardType='number-pad' 
+                    value={dataRegister.amountDompet} onChangeText={(masked, unmasked, obfuscated) => { onHandleChange(unmasked, 'amountDompet') }}
+                    mask={createNumberMask({
+                    prefix: ['Rp.', ' '],
+                    delimiter: ',',
+                    precision: 3,
+                    })}
+                />
+                
+                <TouchableOpacity onPress={ handleSubmit } style={ { backgroundColor: '#ea8685' } }>
+                    <Text style={ { ...styles.buttonText, color: 'white' } }>Submit</Text>
+                </TouchableOpacity>
+                { 
+                    error && <Text>{error}</Text>
+                }
+            </ScrollView>
         </View>
     )
 }

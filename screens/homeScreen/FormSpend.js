@@ -1,16 +1,21 @@
-import React, { useState } from 'react'
-import { StyleSheet, Text, View, Modal, Pressable, TextInput, Alert } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, Text, View, Pressable, TextInput, Alert, ScrollView } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import MaskInput, { createNumberMask }  from 'react-native-mask-input';
 import SelectDropdown from 'react-native-select-dropdown'
-import { updateFinance } from '../../store/finance/function'
+import { fetchFinance } from '../../store/finance/function'
+import { inputPengeluaran } from '../../store/app/function'
+import { updateDataPlan, updatePlan } from '../../store/plan/function'
 import { toRupiah } from '../../helpers/NumberToString'
+import { fetchPlan } from '../../store/plan/function';
 
 export default function FormSpend({ navigation }) {
     const dispatch = useDispatch()
     const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
-    const spendType = ["Harian", "Bulanan", "Lainnya"]
+    const { status, pengeluaranBulanan, uangTotal, uangHariIni } = useSelector((state) => state.planReducer)
+    const [selectedPengBul, setSelectedPengBul] = useState(null)
     const [error, setError] = useState(false)
+    const [loading, setLoading] = useState(true)
     const payType = ["Cash", "Rekening Dompet", "Rekening Tabungan"]
     const [sisaBalance, setSisaBalance] = useState("")
     const [dataForm,setDataForm] = useState({
@@ -42,163 +47,326 @@ export default function FormSpend({ navigation }) {
                         onPress: () => {
                             const result = {
                                 ...dataForm,
+                                balanceAfr: amountRealDompet-Number(dataForm.amount),
+                                balanceBfr: amountRealDompet,
                                 tax: 0,
                                 date: new Date()
                             }
-                            updateFinance(dispatch, result, (el) => {
-                                if(el.message === "success") {
-                                    navigation.navigate("Home")
-                                } else {
-                                    Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                            if(status){
+                                let resultPlan
+                                let error=true
+                                if(type==="Bulanan"){
+                                    if(selectedPengBul) {
+                                        resultPlan={
+                                            uangTotal:uangTotal-(Number(dataForm.amount)+tax),
+                                            pengeluaranBulanan:pengeluaranBulanan.filter(el => el.id !== selectedPengBul.id)
+                                        }
+                                        error=false
+                                    }else{
+                                        Alert.alert("Error", "Pilih Item Terlebih Dahulu", [], { cancelable:true })
+                                    }
+                                }else if(type==="Harian"){
+                                    resultPlan={
+                                        uangTotal:uangTotal-(Number(dataForm.amount)+tax),
+                                        uangHariIni:uangHariIni-(Number(dataForm.amount)+tax)
+                                    }
+                                    error=false
+                                }else{
+                                    resultPlan={
+                                        uangTotal:uangTotal-(Number(dataForm.amount)+tax)
+                                    }
+                                    error=false
                                 }
-                            })
+                                if(!error){
+                                    updatePlan(dispatch, resultPlan, (el) => {
+                                        if(el.message!=="success"){
+                                            navigation.navigate("Splash")
+                                        }else{
+                                            inputPengeluaran(dispatch, result, (el) => {
+                                                if(el.message === "success") {
+                                                    navigation.navigate("Home")
+                                                } else {
+                                                    Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                    navigation.navigate("Splash")
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            }else{
+                                inputPengeluaran(dispatch, result, (el) => {
+                                    if(el.message === "success") {
+                                        navigation.navigate("Home")
+                                    } else {
+                                        Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                        navigation.navigate("Splash")
+                                    }
+                                })
+                            }                            
                         },
                         style: "ok",
                     }], { cancelable:true })
                 }
             } else if(dataForm.payWith === "Rekening Dompet") {
-                if(amountDompet<dataForm.amount) {
-                    Alert.alert("Error", "Uang Anda Tidak Cukup", [], { cancelable:true })
-                }else{
-                    if(sisaBalance === "") {
-                        setError("Sisa Balance Tidak Boleh Kosong")
+                if(sisaBalance === "") {
+                    setError("Sisa Balance Tidak Boleh Kosong")
+                } else {
+                    const tax = (amountDompet-Number(dataForm.amount))-Number(sisaBalance)
+                    if(tax<0) {
+                        Alert.alert("Error", "Uang Anda Tidak Cukup", [], { cancelable:true })
                     } else {
-                        const tax = (amountDompet-Number(dataForm.amount))-Number(sisaBalance)
-                        if(tax<0) {
-                            Alert.alert("Error", "Uang Anda Tidak Cukup", [], { cancelable:true })
-                        } else {
-                            Alert.alert("Info", "are you sure?", [{
-                                text: "Ok",
-                                onPress: () => {
-                                    const result = {
-                                        ...dataForm,
-                                        tax: tax,
-                                        date: new Date()
+                        Alert.alert("Info", "are you sure?", [{
+                            text: "Ok",
+                            onPress: () => {
+                                const result = {
+                                    ...dataForm,
+                                    balanceAfr: amountDompet-(Number(dataForm.amount)+tax),
+                                    balanceBfr: amountDompet,
+                                    tax: tax,
+                                    date: new Date()
+                                }
+                                if(status){
+                                    let resultPlan
+                                    let error=true
+                                    if(type==="Bulanan"){
+                                        if(selectedPengBul) {
+                                            resultPlan={
+                                                uangTotal:uangTotal-(Number(dataForm.amount)+tax),
+                                                pengeluaranBulanan:pengeluaranBulanan.filter(el => el.id !== selectedPengBul.id)
+                                            }
+                                            error=false
+                                        }else{
+                                            Alert.alert("Error", "Pilih Item Terlebih Dahulu", [], { cancelable:true })
+                                        }
+                                    }else if(type==="Harian"){
+                                        resultPlan={
+                                            uangTotal:uangTotal-(Number(dataForm.amount)+tax),
+                                            uangHariIni:uangHariIni-(Number(dataForm.amount)+tax)
+                                        }
+                                        error=false
+                                    }else{
+                                        resultPlan={
+                                            uangTotal:uangTotal-(Number(dataForm.amount)+tax)
+                                        }
+                                        error=false
                                     }
-                                    updateFinance(dispatch, result, (el) => {
+                                    if(!error){
+                                        updatePlan(dispatch, resultPlan, (el) => {
+                                            if(el.message!=="success"){
+                                                navigation.navigate("Splash")
+                                            }else{
+                                                inputPengeluaran(dispatch, result, (el) => {
+                                                    if(el.message === "success") {
+                                                        navigation.navigate("Home")
+                                                    } else {
+                                                        Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                        navigation.navigate("Splash")
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }
+                                }else{
+                                    inputPengeluaran(dispatch, result, (el) => {
                                         if(el.message === "success") {
                                             navigation.navigate("Home")
                                         } else {
                                             Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                            navigation.navigate("Splash")
                                         }
                                     })
-                                },
-                                style: "ok",
-                            }], { cancelable:true })
-                        }
-                        
+                                } 
+                                
+                            },
+                            style: "ok",
+                        }], { cancelable:true })
                     }
+                    
                 }
             } else if(dataForm.payWith === "Rekening Tabungan") {
-                if(amountTabungan<dataForm.amount) {
-                    Alert.alert("Error", "Uang Anda Tidak Cukup", [], { cancelable:true })
-                }else{
-                    if(sisaBalance === "") {
-                        setError("Sisa Balance Tidak Boleh Kosong")
-                    } else {
-                        const tax = (amountTabungan-Number(dataForm.amount))-Number(sisaBalance)
-                        if(tax<0) {
-                            Alert.alert("Error", "Uang Anda Tidak Cukup", [], { cancelable:true })
-                        } else { 
-                            Alert.alert("Info", "are you sure?", [{
-                                text: "Ok",
-                                onPress: () => {
-                                    const result = {
-                                        ...dataForm,
-                                        tax: tax,
-                                        date: new Date()
+                if(sisaBalance === "") {
+                    setError("Sisa Balance Tidak Boleh Kosong")
+                } else {
+                    const tax = (amountTabungan-Number(dataForm.amount))-Number(sisaBalance)
+                    if(tax<0) {
+                        Alert.alert("Error", "Uang Anda Tidak Cukup", [], { cancelable:true })
+                    } else { 
+                        Alert.alert("Info", "are you sure?", [{
+                            text: "Ok",
+                            onPress: () => {
+                                const result = {
+                                    ...dataForm,
+                                    balanceAfr: amountTabungan-(Number(dataForm.amount)+tax),
+                                    balanceBfr: amountTabungan,
+                                    tax: tax,
+                                    date: new Date()
+                                }
+                                inputPengeluaran(dispatch, result, (el) => {
+                                    if(el.message === "success") {
+                                        navigation.navigate("Home")
+                                    } else {
+                                        Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                        navigation.navigate("Splash")
                                     }
-                                    updateFinance(dispatch, result, (el) => {
-                                        if(el.message === "success") {
-                                            navigation.navigate("Home")
-                                        } else {
-                                            Alert.alert("Error", "Input Data Error", [], { cancelable:true })
-                                        }
-                                    })
-                                },
-                                style: "ok",
-                            }], { cancelable:true })
-                        }
-                        
+                                })
+                            },
+                            style: "ok",
+                        }], { cancelable:true })
                     }
+                    
                 }
             } else {
-
+                setError(`field pay with tidak ditemukan`)
             }
         }
     }
 
+    useEffect(() => {
+        if(amountTabungan===null&&amountDompet===null&&amountRealDompet===null) {
+            fetchFinance(dispatch, (el) => {
+                if(el.message === "success") {
+                    setLoading(false)
+                }else{
+                    navigation.navigate("Splash")
+                }
+            })
+        }else{
+            setLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        if(status===null) {
+            fetchPlan(dispatch, (el) => {
+                if(el.message === "success") {
+                    setLoading(false)
+                }else{
+                    navigation.navigate("Splash")
+                }
+            })
+        }else{
+            setLoading(false)
+        }
+    }, [])
+
     return (
         <View>
-            <Text style={styles.modalText}>Pengeluaran</Text>
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Title :</Text>
-            <TextInput onChangeText={text => handleChange(text, 'title')} placeholder="Judul" placeholderTextColor="#838383" />
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Detail :</Text>
-            <View style={styles.textAreaContainer} >
-                <TextInput
-                    style={styles.textArea}
-                    underlineColorAndroid="transparent"
-                    placeholder="Type something"
-                    placeholderTextColor="grey"
-                    numberOfLines={5}
-                    multiline={true}
-                    onChangeText={text => handleChange(text, 'detail')}
-                />
-            </View>
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah :</Text>
-            <MaskInput keyboardType='number-pad'
-                value={dataForm.amount} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, 'amount') }}
-                mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
-            />
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Kategori Pengeluaran :</Text>
-            <SelectDropdown data={spendType} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Bayar dengan :</Text>
-            <SelectDropdown data={payType} onSelect={(selectedItem) => { handleChange(selectedItem, 'payWith') }}/>
             {
-                dataForm.payWith === "Cash"&&
-                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>dompet cash : {toRupiah(amountRealDompet, 'Rp. ')}</Text>
-            }
-            {
-                dataForm.payWith === "Rekening Dompet"&&
-                <>
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Sisa Balance :</Text>
-                    <MaskInput keyboardType='number-pad'
-                        value={sisaBalance} onChangeText={(masked, unmasked, obfuscated) => { setSisaBalance(unmasked) }}
-                        mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
-                    />
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>dompet rekening : {toRupiah(amountDompet, 'Rp. ')}</Text>
-                </>
-            }
-            {
-                dataForm.payWith === "Rekening Tabungan"&&
-                <>
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Sisa Balance :</Text>
-                    <MaskInput keyboardType='number-pad'
-                        value={sisaBalance} onChangeText={(masked, unmasked, obfuscated) => { setSisaBalance(unmasked) }}
-                        mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
-                    />
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>tabungan : {toRupiah(amountTabungan, 'Rp. ')}</Text>
-                </>
+                loading?
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text>Loading</Text>
+                </View>:
+                <ScrollView contentInsetAdjustmentBehavior="automatic" >
+                    <Text style={styles.modalText}>Pengeluaran</Text>
+                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Kategori Pengeluaran :</Text>
+                    {
+                        status?
+                        <>
+                            {
+                                pengeluaranBulanan.length?
+                                <SelectDropdown data={["Harian", "Bulanan", "Lainnya"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>:
+                                <SelectDropdown data={["Harian", "Lainnya"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>
+                            }
+                            {
+                                dataForm.type==="Bulanan"?pengeluaranBulanan.map((el, index) => {
+                                    return(
+                                        <View style={{flexDirection:'row', alignItems:'center'}}>
+                                            <Text key={index} style={{flex:4}}>{el.title} - {toRupiah(el.amount, "Rp. ")}</Text>
+                                            <TouchableOpacity
+                                                onPress={ () => setSelectedPengBul(el) }
+                                                style={{flex:1}}
+                                            >
+                                                <Text>Select</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    )
+                                }):
+                                <Text></Text>
+                            }
+                        </>:
+                        <SelectDropdown data={["Harian", "Lainnya"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>
+                    }
+                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Title :</Text>
+                    {
+                        selectedPengBul?
+                        <TextInput editable={false} value={dataForm.title} placeholder="Judul" placeholderTextColor="#838383" />:
+                        <TextInput onChangeText={text => handleChange(text, 'title')} placeholder="Judul" placeholderTextColor="#838383" />
+                    }
+                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Detail :</Text>
+                    {
+                        selectedPengBul?
+                        <TextInput editable={false} value={dataForm.detail} placeholder="Detail" placeholderTextColor="#838383" />:
+                        <View style={styles.textAreaContainer} >
+                            <TextInput
+                                style={styles.textArea}
+                                underlineColorAndroid="transparent"
+                                placeholder="Type something"
+                                placeholderTextColor="grey"
+                                numberOfLines={5}
+                                multiline={true}
+                                onChangeText={text => handleChange(text, 'detail')}
+                            />
+                        </View>
+                    }
+                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah :</Text>
+                    {
+                        selectedPengBul?
+                        <TextInput editable={false} value={`Rp. ${dataForm.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`} placeholder="Rp. 0"/>:
+                        <MaskInput keyboardType='number-pad'
+                            value={dataForm.amount} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, 'amount') }}
+                            mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
+                        />
+                    }
+                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Bayar dengan :</Text>
+                    <SelectDropdown data={payType} onSelect={(selectedItem) => { handleChange(selectedItem, 'payWith') }}/>
+                    {
+                        dataForm.payWith === "Cash"&&
+                        <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Dompet cash : {toRupiah(amountRealDompet, 'Rp. ')}</Text>
+                    }
+                    {
+                        dataForm.payWith === "Rekening Dompet"&&
+                        <>
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Sisa Didompet :</Text>
+                            <MaskInput keyboardType='number-pad'
+                                value={sisaBalance} onChangeText={(masked, unmasked, obfuscated) => { setSisaBalance(unmasked) }}
+                                mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
+                            />
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Dompet rekening : {toRupiah(amountDompet, 'Rp. ')}</Text>
+                        </>
+                    }
+                    {
+                        dataForm.payWith === "Rekening Tabungan"&&
+                        <>
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Sisa Tabungan :</Text>
+                            <MaskInput keyboardType='number-pad'
+                                value={sisaBalance} onChangeText={(masked, unmasked, obfuscated) => { setSisaBalance(unmasked) }}
+                                mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
+                            />
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tabungan : {toRupiah(amountTabungan, 'Rp. ')}</Text>
+                        </>
 
+                    }
+                    {
+                        error&&
+                        <Text style={{ color: "red" }}>note: {error}</Text>
+                    }
+                    <Pressable
+                        style={[styles.button, styles.buttonOpen]}
+                        onPress={() => handleSubmit()}
+                    >
+                        <Text style={styles.textStyle}>Submit</Text>
+                    </Pressable>
+                    <Pressable
+                        style={[styles.button, styles.buttonClose]}
+                        onPress={() => {
+                            setDataForm({title: "", detail: "", type: "", payWith: "", amount: "0", tax: "0", date: new Date()})
+                            navigation.navigate("Splash")
+                        }}
+                    >
+                        <Text style={styles.textStyle}>Cancel</Text>
+                    </Pressable>
+                </ScrollView>
             }
-            {
-                error&&
-                <Text style={{ color: "red" }}>{error}</Text>
-            }
-            <Pressable
-                style={[styles.button, styles.buttonOpen]}
-                onPress={() => handleSubmit()}
-            >
-                <Text style={styles.textStyle}>Submit</Text>
-            </Pressable>
-            <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => {
-                    setDataForm({title: "", detail: "", type: "", payWith: "", amount: "0", tax: "0", date: new Date()})
-                }}
-            >
-                <Text style={styles.textStyle}>Cancel</Text>
-            </Pressable>
         </View>
     )
 }

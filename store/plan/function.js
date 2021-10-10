@@ -1,39 +1,68 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-export function setStatusPlan(val) {
-    return { type: 'SETSTATUSPLAN', payload: val }
-}
 export function setDataPlan(val) {
     return { type: 'SETDATAPLAN', payload: val }
+}
+export function updateDataPlan(val) {
+    return { type: 'UPDATEDATAPLAN', payload: val }
 }
 export function resetDataPlan() {
     return { type: 'RESETDATAPLAN' }
 }
 
+// {
+//     status: null, // "active"||null||"completed"
+//     type: null, // "Gaji"||"Bulanan"
+//     uangTotal: null, // jika typenya gaji ? maka dari input gajiny : maka dari (dompet+dompetReal)
+//     jumlahDitabung: null,
+//     uangHarian: null, // uang harian fix bisa dirubah
+//     uangHariIni: null, // uang sisa hari ini direset tiap jam 23.30
+//     tanggalGajian: null,
+//     pengeluaranBulanan: null // [{title: "", amount: "", due_date: new Date()}]
+// }
+
+// action
+export async function fetchPlan(dispatch, cb) {
+    try {
+        const dataPlan = await AsyncStorage.getItem('DATAPLAN')
+        const result = JSON.parse(dataPlan)
+        if(result) {
+            dispatch(setDataPlan(result))
+        }
+        cb({message: "success"})
+    } catch(err) {
+        cb({message: "error system"})
+    }
+}
+
 export async function setupPlanAction(val, dispatch, cb) {
     try {
-        const {penghasilan,jumlahDitabung,uangHarian,uangBulanan,uangLainnya,tanggalGajian,pengeluaranBulanan} = val
-        let result = {status:true,penghasilan:Number(penghasilan),jumlahDitabung:Number(jumlahDitabung),uangHarian:Number(uangHarian),uangBulanan:Number(uangBulanan),uangLainnya:Number(uangLainnya),tanggalGajian:Date.parse(tanggalGajian),pengeluaranBulanan}
+        const {type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan} = val
+        const result = {status:"active",type,uangTotal:Number(uangTotal),jumlahDitabung:Number(jumlahDitabung),uangHarian:Number(uangHarian),uangHariIni:Number(uangHarian),tanggalGajian:Date.parse(tanggalGajian),pengeluaranBulanan}
+        
         await AsyncStorage.setItem('DATAPLAN', JSON.stringify(result))
         dispatch(setDataPlan(result))
         cb({message: "success"})
     } catch(err) {
-        cb({message: 500})
+        cb({message: "error system"})
     }
 }
 
-export async function fetchPlan(dispatch, cb) {
+export async function updatePlan(dispatch, val, cb) {
     try {
-        const dataFinance = await AsyncStorage.getItem('DATAPLAN')
-        const result = JSON.parse(dataFinance)
-        if(result) {
-            dispatch(setDataPlan(result))
+        const { ...data } = val
+        const dataPlan = await AsyncStorage.getItem('DATAPLAN')
+        if(dataPlan) {
+            const result = JSON.parse(dataPlan)
+            await AsyncStorage.setItem('DATAPLAN', JSON.stringify({...result,...data}))
+            dispatch(updateDataPlan(data))
             cb({message: "success"})
-        }else{ 
+        }else{
+            dispatch(resetDataPlan())
             cb({message: "error"})
         }
-    } catch(err) {
-        cb({message: 500})
+    } catch (err) {
+        cb({message: "error system"})
     }
 }
 
@@ -43,6 +72,6 @@ export async function resetPlan(dispatch, cb) {
         dispatch(resetDataPlan())
         cb({message: "success"})
     } catch (err) {
-        cb({message: 500})
+        cb({message: "error system"})
     }
 }

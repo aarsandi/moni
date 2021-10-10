@@ -31,6 +31,7 @@ function financeReducer(state = initialState, action) {
             amountRealDompet: payload.amountRealDompet
         }
     }
+
     if (type === 'RESETDATAFINANCE') {
         return {
             ...state,
@@ -46,33 +47,8 @@ function financeReducer(state = initialState, action) {
             amountRealDompet: null
         }
     }
-
+    
     if(type === 'UPDATEDATAFINANCE') {
-        return {
-            ...state,
-            ...payload
-        }
-    }
-
-    if (type === 'SETAMOUNTTABUNGAN') {
-        return {
-            ...state,
-            amountTabungan: payload
-        }
-    }
-    if (type === 'SETAMOUNTDOMPET') {
-        return {
-            ...state,
-            amountDompet: payload
-        }
-    }
-    if (type === 'SETAMOUNTREALDOMPET') {
-        return {
-            ...state,
-            amountRealDompet: payload
-        }
-    }
-    if (type === 'EDITDATAFINANCE') {
         return {
             ...state,
             ...payload
