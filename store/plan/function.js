@@ -16,7 +16,8 @@ export function resetDataPlan() {
 //     uangTotal: null, // jika typenya gaji ? maka dari input gajiny : maka dari (dompet+dompetReal)
 //     jumlahDitabung: null,
 //     uangHarian: null, // uang harian fix bisa dirubah
-//     uangHariIni: null, // uang sisa hari ini direset tiap jam 23.30
+//     uangHariIni: 0, // uang pengeluaran hari ini direset tiap jam 23.30
+//     uangHarianLebih: 0,
 //     tanggalGajian: null,
 //     pengeluaranBulanan: null // [{title: "", amount: "", due_date: new Date()}]
 // }
@@ -38,7 +39,7 @@ export async function fetchPlan(dispatch, cb) {
 export async function setupPlanAction(val, dispatch, cb) {
     try {
         const {type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan} = val
-        const result = {status:"active",type,uangTotal:Number(uangTotal),jumlahDitabung:Number(jumlahDitabung),uangHarian:Number(uangHarian),uangHariIni:Number(uangHarian),tanggalGajian:Date.parse(tanggalGajian),pengeluaranBulanan}
+        const result = {status:"active",type,uangTotal:Number(uangTotal),jumlahDitabung:Number(jumlahDitabung),uangHarian:Number(uangHarian),uangHariIni:0,uangHarianLebih:0,tanggalGajian:Date.parse(tanggalGajian),pengeluaranBulanan}
         
         await AsyncStorage.setItem('DATAPLAN', JSON.stringify(result))
         dispatch(setDataPlan(result))

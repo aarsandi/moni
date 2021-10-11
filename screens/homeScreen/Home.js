@@ -19,7 +19,7 @@ export default function Home({ navigation }) {
     const dataHistDom = useSelector((state) => state.historyActivityDompetReducer.allData)
 
     // console.log(dataHistPeng)
-    console.log(status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan)
+    // console.log(status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan)
     // console.log(dataHistDom)
     
     useEffect(() => {
@@ -68,7 +68,8 @@ export default function Home({ navigation }) {
             { status?
                 <View style={{paddingVertical: 20}}>
                     <Text>status : {status}</Text>
-                    <Text>type: {type}</Text>
+                    <Text>Uang Total: {uangTotal}</Text>
+                    <Text>Batas Harian: {uangHarian}</Text>
                     <Text>Uang Hariini: {uangHariIni}</Text>
                 </View>:
                 <View style={{paddingVertical: 20}}>
@@ -82,6 +83,12 @@ export default function Home({ navigation }) {
                 <Text>tabungan: {amountTabungan}</Text>
                 <Text>uang rekening: {amountDompet}</Text>
                 <Text>uang cash: {amountRealDompet}</Text>
+            </View>
+
+            <View style={{marginVertical:10}}>
+                <Button title="Ambil Cash" onPress={() => {
+                    navigation.navigate("FormAmbilCash")
+                }} />
             </View>
             
             <Button title="Input Pengeluaran" onPress={() => {

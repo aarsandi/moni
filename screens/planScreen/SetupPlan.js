@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import DatePicker from 'react-native-date-picker'
 import moment from 'moment'
@@ -61,8 +61,24 @@ export default function SetupPlan({ navigation }) {
                         setErrorInput("function error!")
                     }
                 })
+            }else if(Number(dataInput.uangLainnya)>=0){
+                Alert.alert("Warning", "Uang Lainnya Kurang dari 10 Persen dari Penghasilan, apakah anda yakin ?", [{
+                    text: "Ok",
+                    onPress: () => {
+                        const {type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan=monthlyNeeds} = dataInput                
+                        setupPlanAction({type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan}, dispatch, (el) => {
+                            if(el.message=="success") {
+                                setErrorInput(null)
+                                navigation.navigate("Plan")
+                            }else{
+                                setErrorInput("function error!")
+                            }
+                        })
+                    },
+                    style: "ok",
+                }], { cancelable:true })
             }else{
-                setErrorInput(`uang lainnya tidak boleh kurang dari 10 persen uangTotal`)
+                setErrorInput(`uang lainnya tidak boleh kurang dari 0`)
             }
         }
     }
@@ -283,8 +299,8 @@ export default function SetupPlan({ navigation }) {
                         {
                             monthlyNeeds.length?monthlyNeeds.map((el, index) => {
                                 return(
-                                    <View style={{flexDirection:'row', alignItems:'center'}}>
-                                        <Text key={index} style={{flex:4}}>{el.title} - {toRupiah(el.amount, "Rp. ")}</Text>
+                                    <View key={index} style={{flexDirection:'row', alignItems:'center'}}>
+                                        <Text style={{flex:4}}>{el.title} - {toRupiah(el.amount, "Rp. ")}</Text>
                                         <TouchableOpacity
                                             onPress={ () => handleDeleteNeeds(el.id, el.amount) }
                                             style={{flex:1}}
@@ -302,7 +318,7 @@ export default function SetupPlan({ navigation }) {
                                 <TextInput
                                     style={{backgroundColor:'transparent'}}
                                     placeholder="0"
-                                    editable={false} value={dataInput.uangBulanan}
+                                    editable={false} value={toRupiah(dataInput.uangBulanan, "Rp. ")}
                                 />
                             </View>
                             {

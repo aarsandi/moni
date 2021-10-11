@@ -6,7 +6,7 @@ import { fetchPlan } from '../../store/plan/function'
 
 export default function Plan({ navigation }) {
     const dispatch = useDispatch()
-    const { status,type } = useSelector((state) => state.planReducer)
+    const { status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
     const [isLoading,setIsLoading] = useState(true)
 
     useEffect(() => {
@@ -18,6 +18,8 @@ export default function Plan({ navigation }) {
                     navigation.navigate("Splash")
                 }
             })
+        }else{
+            setIsLoading(false)
         }
     }, [])
 
@@ -38,13 +40,27 @@ export default function Plan({ navigation }) {
                         </>:
                         ( status==="active" ?
                             <>
-                                <Text>active</Text>
-                                {/* <Text>nama: {penghasilan}</Text>
-                                <Text>rek tabungan: {uangHarian}</Text>
-                                <Text>rek dompet: {uangLainnya}</Text> */}
+                                <Text>uang Total: {uangTotal}</Text>
+                                <Text>jumlah Ditabung: {jumlahDitabung}</Text>
+                                <Text>batas Harian: {uangHarian}</Text>
+                                <Text>pengeluaran hari ini: {uangHariIni}</Text>
+
+                                <View style={{margin:10}}>
+                                    <Text>Pengeluaran Bulanan: </Text>
+                                    {
+                                        pengeluaranBulanan.length?pengeluaranBulanan.map((el, index) => {
+                                            return(
+                                                <View key={index}>
+                                                    <Text>{el.title} - {el.amount}</Text>
+                                                </View>
+                                            )
+                                        }):
+                                        <></>
+                                    }
+                                </View>
         
                                 <View style={{paddingVertical: 5}}>
-                                    <Button title="Logout" onPress={() => resetDataFinance(dispatch, navigation)}/>
+                                    <Button title="Edit Need" onPress={() => navigation.navigate('EditNeeds')}/>
                                 </View>
                             </>:
                             <>
@@ -52,10 +68,6 @@ export default function Plan({ navigation }) {
                                 {/* <Text>nama: {penghasilan}</Text>
                                 <Text>rek tabungan: {uangHarian}</Text>
                                 <Text>rek dompet: {uangLainnya}</Text> */}
-        
-                                <View style={{paddingVertical: 5}}>
-                                    <Button title="Logout" onPress={() => resetDataFinance(dispatch, navigation)}/>
-                                </View>
                             </>
                         )
                     }

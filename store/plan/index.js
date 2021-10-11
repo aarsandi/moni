@@ -5,8 +5,9 @@ const initialState = {
     jumlahDitabung: null,
     uangHarian: null, // uang harian fix bisa dirubah
     uangHariIni: null, // uang sisa hari ini direset tiap jam 23.30
+    uangHarianLebih: null, // uang yang harus diirit (jika uang harian lebih dari batas nambah ini) -> uangHarianLebih=uangHariIni-uangHarian
     tanggalGajian: null,
-    pengeluaranBulanan: null // [{title: "", amount: "", due_date: new Date()}]
+    pengeluaranBulanan: [] // [{title: "", amount: "", due_date: new Date()}]
 
     // uangBulanan: null, // ini ambil dari : total pengeluaranBulanan (bisa di rubah jika ditambah pengeluaran perbulanny)
     // uangLainnya: null, // ini ambil dari : uangTotal-((uangHarian*jumlahSisaHari)+uangHariIni+uangBulanan+jumlahDitabung)
@@ -23,6 +24,7 @@ function planReducer(state = initialState, action) {
             jumlahDitabung: payload.jumlahDitabung,
             uangHarian: payload.uangHarian,
             uangHariIni: payload.uangHariIni,
+            uangHarianLebih: payload.uangHarianLebih,
             tanggalGajian: payload.tanggalGajian,
             pengeluaranBulanan: payload.pengeluaranBulanan
         }
@@ -44,8 +46,9 @@ function planReducer(state = initialState, action) {
             jumlahDitabung: null,
             uangHarian: null,
             uangHariIni: null,
+            uangHarianLebih: payload.uangHarianLebih,
             tanggalGajian: null,
-            pengeluaranBulanan: null
+            pengeluaranBulanan: []
         }
     }
 

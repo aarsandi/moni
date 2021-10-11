@@ -13,42 +13,30 @@ export default function setting({navigation}) {
             
             <View style={{paddingVertical: 5}}>
                 <Button title="Reset Plan" onPress={() => {
-                    resetPlan(dispatch, (el) => {
-                        if(el.message === "success") {
-                            resetHistPeng(dispatch, (el) => {
-                                if(el.message === "success") {
-                                    navigation.navigate("Splash")
-                                }
-                            })
-                        }
+                    resetPlan(dispatch, _ => {
+                        resetHistPeng(dispatch, _ => {
+                            navigation.navigate("Splash")
+                        })
                     })
                 }}/>
             </View>
             
             <View style={{paddingVertical: 5}}>
                 <Button title="Reset History Pengeluaran" onPress={() => {
-                    resetHistPeng(dispatch, (el) => {
-                        if(el.message === "success") {
-                            navigation.navigate("Splash")
-                        }
+                    resetHistPeng(dispatch, _ => {
+                        navigation.navigate("Splash")
                     })
                 }}/>
             </View>
             
             <View style={{paddingVertical: 5}}>
                 <Button title="Reset All" onPress={() => {
-                    resetFinance(dispatch, (el) => {
-                        if(el.message === "success") {
-                            resetPlan(dispatch, (el) => {
-                                if(el.message === "success") {
-                                    resetHistPeng(dispatch, (el) => {
-                                        if(el.message === "success") {
-                                            navigation.navigate("Splash")
-                                        }
-                                    })
-                                }
+                    resetFinance(dispatch, _ => {
+                        resetPlan(dispatch, _ => {
+                            resetHistPeng(dispatch, _ => {
+                                navigation.navigate("Splash")
                             })
-                        }
+                        })
                     })
                 }}/>
             </View>

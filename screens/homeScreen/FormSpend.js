@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, Pressable, TextInput, Alert, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Pressable, TextInput, Alert, ScrollView, TouchableOpacity } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import MaskInput, { createNumberMask }  from 'react-native-mask-input';
 import SelectDropdown from 'react-native-select-dropdown'
@@ -12,7 +12,7 @@ import { fetchPlan } from '../../store/plan/function';
 export default function FormSpend({ navigation }) {
     const dispatch = useDispatch()
     const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
-    const { status, pengeluaranBulanan, uangTotal, uangHariIni } = useSelector((state) => state.planReducer)
+    const { status, pengeluaranBulanan, uangTotal, uangHariIni, uangHarian } = useSelector((state) => state.planReducer)
     const [selectedPengBul, setSelectedPengBul] = useState(null)
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(true)
@@ -25,6 +25,13 @@ export default function FormSpend({ navigation }) {
         payWith: "",
         amount: ""
     })
+
+    const handleChangeMany = (value) => {
+        setDataForm({
+            ...dataForm,
+            ...value
+        })
+    }
 
     const handleChange = (value, field) => {
         setDataForm({
@@ -54,44 +61,102 @@ export default function FormSpend({ navigation }) {
                             }
                             if(status){
                                 let resultPlan
-                                let error=true
-                                if(type==="Bulanan"){
+                                const tempAmount = Number(result.amount)+result.tax
+                                if(result.type==="Bulanan"){
                                     if(selectedPengBul) {
-                                        resultPlan={
-                                            uangTotal:uangTotal-(Number(dataForm.amount)+tax),
-                                            pengeluaranBulanan:pengeluaranBulanan.filter(el => el.id !== selectedPengBul.id)
-                                        }
-                                        error=false
-                                    }else{
-                                        Alert.alert("Error", "Pilih Item Terlebih Dahulu", [], { cancelable:true })
-                                    }
-                                }else if(type==="Harian"){
-                                    resultPlan={
-                                        uangTotal:uangTotal-(Number(dataForm.amount)+tax),
-                                        uangHariIni:uangHariIni-(Number(dataForm.amount)+tax)
-                                    }
-                                    error=false
-                                }else{
-                                    resultPlan={
-                                        uangTotal:uangTotal-(Number(dataForm.amount)+tax)
-                                    }
-                                    error=false
-                                }
-                                if(!error){
-                                    updatePlan(dispatch, resultPlan, (el) => {
-                                        if(el.message!=="success"){
-                                            navigation.navigate("Splash")
+                                        if(uangTotal<tempAmount) {
+                                            Alert.alert("Error", "total uang plan anda tidak cukup", [], { cancelable:true })
                                         }else{
-                                            inputPengeluaran(dispatch, result, (el) => {
-                                                if(el.message === "success") {
-                                                    navigation.navigate("Home")
-                                                } else {
-                                                    Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                            resultPlan={
+                                                uangTotal:uangTotal-tempAmount,
+                                                pengeluaranBulanan:pengeluaranBulanan.filter(el => el.id !== selectedPengBul.id)
+                                            }
+                                            updatePlan(dispatch, resultPlan, (el) => {
+                                                if(el.message!=="success"){
                                                     navigation.navigate("Splash")
+                                                }else{
+                                                    inputPengeluaran(dispatch, result, (el) => {
+                                                        if(el.message === "success") {
+                                                            navigation.navigate("Home")
+                                                        } else {
+                                                            Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                            navigation.navigate("Splash")
+                                                        }
+                                                    })
                                                 }
                                             })
                                         }
-                                    })
+                                    }else{
+                                        Alert.alert("Error", "Pilih Item Terlebih Dahulu", [], { cancelable:true })
+                                    }
+                                }else if(result.type==="Harian"){
+                                    if(uangTotal<tempAmount) {
+                                        Alert.alert("Error", "total uang plan anda tidak cukup", [], { cancelable:true })
+                                    }else{
+                                        resultPlan={
+                                            uangTotal:uangTotal-tempAmount,
+                                            uangHariIni:uangHariIni+tempAmount
+                                        }
+                                        if(uangHariIni+tempAmount>uangHarian){
+                                            Alert.alert("Warning", "anda sudah melebihi batas harian, apakah anda yakin ?", [{
+                                                text: "Ok",
+                                                onPress: () => {
+                                                    updatePlan(dispatch, resultPlan, (el) => {
+                                                        if(el.message!=="success"){
+                                                            navigation.navigate("Splash")
+                                                        }else{
+                                                            inputPengeluaran(dispatch, result, (el) => {
+                                                                if(el.message === "success") {
+                                                                    navigation.navigate("Home")
+                                                                } else {
+                                                                    Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                                    navigation.navigate("Splash")
+                                                                }
+                                                            })
+                                                        }
+                                                    })
+                                                },
+                                                style: "ok",
+                                            }], { cancelable:true })
+                                        }else{
+                                            updatePlan(dispatch, resultPlan, (el) => {
+                                                if(el.message!=="success"){
+                                                    navigation.navigate("Splash")
+                                                }else{
+                                                    inputPengeluaran(dispatch, result, (el) => {
+                                                        if(el.message === "success") {
+                                                            navigation.navigate("Home")
+                                                        } else {
+                                                            Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                            navigation.navigate("Splash")
+                                                        }
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    }
+                                }else{
+                                    if(uangTotal<tempAmount) {
+                                        Alert.alert("Error", "total uang plan anda tidak cukup", [], { cancelable:true })
+                                    }else{
+                                        resultPlan={
+                                            uangTotal:uangTotal-(Number(dataForm.amount)+tax)
+                                        }
+                                        updatePlan(dispatch, resultPlan, (el) => {
+                                            if(el.message!=="success"){
+                                                navigation.navigate("Splash")
+                                            }else{
+                                                inputPengeluaran(dispatch, result, (el) => {
+                                                    if(el.message === "success") {
+                                                        navigation.navigate("Home")
+                                                    } else {
+                                                        Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                        navigation.navigate("Splash")
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }
                                 }
                             }else{
                                 inputPengeluaran(dispatch, result, (el) => {
@@ -102,7 +167,7 @@ export default function FormSpend({ navigation }) {
                                         navigation.navigate("Splash")
                                     }
                                 })
-                            }                            
+                            }
                         },
                         style: "ok",
                     }], { cancelable:true })
@@ -127,44 +192,102 @@ export default function FormSpend({ navigation }) {
                                 }
                                 if(status){
                                     let resultPlan
-                                    let error=true
-                                    if(type==="Bulanan"){
+                                    const tempAmount = Number(result.amount)+result.tax
+                                    if(result.type==="Bulanan"){
                                         if(selectedPengBul) {
-                                            resultPlan={
-                                                uangTotal:uangTotal-(Number(dataForm.amount)+tax),
-                                                pengeluaranBulanan:pengeluaranBulanan.filter(el => el.id !== selectedPengBul.id)
-                                            }
-                                            error=false
-                                        }else{
-                                            Alert.alert("Error", "Pilih Item Terlebih Dahulu", [], { cancelable:true })
-                                        }
-                                    }else if(type==="Harian"){
-                                        resultPlan={
-                                            uangTotal:uangTotal-(Number(dataForm.amount)+tax),
-                                            uangHariIni:uangHariIni-(Number(dataForm.amount)+tax)
-                                        }
-                                        error=false
-                                    }else{
-                                        resultPlan={
-                                            uangTotal:uangTotal-(Number(dataForm.amount)+tax)
-                                        }
-                                        error=false
-                                    }
-                                    if(!error){
-                                        updatePlan(dispatch, resultPlan, (el) => {
-                                            if(el.message!=="success"){
-                                                navigation.navigate("Splash")
+                                            if(uangTotal<tempAmount) {
+                                                Alert.alert("Error", "total uang plan anda tidak cukup", [], { cancelable:true })
                                             }else{
-                                                inputPengeluaran(dispatch, result, (el) => {
-                                                    if(el.message === "success") {
-                                                        navigation.navigate("Home")
-                                                    } else {
-                                                        Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                resultPlan={
+                                                    uangTotal:uangTotal-tempAmount,
+                                                    pengeluaranBulanan:pengeluaranBulanan.filter(el => el.id !== selectedPengBul.id)
+                                                }
+                                                updatePlan(dispatch, resultPlan, (el) => {
+                                                    if(el.message!=="success"){
                                                         navigation.navigate("Splash")
+                                                    }else{
+                                                        inputPengeluaran(dispatch, result, (el) => {
+                                                            if(el.message === "success") {
+                                                                navigation.navigate("Home")
+                                                            } else {
+                                                                Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                                navigation.navigate("Splash")
+                                                            }
+                                                        })
                                                     }
                                                 })
                                             }
-                                        })
+                                        }else{
+                                            Alert.alert("Error", "Pilih Item Terlebih Dahulu", [], { cancelable:true })
+                                        }
+                                    }else if(result.type==="Harian"){
+                                        if(uangTotal<tempAmount) {
+                                            Alert.alert("Error", "total uang plan anda tidak cukup", [], { cancelable:true })
+                                        }else{
+                                            resultPlan={
+                                                uangTotal:uangTotal-tempAmount,
+                                                uangHariIni:uangHariIni+tempAmount
+                                            }
+                                            if(uangHariIni+tempAmount>uangHarian){
+                                                Alert.alert("Warning", "anda sudah melebihi batas harian, apakah anda yakin ?", [{
+                                                    text: "Ok",
+                                                    onPress: () => {
+                                                        updatePlan(dispatch, resultPlan, (el) => {
+                                                            if(el.message!=="success"){
+                                                                navigation.navigate("Splash")
+                                                            }else{
+                                                                inputPengeluaran(dispatch, result, (el) => {
+                                                                    if(el.message === "success") {
+                                                                        navigation.navigate("Home")
+                                                                    } else {
+                                                                        Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                                        navigation.navigate("Splash")
+                                                                    }
+                                                                })
+                                                            }
+                                                        })
+                                                    },
+                                                    style: "ok",
+                                                }], { cancelable:true })
+                                            }else{
+                                                updatePlan(dispatch, resultPlan, (el) => {
+                                                    if(el.message!=="success"){
+                                                        navigation.navigate("Splash")
+                                                    }else{
+                                                        inputPengeluaran(dispatch, result, (el) => {
+                                                            if(el.message === "success") {
+                                                                navigation.navigate("Home")
+                                                            } else {
+                                                                Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                                navigation.navigate("Splash")
+                                                            }
+                                                        })
+                                                    }
+                                                })
+                                            }
+                                        }
+                                    }else{
+                                        if(uangTotal<tempAmount) {
+                                            Alert.alert("Error", "total uang plan anda tidak cukup", [], { cancelable:true })
+                                        }else{
+                                            resultPlan={
+                                                uangTotal:uangTotal-(Number(dataForm.amount)+tax)
+                                            }
+                                            updatePlan(dispatch, resultPlan, (el) => {
+                                                if(el.message!=="success"){
+                                                    navigation.navigate("Splash")
+                                                }else{
+                                                    inputPengeluaran(dispatch, result, (el) => {
+                                                        if(el.message === "success") {
+                                                            navigation.navigate("Home")
+                                                        } else {
+                                                            Alert.alert("Error", "Input Data Error", [], { cancelable:true })
+                                                            navigation.navigate("Splash")
+                                                        }
+                                                    })
+                                                }
+                                            })
+                                        }
                                     }
                                 }else{
                                     inputPengeluaran(dispatch, result, (el) => {
@@ -222,6 +345,24 @@ export default function FormSpend({ navigation }) {
     }
 
     useEffect(() => {
+        if(selectedPengBul){
+            handleChangeMany({title:selectedPengBul.title,amount:String(selectedPengBul.amount),detail:"-"})
+        }
+    }, [selectedPengBul])
+
+    useEffect(() => {
+        if(dataForm.type){
+            setSelectedPengBul(null)
+            handleChangeMany({
+                title: "",
+                detail: "",
+                payWith: "",
+                amount: ""
+            })
+        }
+    }, [dataForm.type])
+
+    useEffect(() => {
         if(amountTabungan===null&&amountDompet===null&&amountRealDompet===null) {
             fetchFinance(dispatch, (el) => {
                 if(el.message === "success") {
@@ -249,6 +390,13 @@ export default function FormSpend({ navigation }) {
         }
     }, [])
 
+                                // ░░░░████░████░█████░█░░░█░████░██░░█░░░░
+                                // ░░░░█░░█░█░░░░░░█░░░█░░░█░█░░█░███░█░░░░
+                                // ░░░░████░███░░░░█░░░█░░░█░█░██░█░█░█░░░░
+                                // ░░░░███░░█░░░░░░█░░░█░░░█░███░░█░█░█░░░░
+                                // ░░░░█░█░░█░░░░░░█░░░██░██░█░█░░█░███░░░░
+                                // ░░░░█░██░████░░░█░░░░███░░█░░█░█░░██░░░░
+
     return (
         <View>
             {
@@ -260,65 +408,79 @@ export default function FormSpend({ navigation }) {
                     <Text style={styles.modalText}>Pengeluaran</Text>
                     <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Kategori Pengeluaran :</Text>
                     {
-                        status?
-                        <>
-                            {
-                                pengeluaranBulanan.length?
-                                <SelectDropdown data={["Harian", "Bulanan", "Lainnya"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>:
-                                <SelectDropdown data={["Harian", "Lainnya"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>
-                            }
-                            {
-                                dataForm.type==="Bulanan"?pengeluaranBulanan.map((el, index) => {
-                                    return(
-                                        <View style={{flexDirection:'row', alignItems:'center'}}>
-                                            <Text key={index} style={{flex:4}}>{el.title} - {toRupiah(el.amount, "Rp. ")}</Text>
-                                            <TouchableOpacity
-                                                onPress={ () => setSelectedPengBul(el) }
-                                                style={{flex:1}}
-                                            >
-                                                <Text>Select</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    )
-                                }):
-                                <Text></Text>
-                            }
-                        </>:
+                        pengeluaranBulanan.length?
+                        <SelectDropdown data={["Harian", "Bulanan", "Lainnya"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>:
                         <SelectDropdown data={["Harian", "Lainnya"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>
                     }
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Title :</Text>
                     {
-                        selectedPengBul?
-                        <TextInput editable={false} value={dataForm.title} placeholder="Judul" placeholderTextColor="#838383" />:
-                        <TextInput onChangeText={text => handleChange(text, 'title')} placeholder="Judul" placeholderTextColor="#838383" />
-                    }
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Detail :</Text>
-                    {
-                        selectedPengBul?
-                        <TextInput editable={false} value={dataForm.detail} placeholder="Detail" placeholderTextColor="#838383" />:
-                        <View style={styles.textAreaContainer} >
-                            <TextInput
-                                style={styles.textArea}
-                                underlineColorAndroid="transparent"
-                                placeholder="Type something"
-                                placeholderTextColor="grey"
-                                numberOfLines={5}
-                                multiline={true}
-                                onChangeText={text => handleChange(text, 'detail')}
+                        dataForm.type==="Bulanan"?
+                        <>
+                            {
+                                pengeluaranBulanan.map((el, index) => {
+                                    return(
+                                        <View key={index} style={{flexDirection:'row', alignItems:'center'}}>
+                                            <Text style={{flex:4}}>{el.title} - {toRupiah(el.amount, "Rp. ")}</Text>
+                                            { !selectedPengBul?
+                                                (
+                                                    <TouchableOpacity
+                                                        onPress={ () => setSelectedPengBul(el) }
+                                                        style={{flex:1}}
+                                                    >
+                                                        <Text>Select</Text>
+                                                    </TouchableOpacity>
+                                                ):(
+                                                    el.id===selectedPengBul.id?
+                                                    <TouchableOpacity
+                                                        disabled={true}
+                                                        style={{flex:1}}
+                                                    >
+                                                        <Text>Selected</Text>
+                                                    </TouchableOpacity>:
+                                                    <TouchableOpacity
+                                                        style={{flex:1}}
+                                                        onPress={ () => setSelectedPengBul(el) }
+                                                    >
+                                                        <Text>Select</Text>
+                                                    </TouchableOpacity>
+                                                )
+                                            }
+                                            
+                                        </View>
+                                    )
+                                })
+                            }
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Title :</Text>
+                            <TextInput editable={false} value={dataForm.title} placeholder="Judul" placeholderTextColor="#838383" />
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Detail :</Text>
+                            <TextInput editable={false} value={dataForm.detail} placeholder="Detail" placeholderTextColor="#838383" />
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah :</Text>
+                            <TextInput editable={false} value={toRupiah(dataForm.amount, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Bayar dengan :</Text>
+                            <SelectDropdown data={payType} onSelect={(selectedItem) => { handleChange(selectedItem, 'payWith') }}/>
+                        </>:<>
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Title :</Text>
+                            <TextInput onChangeText={text => handleChange(text, 'title')} placeholder="Judul" placeholderTextColor="#838383" />
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Detail :</Text>
+                            <View style={styles.textAreaContainer} >
+                                <TextInput
+                                    style={styles.textArea}
+                                    underlineColorAndroid="transparent"
+                                    placeholder="Type something"
+                                    placeholderTextColor="grey"
+                                    numberOfLines={5}
+                                    multiline={true}
+                                    onChangeText={text => handleChange(text, 'detail')}
+                                />
+                            </View>
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah :</Text>
+                            <MaskInput keyboardType='number-pad'
+                                value={dataForm.amount} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, 'amount') }}
+                                mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                             />
-                        </View>
+                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Bayar dengan :</Text>
+                            <SelectDropdown data={payType} onSelect={(selectedItem) => { handleChange(selectedItem, 'payWith') }}/>
+                        </>
                     }
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah :</Text>
-                    {
-                        selectedPengBul?
-                        <TextInput editable={false} value={`Rp. ${dataForm.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`} placeholder="Rp. 0"/>:
-                        <MaskInput keyboardType='number-pad'
-                            value={dataForm.amount} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, 'amount') }}
-                            mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
-                        />
-                    }
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Bayar dengan :</Text>
-                    <SelectDropdown data={payType} onSelect={(selectedItem) => { handleChange(selectedItem, 'payWith') }}/>
                     {
                         dataForm.payWith === "Cash"&&
                         <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Dompet cash : {toRupiah(amountRealDompet, 'Rp. ')}</Text>
