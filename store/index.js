@@ -1,11 +1,22 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import dataReducer from './data'
-import profileReducer from './profile'
+
+import financeReducer from './finance'
+import planReducer from './plan'
+
+import historyActivityDompetReducer from './historyActivityDompet'
+import historyActivityTabunganReducer from './historyActivityTabungan'
+import historyPengeluaranReducer from './historyPengeluaran'
+
 import thunk from 'redux-thunk';
 
 const reducer = combineReducers({
-    profileReducer: profileReducer,
-    dataReducer: dataReducer
+    dataReducer: dataReducer,
+    financeReducer: financeReducer,
+    planReducer: planReducer,
+    historyActivityDompetReducer: historyActivityDompetReducer,
+    historyActivityTabunganReducer: historyActivityTabunganReducer,
+    historyPengeluaranReducer: historyPengeluaranReducer
 })
 
 const store = createStore(reducer, applyMiddleware(thunk))

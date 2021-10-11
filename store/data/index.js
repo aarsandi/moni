@@ -1,14 +1,6 @@
 const initialState = {
-    isDarkMode : false,
-    totalTabungan: null,
-    totalDompet: null,
-    gajiPerbulan: 0,
-    jumlahDitabung: 0,
-    uangHarian: 0,
-    uangSisa: 0,
-    keperluanHarian: null,
-    keperluanBulanan: null,
-
+    // data app
+    isDarkMode : false
 }
 
 function dataReducer(state = initialState, action) {
