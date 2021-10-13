@@ -3,7 +3,7 @@ const initialState = {
     isDarkMode : false
 }
 
-function dataReducer(state = initialState, action) {
+function appReducer(state = initialState, action) {
     const { type, payload } = action
     if (type === 'SETDARKMODE') {
         return { ...state, isDarkMode: payload }
@@ -12,4 +12,4 @@ function dataReducer(state = initialState, action) {
     return state
 }
 
-export default dataReducer
+export default appReducer

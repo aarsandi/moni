@@ -6,6 +6,7 @@
 //     amount: 75000,
 //     tenor: 3, 1||3||6||9
 //     amountPay: [{amount:30000,due_date:1633881992000},{amount:30000,due_date:1633881992000},{amount:15000,due_date:1633881992000}]
+//     due_date: 1633881992000,
 //     date: 1633881992000,
 // }
 

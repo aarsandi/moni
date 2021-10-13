@@ -10,8 +10,6 @@ export default function HistoryDompetCash() {
     const dispatch = useDispatch()
     const dataHistDomCash = useSelector((state) => state.historyActivityDompetCashReducer.allData)
 
-    console.log(dataHistDomCash, "hist dom cash")
-
     useEffect(() => {
         if(dataHistDomCash===null) {
             fetchHistDomCash(dispatch, (el) => {

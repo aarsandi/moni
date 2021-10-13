@@ -4,7 +4,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { useSelector } from 'react-redux'
 
 export default function Intro({ navigation }) {
-    const {isDarkMode} = useSelector((state) => state.dataReducer)
+    const {isDarkMode} = useSelector((state) => state.appReducer)
 
     return (
         <SafeAreaView style={isDarkMode ? Colors.darker : Colors.lighter}>

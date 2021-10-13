@@ -1,9 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Alert } from 'react-native'
 
 import { fetchFinance, updateFinance, resetFinance, addLoan, updateLoan, removeLoan } from '../finance/function'
 import { fetchPlan, updatePlan, resetPlan } from '../plan/function'
-
 import { addHistPeng } from '../historyPengeluaran/function'
 import { addHistDom } from '../historyActivityDompet/function'
 import { addHistDomCash } from '../historyActivityDompetCash/function'
@@ -11,6 +9,83 @@ import { addHistTab } from '../historyActivityTabungan/function'
 import { addHistLoan } from '../historyLoan/function'
 
 // action
+
+export function setIsDarkMode(val) {
+    return { type: 'SETDARKMODE', payload: val }
+}
+
+export async function inputAmbilCash(dispatch, val, cb) {
+    const {
+        amount, amountDompet, amountDompetAft, amountRealDompet, tax
+    } = val
+    updateFinance(dispatch, {amountDompet: amountDompetAft,amountRealDompet: amountRealDompet+amount}, (el) => {
+        if(el.message==="success") {
+            addHistDomCash(dispatch, {
+                title: "Ambil Cash", type:"Pemasukan", amount:amount,
+                balanceAfr: amountRealDompet+amount, balanceBfr:amountRealDompet
+            }, (el) => {
+                if(el.message==="success") {
+                    addHistDom(dispatch, {
+                        title: "Ambil Cash",type:"Pengeluaran",amount:amountDompet-amountDompetAft,
+                        balanceAfr: amountDompetAft, balanceBfr:amountDompet
+                    }, (el) => {
+                        if(el.message==="success") {
+                            cb({message: "success"})
+                        }else{
+                            cb({message: "error"})
+                        }
+                    })
+                }else{
+                    cb({message: "error"})
+                }
+            })
+        }else{
+            cb({message: "error"})
+        }
+    })
+}
+
+export async function inputPenghasilan(dispatch, val, cb) {
+    const {
+        type,amount,amountDompet,amountDompetAft,amountRealDompet
+    } = val
+    
+    if(type === "Rekening"){
+        updateFinance(dispatch, {amountDompet: amountDompetAft}, (el) => {
+            if(el.message === "success") {
+                addHistDom(dispatch, {
+                    title: "Penghasilan",type:"Pemasukan",amount:amountDompetAft-amountDompet,
+                    balanceAfr: amountDompetAft, balanceBfr:amountDompet
+                }, (el) => {
+                    if(el.message === "success") {
+                        cb({message: "success"})
+                    }else{
+                        cb({message: "error"})
+                    }
+                })
+            }else{
+                cb({message: "error"})
+            }
+        })
+    }else{
+        updateFinance(dispatch, {amountRealDompet: amountRealDompet+amount}, (el) => {
+            if(el.message === "success") {
+                addHistDomCash(dispatch, {
+                    title: "Penghasilan",type:"Pemasukan",amount:amount,
+                    balanceAfr: amountRealDompet+amount, balanceBfr:amountRealDompet
+                }, (el) => {
+                    if(el.message === "success") {
+                        cb({message: "success"})
+                    }else{
+                        cb({message: "error"})
+                    }
+                })
+            }else{
+                cb({message: "error"})
+            }
+        })
+    }
+}
 
 export async function inputPayLoan(dispatch, val, cb) {
     const {
@@ -67,7 +142,7 @@ export async function inputPayLoan(dispatch, val, cb) {
                     }
                 })
             }else{
-                Alert.alert("Error", "Error Function", [], { cancelable:true })
+                cb({message: "error"})
             }
         })
     }else if(type === "Tabungan"){
@@ -135,7 +210,7 @@ export async function inputPayLoan(dispatch, val, cb) {
                     }
                 })
             }else{
-                Alert.alert("Error", "Error Function", [], { cancelable:true })
+                cb({message: "error"})
             }
         })
     }else{
@@ -257,201 +332,196 @@ export async function inputPengajuanLoan(dispatch, val, cb) {
 }
 
 export async function inputNabung(dispatch, val, cb) {
-    Alert.alert("Info", "are you sure?", [{
-        text: "Ok",
-        onPress: () => {
-            const {title,type,inputAmount,tax,amountRekeningBfr,amountRekeningAft,amountTabunganBfr,amountTabunganAft,amountDompetCash,date} = val
-            // console.log(title,type,inputAmount,tax,amountRekeningBfr,amountRekeningAft,amountTabunganBfr,amountTabunganAft,amountDompetCash,date, "jalan fungsi")
-            
-            if(type === "Rekening"){
-                updateFinance(dispatch, {amountDompet: amountRekeningAft, amountTabungan:amountTabunganAft}, (el) => {
+    const {
+        amountRealDompet,amountTabungan,amountDompet,amountTabunganAft,amountDompetAft,
+        title,type,amount,taxPengirim,taxPenerima
+    } = val
+    cb({message: "success"})
+    
+    if(type === "Rekening"){
+        updateFinance(dispatch, {amountDompet: amountDompetAft, amountTabungan: amountTabunganAft}, (el) => {
+            if(el.message === "success") {
+                addHistDom(dispatch, {
+                    title: title,
+                    type:"Pengeluaran",
+                    amount:amountDompet-amountDompetAft,
+                    balanceAfr: amountDompetAft,
+                    balanceBfr:amountDompet
+                }, (el) => {
                     if(el.message === "success") {
-                        addHistDom(dispatch, {
-                            title: "Nabung",
-                            type:"Pengeluaran",
-                            amount:amountRekeningBfr-amountRekeningAft,
-                            balanceAfr: amountRekeningAft,
-                            balanceBfr:amountRekeningBfr,
-                            date:date
-                        }, (el) => {
-                            if(el.message === "success") {
-                                addHistTab(dispatch, {
-                                    title: title,
-                                    type: "Pemasukan",
-                                    amount: amountTabunganAft-amountTabunganBfr,
-                                    balanceAfr: amountTabunganAft,
-                                    balanceBfr: amountTabunganBfr
-                                }, (el) => {
-                                    if(el.message==="success") {
-                                        addHistPeng(dispatch, {
-                                            title: title,
-                                            detail:"-",
-                                            type: "Nabung",
-                                            amount: amountRekeningBfr-amountRekeningAft,
-                                            tax: tax,
-                                            payWith: "Rekening Dompet",
-                                            balanceAfr: amountRekeningAft,
-                                            balanceBfr: amountRekeningBfr
-                                        }, (el) => {
-                                            if(el.message==="success") {
-                                                cb({message: "success"})
-                                            }else{
-                                                Alert.alert("Error", "Error Function", [], { cancelable:true })
-                                            }
-                                        })
-                                    } else {
-                                        Alert.alert("Error", "Error Function", [], { cancelable:true })
-                                    }
-                                })
-                            }else{
-                                Alert.alert("Error", "Error Function", [], { cancelable:true })
-                            }
-                        })
-                    }else{
-                        Alert.alert("Error", "Error Function", [], { cancelable:true })
-                    }
-                })
-            }else if(type === "Cash"){
-                updateFinance(dispatch, {amountRealDompet: amountDompetCash-inputAmount, amountTabungan:amountTabunganAft}, (el) => {
-                    if(el.message === "success") {
-                        addHistDomCash(dispatch, {
+                        addHistTab(dispatch, {
                             title: title,
-                            type:"Pengeluaran",
-                            amount:inputAmount,
-                            balanceAfr: amountDompetCash-inputAmount,
-                            balanceBfr:amountDompetCash
+                            type: "Pemasukan",
+                            amount: amountTabunganAft-amountTabungan,
+                            balanceAfr: amountTabunganAft,
+                            balanceBfr: amountTabungan
                         }, (el) => {
-                            if(el.message === "success") {
-                                addHistTab(dispatch, {
+                            if(el.message==="success") {
+                                addHistPeng(dispatch, {
                                     title: title,
-                                    type: "Pemasukan",
-                                    amount: amountTabunganAft-amountTabunganBfr,
-                                    balanceAfr: amountTabunganAft,
-                                    balanceBfr: amountTabunganBfr,
-                                    date: date,
+                                    detail:"-",
+                                    type: "Nabung",
+                                    amount: amount,
+                                    tax: taxPengirim,
+                                    payWith: "Rekening Dompet",
+                                    balanceAfr: amountDompetAft,
+                                    balanceBfr: amountDompet
                                 }, (el) => {
                                     if(el.message==="success") {
-                                        addHistPeng(dispatch, {
-                                            title: title,
-                                            type: "Nabung",
-                                            amount: inputAmount,
-                                            tax: tax,
-                                            payWith: "Cash",
-                                            balanceAfr: amountDompetCash-inputAmount,
-                                            balanceBfr: amountDompetCash,
-                                            date: date,
-                                        }, (el) => {
-                                            if(el.message==="success") {
-                                                cb({message: "success"})
-                                            }else{
-                                                Alert.alert("Error", "Error Function", [], { cancelable:true })
-                                            }
-                                        })
-                                    } else {
-                                        Alert.alert("Error", "Error Function", [], { cancelable:true })
+                                        cb({message: "success"})
+                                    }else{
+                                        cb({message: "error"})
                                     }
                                 })
-                            }else{
-                                Alert.alert("Error", "Error Function", [], { cancelable:true })
+                            } else {
+                                cb({message: "error"})
                             }
                         })
                     }else{
-                        Alert.alert("Error", "Error Function", [], { cancelable:true })
+                        cb({message: "error"})
                     }
                 })
             }else{
-                Alert.alert("Error", "type nabung tidak sesuai", [], { cancelable:true })
+                cb({message: "error"})
             }
-        },
-        style: "ok",
-    }], { cancelable:true })
+        })
+    }else if(type === "Cash"){
+        updateFinance(dispatch, {amountRealDompet: amountRealDompet-amount, amountTabungan:amountTabunganAft}, (el) => {
+            if(el.message === "success") {
+                addHistDomCash(dispatch, {
+                    title: title,
+                    type:"Pengeluaran",
+                    amount:amount,
+                    balanceAfr: amountRealDompet-amount,
+                    balanceBfr:amountRealDompet
+                }, (el) => {
+                    if(el.message === "success") {
+                        addHistTab(dispatch, {
+                            title: title,
+                            type: "Pemasukan",
+                            amount: amountTabunganAft-amountTabungan,
+                            balanceAfr: amountTabunganAft,
+                            balanceBfr: amountTabungan
+                        }, (el) => {
+                            if(el.message==="success") {
+                                addHistPeng(dispatch, {
+                                    title: title,
+                                    type: "Nabung",
+                                    amount: amount,
+                                    tax: taxPengirim,
+                                    payWith: "Cash",
+                                    balanceAfr: amountRealDompet-amount,
+                                    balanceBfr: amountRealDompet
+                                }, (el) => {
+                                    if(el.message==="success") {
+                                        cb({message: "success"})
+                                    }else{
+                                        cb({message: "error"})
+                                    }
+                                })
+                            } else {
+                                cb({message: "error"})
+                            }
+                        })
+                    }else{
+                        cb({message: "error"})
+                    }
+                })
+            }else{
+                cb({message: "error"})
+            }
+        })
+    }else{
+        cb({message: "error"})
+    }
 }
 
 export async function inputPengeluaran(dispatch, val, cb) {
-    try {
-        const {amount,date,detail,payWith,balanceAfr,balanceBfr,tax,title,type} = val
-        let inputData = {title,detail,type,payWith,amount:Number(amount),balanceAfr:Number(balanceAfr),balanceBfr:Number(balanceBfr),tax:Number(tax),date:Date.parse(date)}
-        const dataFinance = await AsyncStorage.getItem('DATAFINANCE')
-        if(dataFinance) {
-            const result = JSON.parse(dataFinance)
-            if(payWith === "Cash") {
-                updateFinance(dispatch, {amountRealDompet: result.amountRealDompet-inputData.amount}, (el) => {
+    const {
+        amountRealDompet,amountTabungan,amountDompet,amountTabunganAft,amountDompetAft,
+        title,detail,type,payWith,amount,tax
+    } = val
+    const inputHistPeng = {title,detail,type,payWith,amount,tax}
+
+    if(payWith === "Cash") {
+        updateFinance(dispatch, { amountRealDompet: amountRealDompet-amount }, (el) => {
+            if(el.message === "success") {
+                addHistPeng(dispatch, inputHistPeng, (el) => {
                     if(el.message === "success") {
-                        addHistPeng(dispatch, inputData, async (el) => {
-                            if(el.message === "success") {
+                        addHistDomCash(dispatch, {
+                            title: title,
+                            type: "Pengeluaran",
+                            amount: amount,
+                            balanceAfr: amountRealDompet-amount,
+                            balanceBfr: amountRealDompet
+                        }, (el) => {
+                            if(el.message==="success") {
                                 cb({message: "success"})
                             }else{
-                                cb({message: "error system"})
+                                cb({message: "error"})
                             }
                         })
-                    } else {
-                        cb({message: "error system"})
-                    }
-                })
-            } else if(payWith === "Rekening Dompet") {
-                updateFinance(dispatch, {amountDompet: result.amountDompet-(inputData.amount+inputData.tax)}, (el) => {
-                    if(el.message === "success") {
-                        addHistPeng(dispatch, inputData, async (el) => {
-                            if(el.message === "success") {
-                                addHistDom(dispatch, {
-                                    title:`Pengeluaran ${inputData.type}`,
-                                    detail:inputData.title,
-                                    type:"Pengeluaran",
-                                    amount:inputData.amount+inputData.tax,
-                                    balanceAfr:inputData.balanceAfr,
-                                    balanceBfr:inputData.balanceBfr,
-                                    date:inputData.date
-                                }, async (el) => {
-                                    if(el.message==="success"){
-                                        cb({message: "success"})
-                                    }else{
-                                        cb({message: "error system"})                                
-                                    }
-                                })
-                            }else{
-                                cb({message: "error system"})
-                            }
-                        })
-                    } else {
-                        cb({message: "error system"})
-                    }
-                })
-            } else if(payWith === "Rekening Tabungan") {
-                updateFinance(dispatch, {amountTabungan: result.amountTabungan-(inputData.amount+inputData.tax)}, (el) => {
-                    if(el.message === "success") {
-                        addHistPeng(dispatch, inputData, async (el) => {
-                            if(el.message === "success") {
-                                addHistTab(dispatch, {
-                                    title:`Pengeluaran ${inputData.type}`,
-                                    detail:inputData.title,
-                                    type:"Pengeluaran",
-                                    amount:inputData.amount+inputData.tax,
-                                    balanceAfr:inputData.balanceAfr,
-                                    balanceBfr:inputData.balanceBfr,
-                                    date:inputData.date
-                                }, async (el) => {
-                                    if(el.message==="success"){
-                                        cb({message: "success"})
-                                    }else{
-                                        cb({message: "error system"})                                
-                                    }
-                                })
-                            }else{
-                                cb({message: "error system"})
-                            }
-                        })
-                    } else {
-                        cb({message: "error system"})
+                    }else{
+                        cb({message: "error"})
                     }
                 })
             } else {
-                cb({message: "error system"})
-            }          
-        }else{
-            dispatch(resetFinance())
-            cb({message: "error"})
-        }
-    } catch(err) {
-        cb({message: "error system"})
+                cb({message: "error"})
+            }
+        })
+    } else if(payWith === "Rekening Dompet") {
+        updateFinance(dispatch, { amountDompet: amountDompetAft }, (el) => {
+            if(el.message === "success") {
+                addHistPeng(dispatch, inputHistPeng, (el) => {
+                    if(el.message === "success") {
+                        addHistDom(dispatch, {
+                            title: title,
+                            type:"Pengeluaran",
+                            amount:amount+tax,
+                            balanceAfr:amountDompetAft,
+                            balanceBfr:amountDompet
+                        }, (el) => {
+                            if(el.message==="success"){
+                                cb({message: "success"})
+                            }else{
+                                cb({message: "error"})                                
+                            }
+                        })
+                    }else{
+                        cb({message: "error"})
+                    }
+                })
+            } else {
+                cb({message: "error"})
+            }
+        })
+    } else if(payWith === "Rekening Tabungan") {
+        updateFinance(dispatch, {amountTabungan: amountTabunganAft}, (el) => {
+            if(el.message === "success") {
+                addHistPeng(dispatch, inputHistPeng, (el) => {
+                    if(el.message === "success") {
+                        addHistTab(dispatch, {
+                            title: title,
+                            type: "Pengeluaran",
+                            amount: amount+tax,
+                            balanceAfr: amountTabunganAft,
+                            balanceBfr: amountTabungan
+                        }, async (el) => {
+                            if(el.message==="success"){
+                                cb({message: "success"})
+                            }else{
+                                cb({message: "error"})                                
+                            }
+                        })
+                    }else{
+                        cb({message: "error"})
+                    }
+                })
+            } else {
+                cb({message: "error"})
+            }
+        })
+    } else {
+        cb({message: "error"})
     }
 }

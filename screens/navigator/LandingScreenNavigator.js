@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { setIsDarkMode } from '../../store/data/function';
+import { setIsDarkMode } from '../../store/app/function';
 import { useDispatch } from 'react-redux'
 
 // Sreens

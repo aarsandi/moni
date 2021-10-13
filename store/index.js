@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux';
-import dataReducer from './data'
+import appReducer from './app'
 
 import financeReducer from './finance'
 import planReducer from './plan'
@@ -13,7 +13,7 @@ import historyPengeluaranReducer from './historyPengeluaran'
 import thunk from 'redux-thunk';
 
 const reducer = combineReducers({
-    dataReducer: dataReducer,
+    appReducer: appReducer,
     financeReducer: financeReducer,
     planReducer: planReducer,
     historyLoanReducer: historyLoanReducer,

@@ -20,8 +20,7 @@ export default function FormBayarHutang({ route, navigation }) {
                 onPress: () => {
                     inputPayLoan(dispatch, {...val, amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan}, (el) => {
                         if(el.message === "success") {
-                            console.log("sukses transaksi")
-                            // navigation.navigate("Splash")
+                            navigation.navigate("Splash")
                         }else{
                             Alert.alert("Error", "Error Function", [], { cancelable:true })
                         }

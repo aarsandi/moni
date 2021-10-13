@@ -1,6 +1,6 @@
 // contoh data => {
 //     "id": 1,
-//     "title": "Nabung",
+//     "title": "Nabung"||"Penghasilan",
 //     "type": "Pengeluaran"||"Pemasukan"
 //     "amount": 500000,
 //     "balanceAfr": 2800000,

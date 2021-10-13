@@ -18,9 +18,7 @@ export default function Home({ navigation }) {
     const dataHistTab = useSelector((state) => state.historyActivityTabunganReducer.allData)
     const dataHistDom = useSelector((state) => state.historyActivityDompetReducer.allData)
 
-    // console.log(loan[0], "ldsoldsol")
-    // console.log(status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan)
-    // console.log(dataHistDom)
+    // console.log(loan[0], "Home Page")
     
     useEffect(() => {
         if(status===null&&type===null&&uangHariIni===null) {
@@ -71,6 +69,16 @@ export default function Home({ navigation }) {
                     <Text>Uang Total: {uangTotal}</Text>
                     <Text>Batas Harian: {uangHarian}</Text>
                     <Text>Uang Hariini: {uangHariIni}</Text>
+                    <View style={{flexDirection:'row', alignItems:'center'}}>
+                        <Text style={{flex:4}}>Uang yang ingin ditabung: {toRupiah(jumlahDitabung, "Rp. ")}</Text>
+                        <View style={{flex:1, paddingVertical:5}}>
+                            <Button title="Tabung" onPress={() => {
+                                navigation.navigate("FormNabung", {
+                                    isPlan: true
+                                })
+                            }}/>
+                        </View>
+                    </View>
                 </View>:
                 <View style={{paddingVertical: 20}}>
                     <Text>Anda Belum mengaktifkan finansial plan</Text>
@@ -121,7 +129,9 @@ export default function Home({ navigation }) {
 
             <View style={{marginVertical:10}}>
                 <Button title="Nabung" onPress={() => {
-                    navigation.navigate("FormNabung")
+                    navigation.navigate("FormNabung", {
+                        isPlan: false
+                    })
                 }} />
             </View>
 

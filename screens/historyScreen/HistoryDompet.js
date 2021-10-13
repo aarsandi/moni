@@ -10,8 +10,6 @@ export default function HistoryDompet() {
     const dispatch = useDispatch()
     const dataHistDom = useSelector((state) => state.historyActivityDompetReducer.allData)
 
-    console.log(dataHistDom, "hist dom")
-
     useEffect(() => {
         if(dataHistDom===null) {
             fetchHistDom(dispatch, (el) => {
