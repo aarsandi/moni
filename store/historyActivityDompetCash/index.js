@@ -12,19 +12,19 @@ const initialState = {
     allData: null
 }
 
-function historyActivityDompetReducer(state = initialState, action) {
+function historyActivityDompetCashReducer(state = initialState, action) {
     const { type, payload } = action
-    if (type === 'SETDATAHISTDOM') {
+    if (type === 'SETDATAHISTDOMCASH') {
         return { ...state, allData: payload }
     }
-    if (type === 'ADDDATAHISTDOM') {
+    if (type === 'ADDDATAHISTDOMCASH') {
         return { ...state, allData: [payload].concat(state.allData) }
     }
-    if (type === 'RESETHISTDOM') {
+    if (type === 'RESETHISTDOMCASH') {
         return { ...state, allData: null }
     }
 
     return state
 }
 
-export default historyActivityDompetReducer
+export default historyActivityDompetCashReducer

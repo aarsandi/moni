@@ -26,16 +26,7 @@ export default function FormAmbilCash({ navigation }) {
             [field]: value
         })
     }
-// contoh data => {
-//     "id": 1,
-//     "title": "Nabung",
-//     "detail": "Shhsushhss",
-//     "type": "Pengeluaran"||"Pemasukan"
-//     "amount": 500000,
-//     "balanceAfr": 2800000,
-//     "balanceBfr": 3400000,
-//     "date": 1633881992000,
-// }
+    
     const handleSubmit = () => {
         const findEmpty = Object.keys(dataForm).find((el) => dataForm[el]==="")
         if(findEmpty) {

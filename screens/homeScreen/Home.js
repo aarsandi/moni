@@ -12,13 +12,13 @@ import { fetchFinance } from '../../store/finance/function'
 
 export default function Home({ navigation }) {
     const dispatch = useDispatch()
-    const { nama, amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
     const { status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
     const dataHistPeng = useSelector((state) => state.historyPengeluaranReducer.allData)
     const dataHistTab = useSelector((state) => state.historyActivityTabunganReducer.allData)
     const dataHistDom = useSelector((state) => state.historyActivityDompetReducer.allData)
 
-    // console.log(dataHistPeng)
+    // console.log(loan[0], "ldsoldsol")
     // console.log(status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan)
     // console.log(dataHistDom)
     
@@ -85,23 +85,56 @@ export default function Home({ navigation }) {
                 <Text>uang cash: {amountRealDompet}</Text>
             </View>
 
+            <View style={{paddingVertical: 20}}>
+                <Text>Loan Bill</Text>
+                {
+                    loan.length?loan.map((el, index) => {
+                        return(
+                            <View key={index} style={{flexDirection:'row', alignItems:'center'}}>
+                                <Text style={{flex:4}}>{moment(el.due_date).format("DD MMM")} - {toRupiah(el.amountPay[0].amount, "Rp. ")}</Text>
+                                <View style={{flex:1, paddingVertical:5}}>
+                                    <Button title="Pay" onPress={() => {
+                                        navigation.navigate("FormBayarHutang", {
+                                            itemId: el.id
+                                        })
+                                    }}/>
+                                </View>
+                            </View>
+                        )
+                    }):
+                    <Text>You don't have any bill yet</Text>
+                }
+
+            </View>
+
             <View style={{marginVertical:10}}>
                 <Button title="Ambil Cash" onPress={() => {
                     navigation.navigate("FormAmbilCash")
                 }} />
             </View>
+
+            <View style={{marginVertical:10}}>
+                <Button title="Input Penghasilan" onPress={() => {
+                    navigation.navigate("FormInputPenghasilan")
+                }} />
+            </View>
+
+            <View style={{marginVertical:10}}>
+                <Button title="Nabung" onPress={() => {
+                    navigation.navigate("FormNabung")
+                }} />
+            </View>
+
+            <View style={{marginVertical:10}}>
+                <Button title="Input Pinjaman" onPress={() => {
+                    navigation.navigate("FormLoan")
+                }} />
+            </View>
             
-            <Button title="Input Pengeluaran" onPress={() => {
-                navigation.navigate("FormSpend")
-            }} />
-            <View>
-                {
-                    dataHistPeng&&dataHistPeng.slice(0, 10).map((el, index) => {
-                        return (
-                            <Text key={index}>{el.type} - {el.title} - {toRupiah(el.amount, "Rp. ")} - {moment(el.date).format('lll')}</Text>
-                        )
-                    })
-                }
+            <View style={{marginVertical:10}}>
+                <Button title="Input Pengeluaran" onPress={() => {
+                    navigation.navigate("FormSpend")
+                }} />
             </View>
         </View>
     )
