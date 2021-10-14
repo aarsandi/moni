@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { StyleSheet, Text, View, Button, Alert } from 'react-native'
+import { StyleSheet, Text, View, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import moment from "moment"
 import { toRupiah } from '../../helpers/NumberToString'

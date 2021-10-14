@@ -3,11 +3,22 @@ import { StyleSheet, Text, View, Button, ScrollView } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { resetDataFinance } from '../../store/finance/function'
 import { fetchPlan } from '../../store/plan/function'
+import { leftDaysinMonth } from '../../helpers/calcDate'
+import { toRupiah } from '../../helpers/NumberToString'
 
 export default function Plan({ navigation }) {
     const dispatch = useDispatch()
     const { status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
     const [isLoading,setIsLoading] = useState(true)
+
+    const [dataFinance, setDataFinance] = useState({
+        totalBulanan: 0,
+        totalSisa: 0,
+        totalHarian: 0,
+        sisaHari: 0,
+        jumlahDitabung: 0,
+        uangTotal: 0
+    })
 
     useEffect(() => {
         if(status===null&&type===null) {
@@ -19,9 +30,51 @@ export default function Plan({ navigation }) {
                 }
             })
         }else{
-            setIsLoading(false)
+            if(uangTotal<=0) {
+                updatePlan(dispatch, {status:"failed"}, (el) => {
+                    if(el.message !== "success") {
+                        Alert.alert("Error", "Error Function", [], { cancelable:true })
+                    }
+                })
+            }
+            if(pengeluaranBulanan.length) {
+                const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
+                    return accumulator + item.amount;
+                }, 0)
+                let calcFinance = {
+                    totalBulanan: resTotBulanan,
+                    totalSisa: 0,
+                    totalHarian: 0,
+                    sisaHari: 0,
+                    jumlahDitabung: jumlahDitabung,
+                    uangTotal: uangTotal,
+                    tanggalGajian: tanggalGajian
+                }
+                const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
+                calcFinance.sisaHari = leftDaysinMonth(new Date(tanggalGajian))+1
+                calcFinance.totalHarian = resultTotalHarian
+                calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
+                setDataFinance(calcFinance)
+                setIsLoading(false)
+            }else{
+                let calcFinance = {
+                    totalBulanan: 0,
+                    totalSisa: 0,
+                    totalHarian: 0,
+                    sisaHari: 0,
+                    jumlahDitabung: jumlahDitabung,
+                    uangTotal: uangTotal,
+                    tanggalGajian: tanggalGajian
+                }
+                const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
+                calcFinance.sisaHari = leftDaysinMonth(new Date(tanggalGajian))+1
+                calcFinance.totalHarian = resultTotalHarian
+                calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
+                setDataFinance(calcFinance)
+                setIsLoading(false)
+            }
         }
-    }, [])
+    }, [status, pengeluaranBulanan, uangTotal, uangHariIni])
 
     return (
         <View>
@@ -38,38 +91,44 @@ export default function Plan({ navigation }) {
                                 <Button title="Setup Plan" onPress={() => navigation.navigate("SetupPlan")}/>
                             </View>
                         </>:
-                        ( status==="active" ?
-                            <>
-                                <Text>uang Total: {uangTotal}</Text>
-                                <Text>jumlah Ditabung: {jumlahDitabung}</Text>
-                                <Text>batas Harian: {uangHarian}</Text>
-                                <Text>pengeluaran hari ini: {uangHariIni}</Text>
+                        <>
+                            {
+                                status!=="active"&&
+                                <View style={{marginVertical:10}}>
+                                    <Text>Plan anda {status==="completed"?"sudah selesai":"gagal atau balance plan habis"}</Text>
+                                    <Button title="Create New Plan" onPress={() => {
+                                        navigation.navigate("PlanScreenNavigator", { screen: 'SetupPlan' })
+                                    }} />
+                                </View>
+                            }
+                            <Text>Total: {dataFinance?toRupiah(dataFinance.uangTotal, "Rp. "):"Rp. 0"}</Text>
+                            <Text>jumlah Ditabung: {dataFinance?toRupiah(dataFinance.jumlahDitabung):"Rp. 0"}</Text>
+                            <Text>Uang harian: {dataFinance?toRupiah(dataFinance.totalHarian):"Rp. 0"}{dataFinance?` - ${dataFinance.sisaHari} remains days`:""}</Text>
+                            <Text>Uang bulanan: {dataFinance?toRupiah(dataFinance.totalBulanan):"Rp. 0"}</Text>
+                            <Text style={{marginBottom:10}}>Uang sisa: {dataFinance?toRupiah(dataFinance.totalSisa):"Rp. 0"}</Text>
 
-                                <View style={{margin:10}}>
-                                    <Text>Pengeluaran Bulanan: </Text>
-                                    {
-                                        pengeluaranBulanan.length?pengeluaranBulanan.map((el, index) => {
-                                            return(
-                                                <View key={index}>
-                                                    <Text>{el.title} - {el.amount}</Text>
-                                                </View>
-                                            )
-                                        }):
-                                        <></>
-                                    }
-                                </View>
-        
-                                <View style={{paddingVertical: 5}}>
-                                    <Button title="Edit Need" onPress={() => navigation.navigate('EditNeeds')}/>
-                                </View>
-                            </>:
-                            <>
-                                <Text>complete</Text>
-                                {/* <Text>nama: {penghasilan}</Text>
-                                <Text>rek tabungan: {uangHarian}</Text>
-                                <Text>rek dompet: {uangLainnya}</Text> */}
-                            </>
-                        )
+                            <Text>batas Harian: {toRupiah(uangHarian)}</Text>
+                            <Text>pengeluaran hari ini: {toRupiah(uangHariIni)}</Text>
+
+                            <View style={{margin:10}}>
+                                <Text>Pengeluaran Bulanan: </Text>
+                                {
+                                    pengeluaranBulanan.length?pengeluaranBulanan.map((el, index) => {
+                                        return(
+                                            <View key={index}>
+                                                <Text>{el.title} - {el.amount}</Text>
+                                            </View>
+                                        )
+                                    }):
+                                    <></>
+                                }
+                            </View>
+    
+                            <View style={{paddingVertical: 5}}>
+                                <Button title="Edit Need" onPress={() => navigation.navigate('EditNeeds')}/>
+                            </View>
+                        </>
+                        
                     }
                 </ScrollView>
             }

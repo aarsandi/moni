@@ -14,6 +14,73 @@ export function setIsDarkMode(val) {
     return { type: 'SETDARKMODE', payload: val }
 }
 
+export function changeFinanceAmount(dispatch, val, cb) {
+    const { amountTabunganAft, amountDompetAft, amountRealDompetAft, amountTabungan, amountDompet, amountRealDompet } = val
+    if(amountRealDompetAft) {
+        const amount = amountRealDompetAft>amountRealDompet?amountRealDompetAft-amountRealDompet:amountRealDompet-amountRealDompetAft
+        const status = amountRealDompetAft>amountRealDompet?"Pemasukan":"Pengeluaran"
+
+        updateFinance(dispatch, {amountRealDompet: amountRealDompetAft}, (el) => {
+            if(el.message==="success") {
+                addHistDomCash(dispatch, {
+                    title: "Change Amount", type:status, amount:amount,
+                    balanceAfr: amountRealDompetAft, balanceBfr:amountRealDompet
+                }, (el) => {
+                    if(el.message === "success") {
+                        cb({message: "success"})
+                    }else{
+                        cb({message: "error"})
+                    }
+                })
+            }else{
+                cb({message: "error"})
+            }
+        })
+    } else if(amountDompetAft) {
+        const amount = amountDompetAft>amountDompet?amountDompetAft-amountDompet:amountDompet-amountDompetAft
+        const status = amountDompetAft>amountDompet?"Pemasukan":"Pengeluaran"
+
+        updateFinance(dispatch, {amountDompet: amountDompetAft}, (el) => {
+            if(el.message==="success") {
+                addHistDom(dispatch, {
+                    title: "Change Amount", type:status, amount:amount,
+                    balanceAfr: amountDompetAft, balanceBfr:amountDompet
+                }, (el) => {
+                    if(el.message === "success") {
+                        cb({message: "success"})
+                    }else{
+                        cb({message: "error"})
+                    }
+                })
+            }else{
+                cb({message: "error"})
+            }
+        })
+    } else if(amountTabunganAft) {
+        const amount = amountTabunganAft>amountTabungan?amountTabunganAft-amountTabungan:amountTabungan-amountTabunganAft
+        const status = amountTabunganAft>amountTabungan?"Pemasukan":"Pengeluaran"
+
+        updateFinance(dispatch, {amountTabungan: amountTabunganAft}, (el) => {
+            if(el.message==="success") {
+                addHistTab(dispatch, {
+                    title: "Change Amount", type:status, amount:amount,
+                    balanceAfr: amountTabunganAft, balanceBfr:amountTabungan
+                }, (el) => {
+                    if(el.message === "success") {
+                        cb({message: "success"})
+                    }else{
+                        cb({message: "error"})
+                    }
+                })
+            }else{
+                cb({message: "error"})
+            }
+        })
+    }else{
+        cb({message: "error"})
+    }
+}
+
 export async function inputAmbilCash(dispatch, val, cb) {
     const {
         amount, amountDompet, amountDompetAft, amountRealDompet, tax

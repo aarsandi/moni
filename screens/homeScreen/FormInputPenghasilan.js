@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, ScrollView, Button, Alert } from 'react-native'
+import React, { useEffect } from 'react'
+import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
-import MaskInput, { createNumberMask }  from 'react-native-mask-input';
-import SelectDropdown from 'react-native-select-dropdown'
 import { toRupiah } from '../../helpers/NumberToString'
 
 import { inputPenghasilan } from '../../store/app/function'
-import { fetchFinance, updateFinance } from '../../store/finance/function'
-import { addHistDom } from '../../store/historyActivityDompet/function'
+import { fetchFinance } from '../../store/finance/function'
 
 import CompFormInputPenghasilan from '../../components/Form/CompFormInputPenghasilan';
 

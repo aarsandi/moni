@@ -1,84 +1,114 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, Button, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import moment from "moment"
 import { toRupiah } from '../../helpers/NumberToString'
+import { leftDaysinMonth } from '../../helpers/calcDate'
 
-import { fetchPlan } from '../../store/plan/function'
-import { fetchHistPeng } from '../../store/historyPengeluaran/function'
-import { fetchHistTab } from '../../store/historyActivityTabungan/function'
-import { fetchHistDom } from '../../store/historyActivityDompet/function'
-import { fetchFinance } from '../../store/finance/function'
+import { fetchPlan, updatePlan } from '../../store/plan/function'
 
 export default function Home({ navigation }) {
     const dispatch = useDispatch()
-    const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
-    const { status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
-    const dataHistPeng = useSelector((state) => state.historyPengeluaranReducer.allData)
-    const dataHistTab = useSelector((state) => state.historyActivityTabunganReducer.allData)
-    const dataHistDom = useSelector((state) => state.historyActivityDompetReducer.allData)
+    const [dataFinance, setDataFinance] = useState({
+        totalBulanan: 0,
+        totalSisa: 0,
+        totalHarian: 0,
+        sisaHari: 0,
+        jumlahDitabung: 0,
+        uangTotal: 0
+    })
 
-    // console.log(loan[0], "Home Page")
+    const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
+    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
     
+    // fetch and setup data plan
     useEffect(() => {
-        if(status===null&&type===null&&uangHariIni===null) {
+        if(status===null) {
             fetchPlan(dispatch, (el) => {
                 if(el.message !== "success") {
-                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
+                    Alert.alert("Error", "Error Function", [], { cancelable:true })
                 }
             })
-        }
-    }, [status, type, uangHariIni])
-    
-    useEffect(() => {
-        if(dataHistPeng===null) {
-            fetchHistPeng(dispatch, (el) => {
-                if(el.message !== "success") {
-                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
+        }else{
+            if(uangTotal<=0) {
+                updatePlan(dispatch, {status:"failed"}, (el) => {
+                    if(el.message !== "success") {
+                        Alert.alert("Error", "Error Function", [], { cancelable:true })
+                    }
+                })
+            }
+            if(pengeluaranBulanan.length) {
+                const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
+                    return accumulator + item.amount;
+                }, 0)
+                let calcFinance = {
+                    totalBulanan: resTotBulanan,
+                    totalSisa: 0,
+                    totalHarian: 0,
+                    sisaHari: 0,
+                    jumlahDitabung: jumlahDitabung,
+                    uangTotal: uangTotal,
+                    tanggalGajian: tanggalGajian
                 }
-            })
-        }
-    }, [dataHistPeng])
-
-    useEffect(() => {
-        if(dataHistTab===null) {
-            fetchHistTab(dispatch, (el) => {
-                if(el.message !== "success") {
-                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
+                const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
+                calcFinance.sisaHari = leftDaysinMonth(new Date(tanggalGajian))+1
+                calcFinance.totalHarian = resultTotalHarian
+                calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
+                setDataFinance(calcFinance)
+            }else{
+                let calcFinance = {
+                    totalBulanan: 0,
+                    totalSisa: 0,
+                    totalHarian: 0,
+                    sisaHari: 0,
+                    jumlahDitabung: jumlahDitabung,
+                    uangTotal: uangTotal,
+                    tanggalGajian: tanggalGajian
                 }
-            })
+                const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
+                calcFinance.sisaHari = leftDaysinMonth(new Date(tanggalGajian))+1
+                calcFinance.totalHarian = resultTotalHarian
+                calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
+                setDataFinance(calcFinance)
+            }
         }
-    }, [dataHistTab])
-
-    useEffect(() => {
-        if(dataHistDom===null) {
-            fetchHistDom(dispatch, (el) => {
-                if(el.message !== "success") {
-                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
-                }
-            })
-        }
-    }, [dataHistDom])
+    }, [status, pengeluaranBulanan, uangHariIni, uangTotal])
 
     return (
         <View>
             <Text>Selamat Datang {nama}</Text>
             { status?
                 <View style={{paddingVertical: 20}}>
-                    <Text>status : {status}</Text>
-                    <Text>Uang Total: {uangTotal}</Text>
-                    <Text>Batas Harian: {uangHarian}</Text>
-                    <Text>Uang Hariini: {uangHariIni}</Text>
+                    <Text>Total: {dataFinance?toRupiah(dataFinance.uangTotal, "Rp. "):"Rp. 0"}</Text>
+                    <Text>jumlah Ditabung: {dataFinance?toRupiah(dataFinance.jumlahDitabung):"Rp. 0"}</Text>
+                    <Text>Uang harian: {dataFinance?toRupiah(dataFinance.totalHarian):"Rp. 0"}{dataFinance?` - ${dataFinance.sisaHari} remains days`:""}</Text>
+                    <Text>Uang bulanan: {dataFinance?toRupiah(dataFinance.totalBulanan):"Rp. 0"}</Text>
+                    <Text style={{marginBottom:10}}>Uang sisa: {dataFinance?toRupiah(dataFinance.totalSisa):"Rp. 0"}</Text>
+
+                    <Text>batas Harian: {toRupiah(uangHarian)}</Text>
+                    <Text>pengeluaran hari ini: {toRupiah(uangHariIni)}</Text>
                     <View style={{flexDirection:'row', alignItems:'center'}}>
                         <Text style={{flex:4}}>Uang yang ingin ditabung: {toRupiah(jumlahDitabung, "Rp. ")}</Text>
-                        <View style={{flex:1, paddingVertical:5}}>
-                            <Button title="Tabung" onPress={() => {
-                                navigation.navigate("FormNabung", {
-                                    isPlan: true
-                                })
-                            }}/>
-                        </View>
+                        {
+                            jumlahDitabung>0&&
+                            <View style={{flex:1, paddingVertical:5}}>
+                                <Button title="Tabung" onPress={() => {
+                                    navigation.navigate("FormNabung", {
+                                        isPlan: true
+                                    })
+                                }}/>
+                            </View>
+                        }
                     </View>
+                    {
+                        status!=="active"&&
+                        <>
+                            <Text>Plan anda {status==="completed"?"sudah selesai":"gagal atau balance plan habis"}</Text>
+                            <Button title="Create New Plan" onPress={() => {
+                                navigation.navigate("PlanScreenNavigator", { screen: 'SetupPlan' })
+                            }} />
+                        </>
+                    }
                 </View>:
                 <View style={{paddingVertical: 20}}>
                     <Text>Anda Belum mengaktifkan finansial plan</Text>
@@ -87,13 +117,14 @@ export default function Home({ navigation }) {
                     }} />
                 </View>
             }
-            <View style={{paddingVertical: 20}}>
+
+            <View style={{paddingVertical: 5}}>
                 <Text>tabungan: {amountTabungan}</Text>
                 <Text>uang rekening: {amountDompet}</Text>
                 <Text>uang cash: {amountRealDompet}</Text>
             </View>
 
-            <View style={{paddingVertical: 20}}>
+            <View style={{paddingVertical: 5}}>
                 <Text>Loan Bill</Text>
                 {
                     loan.length?loan.map((el, index) => {

@@ -1,7 +1,6 @@
 import React, {useEffect,useState} from 'react'
 import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchFinance } from '../../store/finance/function'
 import { inputPayLoan } from '../../store/app/function'
 
 import CompFormPayLoan from '../../components/Form/CompFormPayLoan'

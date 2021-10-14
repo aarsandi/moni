@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, Pressable, TextInput, Alert, ScrollView, TouchableOpacity } from 'react-native'
+import React, { useEffect } from 'react'
+import { StyleSheet, Text, View, Alert, } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
-import MaskInput, { createNumberMask }  from 'react-native-mask-input';
-import SelectDropdown from 'react-native-select-dropdown'
-import { toRupiah } from '../../helpers/NumberToString'
 
 import { inputAmbilCash } from '../../store/app/function'
 import { fetchFinance } from '../../store/finance/function'
@@ -54,16 +51,4 @@ export default function FormAmbilCash({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    button: {
-        borderRadius: 20,
-        padding: 10,
-        elevation: 2,
-        marginVertical: 10
-    },
-    buttonOpen: {
-        backgroundColor: "#F194FF",
-    },
-    buttonClose: {
-        backgroundColor: "#2196F3",
-    },
 })

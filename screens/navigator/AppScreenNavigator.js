@@ -8,9 +8,7 @@ import { useIsFocused } from "@react-navigation/native";
 import HomeScreenNavigator from "./HomeScreenNavigator"
 import PlanScreenNavigator from "./PlanScreenNavigator"
 import SettingScreen from "../settingScreen/setting"
-import FinanceScreenNavigator from "./FinanceScreenNavigator"
 import HistoryScreenNavigator from "./HistoryScreenNavigator"
-import ReactNativeDoc from "../ReactNativeDoc"
 
 export default function AppScreenNavigator({ navigation }) {
     const isFocused = useIsFocused();

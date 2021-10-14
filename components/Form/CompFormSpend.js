@@ -50,12 +50,12 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
                     amountDompetAft: Number(dataForm.amountDompetAft),
                     selectedPengBul: selectedPengBul
                 }
-                if(dataForm.payWith === "Cash"&&amountRealDompet<=Number(dataForm.amount)) {
-                    setError('balance tidak cukup')
-                }else if(dataForm.payWith === "Rekening Dompet"&&amountDompet<=Number(dataForm.amount)) {
-                    setError('balance tidak cukup')
-                }else if(dataForm.payWith === "Rekening Tabungan"&&amountTabungan<=Number(dataForm.amount)) {
-                    setError('balance tidak cukup')
+                if(result.payWith === "Cash"&&amountRealDompet<=result.amount) {
+                    setError('balance cash tidak cukup')
+                }else if(result.payWith === "Rekening Dompet"&&amountDompet<=(result.amount+result.tax)) {
+                    setError('balance rekening tidak cukup')
+                }else if(result.payWith === "Rekening Tabungan"&&amountTabungan<=(result.amount+result.tax)) {
+                    setError('balance tabungan tidak cukup')
                 }else{
                     onSubmit(result)
                 }
