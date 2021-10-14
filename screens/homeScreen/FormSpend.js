@@ -171,7 +171,7 @@ export default function FormSpend({ navigation }) {
                 if(el.message === "success") {
                     setLoading(false)
                 }else{
-                    navigation.navigate("Splash")
+                    setLoading(false)
                 }
             })
         }else{
@@ -212,7 +212,7 @@ export default function FormSpend({ navigation }) {
                 setLoading(false)
             }
         }
-    }, [status, pengeluaranBulanan, uangHariIni, uangTotal])
+    }, [])
 
     return (
         <View>

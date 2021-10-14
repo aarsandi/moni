@@ -77,9 +77,7 @@ export default function FormNabung({route, navigation}) {
     useEffect(() => {
         if(status===null&&uangTotal===null&&jumlahDitabung===null) {
             fetchPlan(dispatch, (el) => {
-                if(el.message !== "success") {
-                    navigation.navigate("Splash")
-                }
+                
             })
         }else{
             if(isPlan) {
@@ -107,7 +105,7 @@ export default function FormNabung({route, navigation}) {
                 }
             }            
         }
-    }, [status])
+    }, [])
 
     return (
         <View>
