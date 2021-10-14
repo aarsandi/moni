@@ -26,7 +26,7 @@ export default function Plan({ navigation }) {
                 if(el.message === "success") {
                     setIsLoading(false)
                 }else{
-                    navigation.navigate("Splash")
+                    setIsLoading(false)
                 }
             })
         }else{
@@ -74,7 +74,7 @@ export default function Plan({ navigation }) {
                 setIsLoading(false)
             }
         }
-    }, [status, pengeluaranBulanan, uangTotal, uangHariIni])
+    }, [])
 
     return (
         <View>

@@ -11,23 +11,33 @@ import Intro from '../landingScreen/Intro';
 import Register from '../landingScreen/Register';
 import Splash from '../landingScreen/Splash';
 
-export default function LandingScreenNavigator() {
-    const Stack = createNativeStackNavigator();
-    const darkMode = useColorScheme();
-    const dispatch = useDispatch()
-  
-    useEffect(() => {
-        dispatch(setIsDarkMode(darkMode === 'dark'))
-    }, [darkMode])
+import PushNotification from "react-native-push-notification";
 
-    return (
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Splash" component={Splash} />
-            <Stack.Screen name="AppScreenNavigator" component={AppScreenNavigator} />
-            <Stack.Screen name="Register" component={Register} />
-            <Stack.Screen name="Intro" component={Intro} />
-          </Stack.Navigator>
-        </NavigationContainer>
-    )
+export default function LandingScreenNavigator() {
+  const Stack = createNativeStackNavigator();
+  const darkMode = useColorScheme();
+  const dispatch = useDispatch()
+
+  const createChannelNotification = () => {
+    PushNotification.createChannel({
+      channelId: "coba",
+      channelName: "coba"
+    })
+  }
+
+  useEffect(() => {
+    createChannelNotification()
+    dispatch(setIsDarkMode(darkMode === 'dark'))
+  }, [darkMode])
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Splash" component={Splash} />
+        <Stack.Screen name="AppScreenNavigator" component={AppScreenNavigator} />
+        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="Intro" component={Intro} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
 }
