@@ -8,8 +8,7 @@ import { useIsFocused } from "@react-navigation/native";
 import HomeScreenNavigator from "./HomeScreenNavigator"
 import PlanScreenNavigator from "./PlanScreenNavigator"
 import SettingScreen from "../settingScreen/setting"
-import FinanceScreenNavigator from "./FinanceScreenNavigator"
-import ReactNativeDoc from "../ReactNativeDoc"
+import HistoryScreenNavigator from "./HistoryScreenNavigator"
 
 export default function AppScreenNavigator({ navigation }) {
     const isFocused = useIsFocused();
@@ -27,15 +26,14 @@ export default function AppScreenNavigator({ navigation }) {
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName;
-        
                     if (route.name === 'HomeScreenNavigator') {
                         iconName = focused ? 'home' : 'home-outline';
                     } else if (route.name === 'PlanScreenNavigator') {
                         iconName = focused ? 'reader' : 'reader-outline';
                     } else if (route.name === 'SettingScreen') {
                         iconName = focused ? 'settings' : 'settings-outline';
-                    } else if (route.name === 'ReactNativeDoc') {
-                        iconName = focused ? 'help-circle' : 'help-circle-outline';
+                    } else if (route.name === 'HistoryScreenNavigator') {
+                        iconName = focused ? 'file-tray-full' : 'file-tray-full-outline';
                     }
         
                     // You can return any component that you like here!
@@ -47,8 +45,8 @@ export default function AppScreenNavigator({ navigation }) {
         >
             <Tab.Screen name="HomeScreenNavigator" component={HomeScreenNavigator} options={{ title: 'Home', headerShown: false }} />
             <Tab.Screen name="PlanScreenNavigator" component={PlanScreenNavigator} options={{ title: 'Plan', headerShown: false }} />
+            <Tab.Screen name="HistoryScreenNavigator" component={HistoryScreenNavigator} options={{ title: 'History', headerShown: false }} />
             <Tab.Screen name="SettingScreen" component={SettingScreen} options={{ title: 'Setting' }} />
-            <Tab.Screen name="ReactNativeDoc" component={ReactNativeDoc} options={{ title: 'React Native Doc' }} />
         </Tab.Navigator>
     )
 }

@@ -7,356 +7,75 @@ import MaskInput, { createNumberMask }  from 'react-native-mask-input';
 import {toRupiah} from '../../helpers/NumberToString';
 import SelectDropdown from 'react-native-select-dropdown'
 
-import { setupPlanAction, fetchPlan } from '../../store/plan/function'
+import { setupPlanAction } from '../../store/plan/function'
 import { fetchFinance } from '../../store/finance/function'
+
+import CompFormSetupPlan from '../../components/Form/CompFormSetupPlan'
 
 export default function SetupPlan({ navigation }) {
     const dispatch = useDispatch()
-    // reducer
-    const { status, type } = useSelector((state) => state.planReducer)
-    const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const [loading,setLoading]=useState(true)
+    const [thisMonthLoan,setThisMonthLoan]=useState([])
+    const { amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
 
-    // open modal date
-    const [openGaji, setOpenGaji] = useState(false)
-    const [openBulanan, setOpenBulanan] = useState(false)
-    // open modal needs
-    const [inputNeeds, setInputNeeds] = useState(false)
-
-    // error input
-    const [errorInput, setErrorInput] = useState(null)
-    const [errorNeed, setErrorNeed] = useState(null)
-
-    // data
-    const [dataInput, setDataInput] = useState({ type:"", uangTotal: "", jumlahDitabung: "", uangHarian: "", uangBulanan: "0", uangLainnya: "", tanggalGajian: new Date()})
-    const [dataNeed, setDataNeed] = useState({ title: "", amount: "", due_date: new Date() })
-    const [monthlyNeeds, setMonthlyNeeds] = useState([])
-
-    const handleChangeInput = (value, field) => {
-        setDataInput({
-            ...dataInput,
-            [field]: value
-        })
-    }
-
-    const handleChangeNeed = (value, field) => {
-        setDataNeed({
-            ...dataNeed,
-            [field]: value
-        })
-    }
-
-    const handleSubmitInput = () => {
-        const findEmpty = Object.keys(dataInput).find((el) => dataInput[el]==="")
-        if(findEmpty) {
-            setErrorInput(`harap isi field ${findEmpty}`)
-        } else {
-            const percPenghasilan = (Number(dataInput.uangTotal)/100)*10
-            if(Number(dataInput.uangLainnya)>percPenghasilan) {
-                const {type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan=monthlyNeeds} = dataInput                
-                setupPlanAction({type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan}, dispatch, (el) => {
-                    if(el.message=="success") {
-                        setErrorInput(null)
-                        navigation.navigate("Plan")
-                    }else{
-                        setErrorInput("function error!")
-                    }
-                })
-            }else if(Number(dataInput.uangLainnya)>=0){
-                Alert.alert("Warning", "Uang Lainnya Kurang dari 10 Persen dari Penghasilan, apakah anda yakin ?", [{
-                    text: "Ok",
-                    onPress: () => {
-                        const {type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan=monthlyNeeds} = dataInput                
-                        setupPlanAction({type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan}, dispatch, (el) => {
-                            if(el.message=="success") {
-                                setErrorInput(null)
-                                navigation.navigate("Plan")
-                            }else{
-                                setErrorInput("function error!")
-                            }
-                        })
-                    },
-                    style: "ok",
-                }], { cancelable:true })
-            }else{
-                setErrorInput(`uang lainnya tidak boleh kurang dari 0`)
-            }
-        }
-    }
-
-    const handleSubmitNeeds = () => {
-        const findEmpty = Object.keys(dataNeed).find((el) => dataNeed[el]==="")
-        if(findEmpty) {
-            setErrorNeed(`harap isi field ${findEmpty}`)
-        } else {
-            if(Number(dataInput.uangBulanan)) {
-                const result = Number(dataNeed.amount)+Number(dataInput.uangBulanan)
-                handleChangeInput(String(result), 'uangBulanan')
-                setMonthlyNeeds([
-                    ...monthlyNeeds,
-                    { id: monthlyNeeds[monthlyNeeds.length-1].id+1, title: dataNeed.title, amount: Number(dataNeed.amount), due_date: Date.parse(dataNeed.due_date) }
-                ])
-            }else{
-                handleChangeInput(String(dataNeed.amount), 'uangBulanan')
-                setMonthlyNeeds([
-                    ...monthlyNeeds,
-                    { id: 1, title: dataNeed.title, amount: Number(dataNeed.amount), due_date: Date.parse(dataNeed.due_date) }
-                ])
-            }
-            setInputNeeds(false)
-            setDataNeed({ title: "", amount: "", due_date: new Date() })
-            setErrorNeed(null)
-        }
-    }
-
-    const handleDeleteNeeds = (id, amount) => {
-        const result = Number(dataInput.uangBulanan)-Number(amount)
-        handleChangeInput(String(result), 'uangBulanan')
-        setMonthlyNeeds(monthlyNeeds.filter(el => el.id !== id))
-    }
-
-    useEffect(() => {
-        if(type===null&&status===null) {
-            fetchPlan(dispatch, (el) => {
-                if(el.message !== "success") {
-                    navigation.navigate("Splash")
+    const handleSubmit = (val) => {
+        const {type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan,uangLainnya} = val  
+        const percPenghasilan = (uangTotal/100)*10
+        if(uangLainnya>percPenghasilan) {
+            setupPlanAction({type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan}, dispatch, (el) => {
+                if(el.message=="success") {
+                    navigation.navigate("Plan")
+                }else{
+                    Alert.alert("Error", "error function", [], { cancelable:true })
                 }
             })
         }else{
-            navigation.navigate("Plan")
+            Alert.alert("Warning", "Uang Lainnya Kurang dari 10 Persen dari Penghasilan, apakah anda yakin ?", [{
+                text: "Ok",
+                onPress: () => {              
+                    setupPlanAction({type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan}, dispatch, (el) => {
+                        if(el.message=="success") {
+                            navigation.navigate("Plan")
+                        }else{
+                            Alert.alert("Error", "error function", [], { cancelable:true })
+                        }
+                    })
+                },
+                style: "ok",
+            }], { cancelable:true })
         }
+    }
+
+    useEffect(() => {
         if(amountRealDompet===null&&amountTabungan===null&&amountDompet===null) {
             fetchFinance(dispatch, (el) => {
-                if(el.message !== "success") {
+                if(el.message === "success") {
+                    setLoading(false)
+                }else{
                     navigation.navigate("Splash")
                 }
             })
-        }
-    }, [])
-
-    useEffect(() => {
-        if(dataInput.uangTotal!==""&&dataInput.jumlahDitabung!==""&&dataInput.uangBulanan!==""&&dataInput.uangHarian!=="") {
-            let date = new Date();
-            let time = new Date(date.getTime());
-            time.setMonth(date.getMonth() + 1);
-            time.setDate(0);
-            let days =time.getDate() > date.getDate() ? time.getDate() - date.getDate() : 0;
-            const CalcUangSisa = (Number(dataInput.uangTotal)-Number(dataInput.jumlahDitabung)-Number(dataInput.uangBulanan))-(Number(dataInput.uangHarian)*(days+1))
-            handleChangeInput(String(CalcUangSisa), 'uangLainnya')
-        }
-    }, [dataInput.uangTotal, dataInput.jumlahDitabung, dataInput.uangBulanan, dataInput.uangHarian])
-
-    useEffect(() => {
-        if(dataInput.type==="Bulanan") {
-            const nowDate = new Date()
-            handleChangeInput(new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0, 23), 'tanggalGajian')
         }else{
-            handleChangeInput(new Date(), 'tanggalGajian')
+            if(loan.length){
+                const nowDate = new Date().getMonth();
+                const thisMonthLoan = loan.filter((el) => new Date(el.due_date).getMonth() === nowDate)
+                setThisMonthLoan(thisMonthLoan)
+                setLoading(false)
+            }else{
+                setLoading(false)
+            }
         }
-    }, [dataInput.type])
+    }, [loan])
 
     return (
         <View>
+            {loading?
+            <Text>Loading...</Text>:
             <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tipe Plan :</Text>
-                <SelectDropdown data={["Gaji", "Bulanan"]} onSelect={(selectedItem) => { handleChangeInput(selectedItem, 'type') }}/>
-                {
-                    dataInput.type!==""&&
-                    <>
-                        <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Penghasilan Perbulan :</Text>
-                        <MaskInput keyboardType='number-pad' 
-                            value={dataInput.uangTotal} onChangeText={(masked, unmasked, obfuscated) => { handleChangeInput(unmasked, 'uangTotal') }}
-                            mask={createNumberMask({
-                            prefix: ['Rp.', ' '],
-                            delimiter: ',',
-                            precision: 3,
-                            })}
-                        />
-                        {
-                            dataInput.type==="Gaji"&&
-                            <>
-                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tanggal Gajian :</Text>
-                            <View style={{flexDirection:'row', width: window.width, margin: 10, padding:4, alignItems:'center', justifyContent:'center', borderWidth:4, borderColor:'#888', borderRadius:10, backgroundColor:'#fff'}}>
-                                <View style={{flex:4}}>
-                                    <TextInput
-                                        style={{backgroundColor:'transparent'}}
-                                        editable={false} value={moment(dataInput.tanggalGajian).format("DD MMM YYYY")}
-                                    />
-                                </View>
-                                {
-                                    !openGaji?
-                                    <View style={{flex:1}}>
-                                        <TouchableOpacity
-                                            onPress={() => setOpenGaji(true)}
-                                            // style={ this.props.style } 
-                                        >
-                                            <Text>Open</Text>
-                                        </TouchableOpacity>
-                                    </View>:
-                                    <View style={{flex:1}}>
-                                        <TouchableOpacity
-                                            onPress={ () => setOpenGaji(false) }
-                                            // style={ this.props.style } 
-                                        >
-                                            <Text>Cancel</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                }
-                            </View>
-                            <DatePicker modal open={openGaji} date={dataInput.tanggalGajian} mode="date"
-                                onConfirm={(date) => {
-                                    setOpenGaji(false)
-                                    handleChangeInput(date, 'tanggalGajian')
-                                }}
-                                onCancel={() => {
-                                    setOpenGaji(false)
-                                    handleChangeInput(new Date(), 'tanggalGajian')
-                                }}
-                            />
-                            </>
-                        }
-                        
-                        <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah yang ingin Ditabung :</Text>
-                        <MaskInput keyboardType='number-pad' 
-                            value={dataInput.jumlahDitabung} onChangeText={(masked, unmasked, obfuscated) => { handleChangeInput(unmasked, 'jumlahDitabung') }}
-                            mask={createNumberMask({
-                            prefix: ['Rp.', ' '],
-                            delimiter: ',',
-                            precision: 3,
-                            })}
-                        />
-
-                        <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Uang Harian :</Text>
-                        <MaskInput keyboardType='number-pad' 
-                            value={dataInput.uangHarian} onChangeText={(masked, unmasked, obfuscated) => { handleChangeInput(unmasked, 'uangHarian') }}
-                            mask={createNumberMask({
-                            prefix: ['Rp.', ' '],
-                            delimiter: ',',
-                            precision: 3,
-                            })}
-                        />
-                        {
-                            inputNeeds&&
-                            <View style={{marginVertical:10,padding:10,borderWidth:4,borderColor:'#888'}}>
-                                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Title :</Text>
-                                <TextInput onChangeText={text => handleChangeNeed(text, 'title')} placeholder="Title" style={ styles.textInput } placeholderTextColor="#838383" />
-                                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah :</Text>
-                                <MaskInput keyboardType='number-pad' 
-                                    value={dataNeed.amount} onChangeText={(masked, unmasked, obfuscated) => { handleChangeNeed(unmasked, 'amount') }}
-                                    mask={createNumberMask({
-                                        prefix: ['Rp.', ' '],
-                                        delimiter: ',',
-                                        precision: 3,
-                                    })}
-                                />
-                                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Batas Waktu :</Text>
-                                <View style={{flexDirection:'row', width: window.width, margin: 10, padding:4, alignItems:'center', justifyContent:'center', borderWidth:4, borderColor:'#888', borderRadius:10, backgroundColor:'#fff'}}>
-                                    <View style={{flex:4}}>
-                                        <TextInput
-                                            style={{backgroundColor:'transparent'}}
-                                            placeholder="-"
-                                            editable={false} value={moment(dataNeed.due_date).format("DD MMM YYYY")}
-                                        />
-                                    </View>
-                                    {
-                                        !openBulanan?
-                                        <View style={{flex:1}}>
-                                            <TouchableOpacity
-                                                onPress={() => setOpenBulanan(true)}
-                                                // style={ this.props.style } 
-                                            >
-                                                <Text>Open</Text>
-                                            </TouchableOpacity>
-                                        </View>:
-                                        <View style={{flex:1}}>
-                                            <TouchableOpacity
-                                                onPress={ () => setOpenBulanan(false) }
-                                                // style={ this.props.style } 
-                                            >
-                                                <Text>Cancel</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    }
-                                </View>
-                                <DatePicker modal open={openBulanan} date={dataNeed.due_date} mode="date"
-                                    onConfirm={(date) => {
-                                        setOpenBulanan(false)
-                                        handleChangeNeed(date, 'due_date')
-                                    }}
-                                    onCancel={() => {
-                                        setOpenBulanan(false)
-                                        handleChangeNeed(new Date(), 'due_date')
-                                    }}
-                                />
-                                { 
-                                    errorNeed && <Text>{errorNeed}</Text>
-                                }
-                                <TouchableOpacity onPress={handleSubmitNeeds} style={ { backgroundColor:'#ea8685',marginHorizontal:20,padding:10 } }>
-                                    <Text style={ { ...styles.buttonText, color: 'white' } }>Submit</Text>
-                                </TouchableOpacity>
-                            </View>
-                        }
-                        
-                        {
-                            monthlyNeeds.length?monthlyNeeds.map((el, index) => {
-                                return(
-                                    <View key={index} style={{flexDirection:'row', alignItems:'center'}}>
-                                        <Text style={{flex:4}}>{el.title} - {toRupiah(el.amount, "Rp. ")}</Text>
-                                        <TouchableOpacity
-                                            onPress={ () => handleDeleteNeeds(el.id, el.amount) }
-                                            style={{flex:1}}
-                                        >
-                                            <Text>Remove</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    )
-                                }):
-                                <Text></Text>
-                        }
-                        <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Total Bulanan :</Text>
-                        <View style={{flexDirection:'row', width: window.width, margin: 10, padding:4, alignItems:'center', justifyContent:'center', borderWidth:4, borderColor:'#888', borderRadius:10, backgroundColor:'#fff'}}>
-                            <View style={{flex:4}}>
-                                <TextInput
-                                    style={{backgroundColor:'transparent'}}
-                                    placeholder="0"
-                                    editable={false} value={toRupiah(dataInput.uangBulanan, "Rp. ")}
-                                />
-                            </View>
-                            {
-                                !inputNeeds?
-                                <View style={{flex:1}}>
-                                    <TouchableOpacity
-                                        onPress={ () => setInputNeeds(true) }
-                                        // style={ this.props.style }
-                                    >
-                                        <Text>Add</Text>
-                                    </TouchableOpacity>
-                                </View>:
-                                <View style={{flex:1}}>
-                                    <TouchableOpacity
-                                        onPress={ () => {
-                                            setDataNeed({ title: "", amount: "", due_date: new Date() })
-                                            setInputNeeds(false) 
-                                        }}
-                                        // style={ this.props.style }
-                                    >
-                                        <Text>Cancel</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            }
-                        </View>
-
-                        <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Uang Lainnya :</Text>
-                        <TextInput editable={false} value={`Rp. ${dataInput.uangLainnya.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`} placeholder="Rp. 0"/>
-
-                        <TouchableOpacity onPress={ handleSubmitInput } style={ { backgroundColor:'#ea8685',marginHorizontal:20,padding:10 } }>
-                            <Text style={ { ...styles.buttonText, color: 'white' } }>Submit</Text>
-                        </TouchableOpacity>
-                        { 
-                            errorInput && <Text>{errorInput}</Text>
-                        }
-                    </>
-                }
+                <Text>Form Setup Plan</Text>
+                <CompFormSetupPlan data={{amountTabungan, amountDompet, amountRealDompet, loan:thisMonthLoan}} onSubmit={handleSubmit} navigation={navigation}/>
             </ScrollView>
+            }
         </View>
     )
 }

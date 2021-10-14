@@ -2,12 +2,10 @@
 //     "id": 1,
 //     "title": "Coba",
 //     "detail": "Shhsushhss",
-//     "type": "Harian"||"Bulanan"||"Lainnya",
+//     "type": "Harian"||"Bulanan"||"Pinjaman"||"Nabung"||"Lainnya",
 //     "amount": 500000,
 //     "tax": 100000,
-//     "payWith": "Casg"||"Rekening Dompet"||"Rekening Tabungan",
-//     "balanceAfr": 2800000,
-//     "balanceBfr": 3400000,
+//     "payWith": "Cash"||"Rekening Dompet"||"Rekening Tabungan",
 //     "date": 1633881992000,
 // }
 

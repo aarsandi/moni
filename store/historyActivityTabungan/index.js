@@ -1,12 +1,11 @@
 // contoh data => {
-//     "id": 1,
-//     "title": "Coba",
-//     "detail": "Shhsushhss",
-//     "type": "Pengeluaran"||"Pemasukan"
-//     "amount": 500000,
-//     "balanceAfr": 2800000,
-//     "balanceBfr": 3400000,
-//     "date": 1633881992000,
+    // "id": 1,
+    // "title": "Nabung Bulanan||Nabung||Pinjaman",
+    // "type": "Pengeluaran"||"Pemasukan"
+    // "amount": 500000,
+    // "balanceAfr": 2800000,
+    // "balanceBfr": 3400000,
+    // "date": 1633881992000,
 // }
 
 const initialState = {

@@ -1,7 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { addHistPeng } from '../historyPengeluaran/function'
-import { addHistDom } from '../historyActivityDompet/function'
-import { addHistTab } from '../historyActivityTabungan/function'
 
 // type
 export function setDataFinance(val) {
@@ -43,12 +40,64 @@ export async function setupFinance(val, dispatch, cb) {
             atasNamaTabungan: "",
             bankDompet: "",
             rekDompet: "",
-            atasNamaDompet: ""
+            atasNamaDompet: "",
+            loan: []
         }
         await AsyncStorage.setItem('DATAFINANCE', JSON.stringify(result))
         dispatch(setDataFinance(result))
         cb({message: "success"})
     } catch(err) {
+        cb({message: "error system"})
+    }
+}
+
+export async function addLoan(dispatch, val, cb) {
+    const { title, detail, type, amount, tenor, amountPay, due_date, date = Date.parse(new Date()) } = val
+    const dataFinance = await AsyncStorage.getItem('DATAFINANCE')
+    if(dataFinance) {
+        const result = JSON.parse(dataFinance)
+        const newLoan = [{id:result.loan.length+1, title, detail, type, amount, tenor, amountPay, due_date, date}].concat(result.loan)
+        await AsyncStorage.setItem('DATAFINANCE', JSON.stringify({...result,loan:newLoan}))
+        dispatch(updateDataFinance({loan:newLoan}))
+        cb({message: "success"})
+    }else{
+        dispatch(resetDataFinance())
+        cb({message: "error"})
+    }
+}
+
+export async function updateLoan(dispatch, val, cb) {
+    const { inputLoan, ...data } = val
+    const dataFinance = await AsyncStorage.getItem('DATAFINANCE')
+    if(dataFinance) {
+        const result = JSON.parse(dataFinance)
+        let newLoan = result.loan
+        const objIndex = newLoan.findIndex((obj => obj.id == inputLoan.id));
+        newLoan[objIndex] = inputLoan
+        await AsyncStorage.setItem('DATAFINANCE', JSON.stringify({...result, ...data, loan: newLoan}))
+        dispatch(updateDataFinance({...data, loan: newLoan}))
+        cb({message: "success"})
+    }else{
+        dispatch(resetDataFinance())
+        cb({message: "error"})
+    }
+}
+
+export async function removeLoan(dispatch, val, cb) {
+    try {
+        const { loanId, ...data } = val
+        const dataFinance = await AsyncStorage.getItem('DATAFINANCE')
+        if(dataFinance) {
+            const result = JSON.parse(dataFinance)
+            let newLoan = result.loan.filter(el => el.id !== loanId)
+            await AsyncStorage.setItem('DATAFINANCE', JSON.stringify({...result, ...data, loan: newLoan}))
+            dispatch(updateDataFinance({...data, loan: newLoan}))
+            cb({message: "success"})
+        }else{
+            dispatch(resetDataFinance())
+            cb({message: "error"})
+        }
+    } catch (err) {
         cb({message: "error system"})
     }
 }

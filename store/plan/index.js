@@ -1,5 +1,5 @@
 const initialState = {
-    status: null, // "active"||null||"completed"
+    status: null, // "null||active"||"completed"||"failed"
     type: null, // "Gaji"||"Bulanan"
     uangTotal: null, // jika typenya gaji ? maka dari input gajiny : maka dari (dompet+dompetReal)
     jumlahDitabung: null,
@@ -46,7 +46,7 @@ function planReducer(state = initialState, action) {
             jumlahDitabung: null,
             uangHarian: null,
             uangHariIni: null,
-            uangHarianLebih: payload.uangHarianLebih,
+            uangHarianLebih: null,
             tanggalGajian: null,
             pengeluaranBulanan: []
         }

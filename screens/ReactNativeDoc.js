@@ -39,7 +39,7 @@ const Section = ({children, title}) => {
 };
 
 const ReactNativeDoc = ({navigation}) => {
-    const {isDarkMode} = useSelector((state) => state.dataReducer)
+    const {isDarkMode} = useSelector((state) => state.appReducer)
 
     return (
         <SafeAreaView style={isDarkMode ? Colors.darker : Colors.lighter}>
