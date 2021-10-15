@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import PushNotification from "react-native-push-notification";
 
 export async function dailyUpdateCron() {
     const dataPlan = await AsyncStorage.getItem('DATAPLAN')
@@ -18,4 +19,14 @@ export async function dailyUpdateCron() {
         result.uangHariIni = 0
         await AsyncStorage.setItem('DATAPLAN', JSON.stringify(result))
     }
+}
+
+export async function cobaPushNotif() {
+    PushNotification.localNotification({
+        channelId: "coba",
+        title: "Click sukses",
+        message: item,
+        bigText: `your cronjob run at - ${new Date().toLocaleString()}`,
+        data: { route:"SetupPlan" },
+    })
 }

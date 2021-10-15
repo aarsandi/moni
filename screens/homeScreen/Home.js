@@ -6,8 +6,7 @@ import { toRupiah } from '../../helpers/NumberToString'
 import { leftDaysinMonth } from '../../helpers/calcDate'
 
 import { fetchPlan, updatePlan } from '../../store/plan/function'
-
-import PushNotification from "react-native-push-notification";
+// import { handleNotif } from '../../helpers/pushNotification'
 
 export default function Home({ navigation }) {
     const dispatch = useDispatch()
@@ -22,15 +21,6 @@ export default function Home({ navigation }) {
 
     const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
     const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan,updateCron } = useSelector((state) => state.planReducer)
-    
-    const handleNotif = (item) => {
-        PushNotification.localNotification({
-            channelId: "coba",
-            title: "Click sukses",
-            message: item,
-            bigText: "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
-        })
-    }
     
     // fetch and setup data plan
     useEffect(() => {
@@ -156,11 +146,11 @@ export default function Home({ navigation }) {
 
                 </View>
 
-                <View style={{marginVertical:10}}>
+                {/* <View style={{marginVertical:10}}>
                     <Button title="Coba Notif" onPress={() => {
-                        handleNotif("coba")
+                        handleNotif("Plan", "coba")
                     }} />
-                </View>
+                </View> */}
 
                 <View style={{marginVertical:10}}>
                     <Button title="Ambil Cash" onPress={() => {
