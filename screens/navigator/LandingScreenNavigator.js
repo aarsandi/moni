@@ -11,7 +11,6 @@ import Intro from '../landingScreen/Intro';
 import Register from '../landingScreen/Register';
 import Splash from '../landingScreen/Splash';
 import { navigationRef } from '../../helpers/rootNavigation';
-// import { createChannelNotification } from '../../helpers/pushNotification'
 
 export default function LandingScreenNavigator() {
   const Stack = createNativeStackNavigator();
@@ -19,7 +18,6 @@ export default function LandingScreenNavigator() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    // createChannelNotification()
     dispatch(setIsDarkMode(darkMode === 'dark'))
   }, [darkMode])
 

@@ -1,6 +1,6 @@
 // contoh data => {
 //     "id": 1,
-//     "title": "Nabung"||"Penghasilan",
+//     "title": "Ambil Cash||Nabung||Penghasilan||Change Amount||Pinjaman" or "Pengeluaran Harian"||"Pengeluaran Bulanan"||"Pengeluaran Lainnya",
 //     "type": "Pengeluaran"||"Pemasukan"
 //     "amount": 500000,
 //     "balanceAfr": 2800000,
@@ -9,7 +9,7 @@
 // }
 
 const initialState = {
-    allData: null
+    allData: []
 }
 
 function historyActivityDompetReducer(state = initialState, action) {
@@ -21,7 +21,7 @@ function historyActivityDompetReducer(state = initialState, action) {
         return { ...state, allData: [payload].concat(state.allData) }
     }
     if (type === 'RESETHISTDOM') {
-        return { ...state, allData: null }
+        return { ...state, allData: [] }
     }
 
     return state

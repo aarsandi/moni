@@ -6,7 +6,6 @@ import { toRupiah } from '../../helpers/NumberToString'
 import { leftDaysinMonth } from '../../helpers/calcDate'
 
 import { fetchPlan, updatePlan } from '../../store/plan/function'
-// import { handleNotif } from '../../helpers/pushNotification'
 
 export default function Home({ navigation }) {
     const dispatch = useDispatch()
@@ -145,12 +144,6 @@ export default function Home({ navigation }) {
                     }
 
                 </View>
-
-                {/* <View style={{marginVertical:10}}>
-                    <Button title="Coba Notif" onPress={() => {
-                        handleNotif("Plan", "coba")
-                    }} />
-                </View> */}
 
                 <View style={{marginVertical:10}}>
                     <Button title="Ambil Cash" onPress={() => {

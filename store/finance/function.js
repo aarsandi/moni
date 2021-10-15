@@ -13,18 +13,14 @@ export function updateDataFinance(val) {
 
 // action
 export async function fetchFinance(dispatch, cb) {
-    try {
-        const dataFinance = await AsyncStorage.getItem('DATAFINANCE')
-        if(dataFinance) {
-            const result = JSON.parse(dataFinance)
-            dispatch(setDataFinance(result))
-            cb({message: "success"})
-        }else{
-            dispatch(resetDataFinance())
-            cb({message: "error"})
-        }
-    } catch(err) {
-        cb({message: "error system"})
+    const dataFinance = await AsyncStorage.getItem('DATAFINANCE')
+    if(dataFinance) {
+        const result = JSON.parse(dataFinance)
+        dispatch(setDataFinance(result))
+        cb({message: "success"})
+    }else{
+        dispatch(resetDataFinance())
+        cb({message: "error"})
     }
 }
 
@@ -47,7 +43,7 @@ export async function setupFinance(val, dispatch, cb) {
         dispatch(setDataFinance(result))
         cb({message: "success"})
     } catch(err) {
-        cb({message: "error system"})
+        cb({message: "error"})
     }
 }
 
@@ -84,48 +80,36 @@ export async function updateLoan(dispatch, val, cb) {
 }
 
 export async function removeLoan(dispatch, val, cb) {
-    try {
-        const { loanId, ...data } = val
-        const dataFinance = await AsyncStorage.getItem('DATAFINANCE')
-        if(dataFinance) {
-            const result = JSON.parse(dataFinance)
-            let newLoan = result.loan.filter(el => el.id !== loanId)
-            await AsyncStorage.setItem('DATAFINANCE', JSON.stringify({...result, ...data, loan: newLoan}))
-            dispatch(updateDataFinance({...data, loan: newLoan}))
-            cb({message: "success"})
-        }else{
-            dispatch(resetDataFinance())
-            cb({message: "error"})
-        }
-    } catch (err) {
-        cb({message: "error system"})
+    const { loanId, ...data } = val
+    const dataFinance = await AsyncStorage.getItem('DATAFINANCE')
+    if(dataFinance) {
+        const result = JSON.parse(dataFinance)
+        let newLoan = result.loan.filter(el => el.id !== loanId)
+        await AsyncStorage.setItem('DATAFINANCE', JSON.stringify({...result, ...data, loan: newLoan}))
+        dispatch(updateDataFinance({...data, loan: newLoan}))
+        cb({message: "success"})
+    }else{
+        dispatch(resetDataFinance())
+        cb({message: "error"})
     }
 }
 
 export async function updateFinance(dispatch, val, cb) {
-    try {
-        const { ...data } = val
-        const dataFinance = await AsyncStorage.getItem('DATAFINANCE')
-        if(dataFinance) {
-            const result = JSON.parse(dataFinance)
-            await AsyncStorage.setItem('DATAFINANCE', JSON.stringify({...result,...data}))
-            dispatch(updateDataFinance(data))
-            cb({message: "success"})
-        }else{
-            dispatch(resetDataFinance())
-            cb({message: "error"})
-        }
-    } catch (err) {
-        cb({message: "error system"})
+    const { ...data } = val
+    const dataFinance = await AsyncStorage.getItem('DATAFINANCE')
+    if(dataFinance) {
+        const result = JSON.parse(dataFinance)
+        await AsyncStorage.setItem('DATAFINANCE', JSON.stringify({...result,...data}))
+        dispatch(updateDataFinance(data))
+        cb({message: "success"})
+    }else{
+        dispatch(resetDataFinance())
+        cb({message: "error"})
     }
 }
 
 export async function resetFinance(dispatch, cb) {
-    try {
-        await AsyncStorage.removeItem('DATAFINANCE')
-        dispatch(resetDataFinance())
-        cb({message: "success"})
-    } catch (err) {
-        cb({message: "error system"})
-    }
+    await AsyncStorage.removeItem('DATAFINANCE')
+    dispatch(resetDataFinance())
+    cb({message: "success"})
 }

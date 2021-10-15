@@ -12,7 +12,7 @@
 // }
 
 const initialState = {
-    allData: null
+    allData: []
 }
 
 function historyLoanReducer(state = initialState, action) {
@@ -24,7 +24,7 @@ function historyLoanReducer(state = initialState, action) {
         return { ...state, allData: [payload].concat(state.allData) }
     }
     if (type === 'RESETHISTLOAN') {
-        return { ...state, allData: null }
+        return { ...state, allData: [] }
     }
 
     return state

@@ -1,18 +1,19 @@
 import PushNotification from "react-native-push-notification";
 
 export const createChannelNotification = () => {
-    PushNotification.createChannel({
-      channelId: "coba",
-      channelName: "coba"
-    })
+  PushNotification.createChannel({
+    channelId: "app",
+    channelName: "app"
+  })
 }
 
-export const handleNotif = (route, data) => {
+export const handleNotif = (navigator, screen, title, detail) => {
   PushNotification.localNotification({
-      channelId: "coba",
-      title: "Click sukses",
-      message: data,
-      bigText: "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-      data: { route: route },
+    channelId: "app",
+    title: title,
+    message: detail,
+    data: { navigator:navigator, screen:screen },
+    largeIcon: "ic_launcher",
+    smallIcon: "ic_launcher_round"
   })
 }
