@@ -32,14 +32,17 @@ export default function FormLoan({ navigation }) {
     }
 
     useEffect(() => {
-        if(amountDompet===null&&amountRealDompet===null&&amountTabungan===null) {
+        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
             fetchFinance(dispatch, (el) => {
-                if(el.message !== "success") {
-                    Alert.alert("Error", "Error Function", [], { cancelable:true })
+                if(el.message==="success") {
+                    setLoading(false)
+                }else{
+                    navigation.navigate("Splash")
                 }
             })
+        }else{
+            setLoading(false)
         }
-        setLoading(false)
     }, [])
 
     return (

@@ -12,7 +12,7 @@
 // }
 
 const initialState = {
-    allData: []
+    allData: null
 }
 
 function historyLoanReducer(state = initialState, action) {

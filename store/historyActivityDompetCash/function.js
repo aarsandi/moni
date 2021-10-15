@@ -16,11 +16,11 @@ export async function fetchHistDomCash(dispatch, cb) {
     if(dataHistDomCash) {
         const result = JSON.parse(dataHistDomCash)
         dispatch(setDataHistDomCash(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{ 
         await AsyncStorage.setItem('DATAHISTDOMCASH', JSON.stringify([]))
         dispatch(resetDataHistDomCash())
-        cb({message: "error"})
+        cb&&cb({message: "error"})
     }
 }
 

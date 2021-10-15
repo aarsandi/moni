@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Alert, ScrollView } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { leftDaysinMonth } from '../../helpers/calcDate'
 
+import { useIsFocused } from "@react-navigation/native";
 import { inputPengeluaran } from '../../store/app/function'
 import { fetchFinance } from '../../store/finance/function'
 import { fetchPlan, updatePlan } from '../../store/plan/function';
@@ -11,6 +12,7 @@ import CompFormSpend from '../../components/Form/CompFormSpend';
 
 export default function FormSpend({ navigation }) {
     const dispatch = useDispatch()
+    const isFocused = useIsFocused();
     const [ loading, setLoading ] = useState(true)
     const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
     const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
@@ -34,12 +36,6 @@ export default function FormSpend({ navigation }) {
                 const tempAmount = result.amount+result.tax
                 if(result.type==="Bulanan"){
                     if(result.selectedPengBul) {
-                        if(status==="active"&&dataFinance.totalBulanan+dataFinance.totalSisa<tempAmount) {
-                            Alert.alert("Error", "balance plan tidak cukup", [], { cancelable:true })
-                        }else{
-                            
-                        }
-
                         inputPengeluaran(dispatch, result, (el) => {
                             if(el.message === "success") {                                
                                 if(status==="active"&&result.payWith!=="Rekening Tabungan"){
@@ -65,70 +61,41 @@ export default function FormSpend({ navigation }) {
                         Alert.alert("Error", "Pilih Item Terlebih Dahulu", [], { cancelable:true })
                     }
                 }else if(result.type==="Harian"){
-                    if(status==="active"&&dataFinance.totalHarian+dataFinance.totalSisa<tempAmount) {
-                        Alert.alert("Error", "balance plan tidak cukup", [], { cancelable:true })
-                    }else{
-                        if(status==="active" && (uangHariIni+tempAmount)>uangHarian){
-                            Alert.alert("Warning", "anda sudah melebihi batas harian, apakah anda yakin ?", [{
-                                text: "Ok",
-                                onPress: () => {
-                                    inputPengeluaran(dispatch, result, (el) => {
-                                        if(el.message === "success") {
-                                            if(status==="active"&&result.payWith!=="Rekening Tabungan"){
-                                                resultPlan={
-                                                    uangTotal:uangTotal-tempAmount,
-                                                    uangHariIni:uangHariIni+tempAmount
+                    if(status==="active" && (uangHariIni+tempAmount)>uangHarian){
+                        Alert.alert("Warning", "anda sudah melebihi batas harian, apakah anda yakin ?", [{
+                            text: "Ok",
+                            onPress: () => {
+                                inputPengeluaran(dispatch, result, (el) => {
+                                    if(el.message === "success") {
+                                        if(status==="active"&&result.payWith!=="Rekening Tabungan"){
+                                            resultPlan={
+                                                uangTotal:uangTotal-tempAmount,
+                                                uangHariIni:uangHariIni+tempAmount
+                                            }
+                                            updatePlan(dispatch, resultPlan, (el) => {
+                                                if(el.message==="success"){
+                                                    navigation.navigate("Splash")
+                                                }else{
+                                                    Alert.alert("Error", "error function", [], { cancelable:true })
                                                 }
-                                                updatePlan(dispatch, resultPlan, (el) => {
-                                                    if(el.message==="success"){
-                                                        navigation.navigate("Splash")
-                                                    }else{
-                                                        Alert.alert("Error", "error function", [], { cancelable:true })
-                                                    }
-                                                })
-                                            }else{
-                                                navigation.navigate("Splash")
-                                            }
-                                        } else {
-                                            Alert.alert("Error", "error function", [], { cancelable:true })
+                                            })
+                                        }else{
+                                            navigation.navigate("Splash")
                                         }
-                                    })
-                                },
-                                style: "ok",
-                            }], { cancelable:true })
-                        }else{
-                            inputPengeluaran(dispatch, result, (el) => {
-                                if(el.message === "success") {
-                                    if(status==="active"&&result.payWith!=="Rekening Tabungan"){
-                                        resultPlan={
-                                            uangTotal:uangTotal-tempAmount,
-                                            uangHariIni:uangHariIni+tempAmount
-                                        }
-                                        updatePlan(dispatch, resultPlan, (el) => {
-                                            if(el.message==="success"){
-                                                navigation.navigate("Splash")
-                                            }else{
-                                                Alert.alert("Error", "error function", [], { cancelable:true })
-                                            }
-                                        })
-                                    }else{
-                                        navigation.navigate("Splash")
+                                    } else {
+                                        Alert.alert("Error", "error function", [], { cancelable:true })
                                     }
-                                } else {
-                                    Alert.alert("Error", "error function", [], { cancelable:true })
-                                }
-                            })
-                        }
-                    }                    
-                }else if(result.type==="Lainnya"){
-                    if(status==="active"&&dataFinance.totalSisa<tempAmount) {
-                        Alert.alert("Error", "balance plan tidak cukup", [], { cancelable:true })
+                                })
+                            },
+                            style: "ok",
+                        }], { cancelable:true })
                     }else{
                         inputPengeluaran(dispatch, result, (el) => {
                             if(el.message === "success") {
                                 if(status==="active"&&result.payWith!=="Rekening Tabungan"){
                                     resultPlan={
-                                        uangTotal:uangTotal-tempAmount
+                                        uangTotal:uangTotal-tempAmount,
+                                        uangHariIni:uangHariIni+tempAmount
                                     }
                                     updatePlan(dispatch, resultPlan, (el) => {
                                         if(el.message==="success"){
@@ -144,7 +111,28 @@ export default function FormSpend({ navigation }) {
                                 Alert.alert("Error", "error function", [], { cancelable:true })
                             }
                         })
-                    }
+                    }                  
+                }else if(result.type==="Lainnya"){
+                    inputPengeluaran(dispatch, result, (el) => {
+                        if(el.message === "success") {
+                            if(status==="active"&&result.payWith!=="Rekening Tabungan"){
+                                resultPlan={
+                                    uangTotal:uangTotal-tempAmount
+                                }
+                                updatePlan(dispatch, resultPlan, (el) => {
+                                    if(el.message==="success"){
+                                        navigation.navigate("Splash")
+                                    }else{
+                                        Alert.alert("Error", "error function", [], { cancelable:true })
+                                    }
+                                })
+                            }else{
+                                navigation.navigate("Splash")
+                            }
+                        } else {
+                            Alert.alert("Error", "error function", [], { cancelable:true })
+                        }
+                    })
                 }else{
                     Alert.alert("Error", "tipe pengeluaran tidak terdaftar", [], { cancelable:true })
                 }
@@ -154,27 +142,22 @@ export default function FormSpend({ navigation }) {
     }
 
     useEffect(() => {
-        if(amountTabungan===null&&amountDompet===null&&amountRealDompet===null) {
+        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
             fetchFinance(dispatch, (el) => {
-                if(el.message === "success") {
+                if(el.message==="success") {
+                    fetchPlan(dispatch)
                     setLoading(false)
                 }else{
                     navigation.navigate("Splash")
                 }
             })
+        }else{
+            setLoading(false)
         }
-    }, [amountDompet, amountTabungan])
+    }, [])
 
     useEffect(() => {
-        if(status===null) {
-            fetchPlan(dispatch, (el) => {
-                if(el.message === "success") {
-                    setLoading(false)
-                }else{
-                    setLoading(false)
-                }
-            })
-        }else{
+        if(status) {
             if(pengeluaranBulanan.length) {
                 const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
                     return accumulator + item.amount;
@@ -193,7 +176,6 @@ export default function FormSpend({ navigation }) {
                 calcFinance.totalHarian = resultTotalHarian
                 calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
                 setDataFinance(calcFinance)
-                setLoading(false)
             }else{
                 let calcFinance = {
                     totalBulanan: 0,
@@ -209,10 +191,9 @@ export default function FormSpend({ navigation }) {
                 calcFinance.totalHarian = resultTotalHarian
                 calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
                 setDataFinance(calcFinance)
-                setLoading(false)
             }
         }
-    }, [])
+    }, [isFocused])
 
     return (
         <View>
@@ -223,7 +204,11 @@ export default function FormSpend({ navigation }) {
                 </View>:
                 <ScrollView contentInsetAdjustmentBehavior="automatic" >
                     <Text>Pengeluaran</Text>
-                    <CompFormSpend data={{amountTabungan, amountDompet, amountRealDompet, status, pengeluaranBulanan, uangTotal, uangHariIni, uangHarian}} onSubmit={handleSubmit} navigation={navigation}/>
+                    <CompFormSpend data={{ amountTabungan, amountDompet, amountRealDompet, status, pengeluaranBulanan,
+                        planBulanan: dataFinance.totalBulanan+dataFinance.totalSisa,
+                        planHarian: dataFinance.totalHarian+dataFinance.totalSisa,
+                        planLainnya: dataFinance.totalSisa
+                    }} onSubmit={handleSubmit} navigation={navigation}/>
                 </ScrollView>
             }
         </View>

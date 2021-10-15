@@ -12,13 +12,9 @@ export default function HistoryDompet() {
 
     useEffect(() => {
         if(dataHistDom===null) {
-            fetchHistDom(dispatch, (el) => {
-                if(el.message !== "success") {
-                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
-                }
-            })
+            fetchHistDom(dispatch)
         }
-    }, [dataHistDom])
+    }, [])
 
     return (
         <View>

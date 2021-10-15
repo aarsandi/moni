@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, Button, ScrollView } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
-import { resetDataFinance } from '../../store/finance/function'
+import { fetchFinance } from '../../store/finance/function'
 import { fetchPlan } from '../../store/plan/function'
+import { useIsFocused } from "@react-navigation/native";
 import { leftDaysinMonth } from '../../helpers/calcDate'
 import { toRupiah } from '../../helpers/NumberToString'
 
 export default function Plan({ navigation }) {
     const dispatch = useDispatch()
-    const { status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
+    const isFocused = useIsFocused();
+    const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
     const [isLoading,setIsLoading] = useState(true)
 
     const [dataFinance, setDataFinance] = useState({
@@ -21,15 +24,22 @@ export default function Plan({ navigation }) {
     })
 
     useEffect(() => {
-        if(status===null&&type===null) {
-            fetchPlan(dispatch, (el) => {
-                if(el.message === "success") {
+        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
+            fetchFinance(dispatch, (el) => {
+                if(el.message==="success") {
+                    fetchPlan(dispatch)
                     setIsLoading(false)
                 }else{
-                    setIsLoading(false)
+                    navigation.navigate("Splash")
                 }
             })
         }else{
+            setIsLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        if(status) {
             if(uangTotal<=0) {
                 updatePlan(dispatch, {status:"failed"}, (el) => {
                     if(el.message !== "success") {
@@ -55,7 +65,6 @@ export default function Plan({ navigation }) {
                 calcFinance.totalHarian = resultTotalHarian
                 calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
                 setDataFinance(calcFinance)
-                setIsLoading(false)
             }else{
                 let calcFinance = {
                     totalBulanan: 0,
@@ -71,10 +80,9 @@ export default function Plan({ navigation }) {
                 calcFinance.totalHarian = resultTotalHarian
                 calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
                 setDataFinance(calcFinance)
-                setIsLoading(false)
             }
         }
-    }, [])
+    }, [isFocused])
 
     return (
         <View>

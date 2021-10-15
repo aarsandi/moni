@@ -9,7 +9,7 @@
 // }
 
 const initialState = {
-    allData: []
+    allData: null
 }
 
 function historyActivityDompetCashReducer(state = initialState, action) {

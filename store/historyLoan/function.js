@@ -16,11 +16,11 @@ export async function fetchHistLoan(dispatch, cb) {
     if(dataHistLoan) {
         const result = JSON.parse(dataHistLoan)
         dispatch(setDataHistLoan(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{ 
         await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify([]))
         dispatch(resetDataHistLoan())
-        cb({message: "error"})
+        cb&&cb({message: "error"})
     }
 }
 

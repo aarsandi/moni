@@ -1,5 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-
 import { updateFinance, addLoan, updateLoan, removeLoan } from '../finance/function'
 import { addHistPeng } from '../historyPengeluaran/function'
 import { addHistDom } from '../historyActivityDompet/function'
@@ -507,7 +505,6 @@ export async function inputPengeluaran(dispatch, val, cb) {
         amountRealDompet,amountTabungan,amountDompet,amountTabunganAft,amountDompetAft,
         title,detail,type,payWith,amount,tax
     } = val
-    console.log(val, "sdlodsld")
     const inputHistPeng = {title,detail,type,payWith,amount,tax}
 
     if(payWith === "Cash") {

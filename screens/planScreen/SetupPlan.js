@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
-import DatePicker from 'react-native-date-picker'
-import moment from 'moment'
-import MaskInput, { createNumberMask }  from 'react-native-mask-input';
-import {toRupiah} from '../../helpers/NumberToString';
-import SelectDropdown from 'react-native-select-dropdown'
 
-import { setupPlanAction } from '../../store/plan/function'
+import { fetchPlan, setupPlanAction } from '../../store/plan/function'
 import { fetchFinance } from '../../store/finance/function'
 
 import CompFormSetupPlan from '../../components/Form/CompFormSetupPlan'
@@ -47,23 +42,25 @@ export default function SetupPlan({ navigation }) {
     }
 
     useEffect(() => {
-        if(amountRealDompet===null&&amountTabungan===null&&amountDompet===null) {
+        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
             fetchFinance(dispatch, (el) => {
-                if(el.message === "success") {
+                if(el.message==="success") {
+                    fetchPlan(dispatch)
                     setLoading(false)
                 }else{
                     navigation.navigate("Splash")
                 }
             })
         }else{
-            if(loan.length){
-                const nowDate = new Date().getMonth();
-                const thisMonthLoan = loan.filter((el) => new Date(el.due_date).getMonth() === nowDate)
-                setThisMonthLoan(thisMonthLoan)
-                setLoading(false)
-            }else{
-                setLoading(false)
-            }
+            setLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        if(loan.length){
+            const nowDate = new Date().getMonth();
+            const thisMonthLoan = loan.filter((el) => new Date(el.due_date).getMonth() === nowDate)
+            setThisMonthLoan(thisMonthLoan)
         }
     }, [loan])
 
@@ -81,42 +78,4 @@ export default function SetupPlan({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
-  },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center"
-  },
-  buttonClose: {
-    backgroundColor: "#2196F3",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
-  },
 })

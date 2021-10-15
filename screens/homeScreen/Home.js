@@ -2,13 +2,20 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, Button, Alert, ScrollView } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import moment from "moment"
+import { useIsFocused } from "@react-navigation/native";
 import { toRupiah } from '../../helpers/NumberToString'
 import { leftDaysinMonth } from '../../helpers/calcDate'
 
 import { fetchPlan, updatePlan } from '../../store/plan/function'
+import { fetchFinance } from '../../store/finance/function'
 
 export default function Home({ navigation }) {
     const dispatch = useDispatch()
+    const isFocused = useIsFocused();
+    const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
+    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan,updateCron } = useSelector((state) => state.planReducer)
+    
+    const [loading, setLoading] = useState(true)
     const [dataFinance, setDataFinance] = useState({
         totalBulanan: 0,
         totalSisa: 0,
@@ -18,14 +25,22 @@ export default function Home({ navigation }) {
         uangTotal: 0
     })
 
-    const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
-    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan,updateCron } = useSelector((state) => state.planReducer)
-    
-    // fetch and setup data plan
     useEffect(() => {
-        fetchPlan(dispatch, (el) => {
-                
-        })
+        if(nama===null, amountTabungan===null, amountDompet===null, amountRealDompet===null) {
+            fetchFinance(dispatch, (el) => {
+                if(el.message==="success") {
+                    fetchPlan(dispatch)
+                    setLoading(false)
+                }else{
+                    navigation.navigate("Splash")
+                }
+            })
+        }else{
+            setLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
         if(status) {
             if(uangTotal<=0) {
                 updatePlan(dispatch, {status:"failed"}, (el) => {
@@ -69,7 +84,7 @@ export default function Home({ navigation }) {
                 setDataFinance(calcFinance)
             }
         }
-    }, [])
+    }, [isFocused])
 
     return (
         <View>

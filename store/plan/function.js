@@ -16,10 +16,10 @@ export async function fetchPlan(dispatch, cb) {
     const result = JSON.parse(dataPlan)
     if(result) {
         dispatch(setDataPlan(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{
         dispatch(resetDataPlan())
-        cb({message: "error"})
+        cb&&cb({message: "error"})
     }
 }
 

@@ -16,11 +16,11 @@ export async function fetchHistPeng(dispatch, cb) {
     if(dataHistPeng) {
         const result = JSON.parse(dataHistPeng)
         dispatch(setDataHistPeng(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{ 
         await AsyncStorage.setItem('DATAHISTPENG', JSON.stringify([]))
         dispatch(resetDataHistPeng())
-        cb({message: "error"})
+        cb&&cb({message: "error"})
     }
 }
 

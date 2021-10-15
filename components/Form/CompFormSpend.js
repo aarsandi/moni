@@ -1,23 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, Button, TextInput, Alert, Pressable, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Button, TextInput, TouchableOpacity } from 'react-native'
 import MaskInput, { createNumberMask }  from 'react-native-mask-input';
 import SelectDropdown from 'react-native-select-dropdown'
 import { toRupiah } from '../../helpers/NumberToString'
 
 export default function CompFormSpend({data, onSubmit, navigation}) {
-    const { amountTabungan, amountDompet, amountRealDompet, status, pengeluaranBulanan, uangTotal, uangHariIni, uangHarian } = data
+    const { amountTabungan, amountDompet, amountRealDompet, pengeluaranBulanan, status, planBulanan, planHarian, planLainnya } = data
     const [error, setError] = useState(false)
     const [selectedPengBul, setSelectedPengBul] = useState(null)
-    const [dataForm,setDataForm] = useState({
-        title: "",
-        detail: "",
-        type: "",
-        payWith: "",
-        amount: "",
-        tax: "0",
-        amountDompetAft: "",
-        amountTabunganAft: "",
-    })
+    const [dataForm,setDataForm] = useState({ title: "", detail: "", type: "", payWith: "", amount: "", tax: "0", amountDompetAft: "", amountTabunganAft: "" })
 
     const handleChangeMany = (value) => {
         setDataForm({
@@ -50,12 +41,19 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
                     amountDompetAft: Number(dataForm.amountDompetAft),
                     selectedPengBul: selectedPengBul
                 }
+                const realAmount = result.amount+result.tax
                 if(result.payWith === "Cash"&&amountRealDompet<=result.amount) {
                     setError('balance cash tidak cukup')
-                }else if(result.payWith === "Rekening Dompet"&&amountDompet<=(result.amount+result.tax)) {
+                }else if(result.payWith === "Rekening Dompet"&&amountDompet<=realAmount) {
                     setError('balance rekening tidak cukup')
-                }else if(result.payWith === "Rekening Tabungan"&&amountTabungan<=(result.amount+result.tax)) {
+                }else if(result.payWith === "Rekening Tabungan"&&amountTabungan<=realAmount) {
                     setError('balance tabungan tidak cukup')
+                }else if(status==="active"&&dataForm.type==="Harian"&&planHarian<realAmount) {
+                    setError('balance plan tidak cukup')
+                }else if(status==="active"&&dataForm.type==="Bulanan"&&planBulanan<realAmount) {
+                    setError('balance plan tidak cukup')
+                }else if(status==="active"&&dataForm.type==="Lainnya"&&planLainnya<realAmount) {
+                    setError('balance plan tidak cukup')
                 }else{
                     onSubmit(result)
                 }
@@ -75,7 +73,7 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
             handleChangeMany({tax: tax, amountDompetAft: "0"})
         }
         if(dataForm.payWith === "Cash"&&dataForm.amount) {
-            handleChangeMany({amountTabunganAft: "0", amountDompetAft: "0"})
+            handleChangeMany({tax: "0", amountTabunganAft: "0", amountDompetAft: "0"})
         }
     }, [dataForm.amountDompetAft, dataForm.payWith, dataForm.amountTabunganAft, dataForm.amount])
 
@@ -88,15 +86,7 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
     useEffect(() => {
         if(dataForm.type){
             setSelectedPengBul(null)
-            handleChangeMany({
-                title: "",
-                detail: "",
-                payWith: "",
-                amount: "",
-                tax: "0",
-                amountDompetAft: "",
-                amountTabunganAft: ""
-            })
+            handleChangeMany({ title: "", detail: "", payWith: "", amount: "", tax: "0", amountDompetAft: "", amountTabunganAft: "" })
         }
     }, [dataForm.type])
 
@@ -179,7 +169,18 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
             }
             {
                 dataForm.payWith === "Cash"&&
-                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Dompet cash : {toRupiah(amountRealDompet, 'Rp. ')}</Text>
+                <>
+                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Dompet cash : {toRupiah(amountRealDompet, 'Rp. ')}</Text>
+                    {
+                        status&&dataForm.type==="Harian"&& <Text style={ { fontSize: 15, fontWeight: 'bold' } }>balance plan : {toRupiah(planHarian)}</Text> 
+                    }
+                    {
+                        status&&dataForm.type==="Bulanan"&& <Text style={ { fontSize: 15, fontWeight: 'bold' } }>balance plan : {toRupiah(planBulanan)}</Text>
+                    }
+                    {
+                        status&&dataForm.type==="Lainnya"&& <Text style={ { fontSize: 15, fontWeight: 'bold' } }>balance plan : {toRupiah(planLainnya)}</Text>
+                    }
+                </>
             }
             {
                 dataForm.payWith === "Rekening Dompet"&&
@@ -190,6 +191,15 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
                         mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                     />
                     <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Dompet rekening : {toRupiah(amountDompet, 'Rp. ')}</Text>
+                    {
+                        status&&dataForm.type==="Harian"&& <Text style={ { fontSize: 15, fontWeight: 'bold' } }>balance plan : {toRupiah(planHarian)}</Text> 
+                    }
+                    {
+                        status&&dataForm.type==="Bulanan"&& <Text style={ { fontSize: 15, fontWeight: 'bold' } }>balance plan : {toRupiah(planBulanan)}</Text>
+                    }
+                    {
+                        status&&dataForm.type==="Lainnya"&& <Text style={ { fontSize: 15, fontWeight: 'bold' } }>balance plan : {toRupiah(planLainnya)}</Text>
+                    }
                     <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tax :</Text>
                     <TextInput editable={false} value={toRupiah(dataForm.tax, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383" />
                 </>
@@ -203,6 +213,15 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
                         mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                     />
                     <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tabungan : {toRupiah(amountTabungan, 'Rp. ')}</Text>
+                    {
+                        status&&dataForm.type==="Harian"&& <Text style={ { fontSize: 15, fontWeight: 'bold' } }>balance plan : {toRupiah(planHarian)}</Text> 
+                    }
+                    {
+                        status&&dataForm.type==="Bulanan"&& <Text style={ { fontSize: 15, fontWeight: 'bold' } }>balance plan : {toRupiah(planBulanan)}</Text>
+                    }
+                    {
+                        status&&dataForm.type==="Lainnya"&& <Text style={ { fontSize: 15, fontWeight: 'bold' } }>balance plan : {toRupiah(planLainnya)}</Text>
+                    }
                     <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tax :</Text>
                     <TextInput editable={false} value={toRupiah(dataForm.tax, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383" />
                 </>
@@ -219,7 +238,7 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
             
             <View style={{marginVertical:10}}>
                 <Button title="Cancel" onPress={() => {
-                    setDataForm({title: "",detail: "",type: "",payWith: "",amount: "",tax: "",amountDompetAft: "",amountTabunganAft: ""})
+                    setDataForm({title: "",detail: "",type: "",payWith: "",amount: "",tax: "0",amountDompetAft: "",amountTabunganAft: ""})
                     setSelectedPengBul(null)
                     navigation.navigate("Splash")
                 }} />

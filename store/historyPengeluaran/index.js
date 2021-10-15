@@ -10,7 +10,7 @@
 // }
 
 const initialState = {
-    allData: []
+    allData: null
 }
 
 function historyPengeluaranReducer(state = initialState, action) {

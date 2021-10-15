@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, Button } from 'react-native'
 import { resetHistPeng } from '../../store/historyPengeluaran/function'
 import { resetPlan } from '../../store/plan/function'
@@ -9,14 +9,19 @@ import CompFormChangeAmount from '../../components/Form/CompFormChangeAmount'
 export default function setting({navigation}) {
     const dispatch = useDispatch()
     const { amountDompet, amountRealDompet, amountTabungan } = useSelector((state) => state.financeReducer)
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         if(amountDompet===null&&amountRealDompet===null) {
             fetchFinance(dispatch, (el) => {
-                if(el.message !== "success") {
+                if(el.message === "success") {
+                    setLoading(false)
+                }else{
                     navigation.navigate("Splash")
                 }
             })
+        }else{
+            setLoading(false)
         }
     }, [])
 

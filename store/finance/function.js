@@ -17,10 +17,10 @@ export async function fetchFinance(dispatch, cb) {
     if(dataFinance) {
         const result = JSON.parse(dataFinance)
         dispatch(setDataFinance(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{
         dispatch(resetDataFinance())
-        cb({message: "error"})
+        cb&&cb({message: "error"})
     }
 }
 

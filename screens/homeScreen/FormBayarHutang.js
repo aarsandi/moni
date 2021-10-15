@@ -3,11 +3,13 @@ import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { inputPayLoan } from '../../store/app/function'
 
+import { useIsFocused } from "@react-navigation/native";
 import CompFormPayLoan from '../../components/Form/CompFormPayLoan'
 
 export default function FormBayarHutang({ route, navigation }) {
     const dispatch = useDispatch()
     const { itemId } = route.params;
+    const isFocused = useIsFocused();
     const { amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
     const [selectedLoan, setSelectedLoan] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -33,7 +35,7 @@ export default function FormBayarHutang({ route, navigation }) {
     }
 
     useEffect(() => {
-        if(loan.length&&itemId) {
+        if(loan.length&&itemId&&amountDompet!==null) {
             const findLoan = loan.find((el) => {
                 return el.id === itemId
             })
@@ -46,7 +48,7 @@ export default function FormBayarHutang({ route, navigation }) {
         }else{
             navigation.navigate("Splash")
         }
-    }, [itemId, loan])
+    }, [itemId, loan, isFocused])
 
     return (
         <View>

@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { fetchFinance } from '../../store/finance/function';
+import { fetchPlan } from '../../store/plan/function';
+import { fetchHistPeng } from '../../store/historyPengeluaran/function';
 import { useIsFocused } from "@react-navigation/native";
 
 export default function Splash({navigation}) {
@@ -15,6 +17,8 @@ export default function Splash({navigation}) {
         }else{
             fetchFinance(dispatch, (el) => {
                 if(el.message === "success") {
+                    fetchPlan(dispatch)
+                    fetchHistPeng(dispatch)
                     navigation.navigate("AppScreenNavigator")
                 }else{
                     navigation.navigate("Intro")

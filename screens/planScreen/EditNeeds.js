@@ -13,9 +13,8 @@ import { leftDaysinMonth } from '../../helpers/calcDate'
 
 export default function EditNeeds({ navigation }) {
     const dispatch = useDispatch()
-    // reducer
-    const { status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
     const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
 
     const [openBulanan, setOpenBulanan] = useState(false)
     const [openForm, setOpenForm] = useState(false)
@@ -41,8 +40,6 @@ export default function EditNeeds({ navigation }) {
         updatePlan(dispatch, {pengeluaranBulanan: resultSubmit}, (el) => {
             if(el==="success") {
                 setError(null)
-            }else{
-                setError("function error")
             }
         })
     }
@@ -97,37 +94,29 @@ export default function EditNeeds({ navigation }) {
                 updatePlan(dispatch, {pengeluaranBulanan: resultSubmit}, (el) => {
                     if(el==="success") {
                         setError(null)
-                    }else{
-                        setError("function error")
                     }
                 })
             }
         }
     }
-    
+
     useEffect(() => {
-        if(type===null&&status===null) {
-            fetchPlan(dispatch, (el) => {
-                if(el.message !== "success") {
-                    navigation.navigate("Splash")
-                }
-            })
-        }
-        if(amountRealDompet===null&&amountTabungan===null&&amountDompet===null) {
+        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
             fetchFinance(dispatch, (el) => {
-                if(el.message !== "success") {
+                if(el.message==="success") {
+                    fetchPlan(dispatch)
+                    setLoading(false)
+                }else{
                     navigation.navigate("Splash")
                 }
             })
+        }else{
+            setLoading(false)
         }
-        if(pengeluaranBulanan.length) {
-            setMonthlyNeeds(pengeluaranBulanan)
-        }
-        setLoading(false)
     }, [])
 
     useEffect(() => {
-        if(status!==null&&type!==null) {
+        if(status) {
             if(pengeluaranBulanan.length) {
                 const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
                     return accumulator + item.amount;
@@ -163,7 +152,7 @@ export default function EditNeeds({ navigation }) {
                 setDataFinance(calcFinance)
             }
         }
-    }, [status, type, pengeluaranBulanan, uangTotal])
+    }, [status, uangTotal, pengeluaranBulanan])
 
     return (
         <View>
@@ -202,7 +191,7 @@ export default function EditNeeds({ navigation }) {
                             openForm&&
                             <>
                                 <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Title :</Text>
-                                <TextInput onChangeText={text => handleChangeNeed(text, 'title')} placeholder="Title" style={ styles.textInput } placeholderTextColor="#838383" />
+                                <TextInput onChangeText={text => handleChangeNeed(text, 'title')} placeholder="Title" placeholderTextColor="#838383" />
                                 <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah :</Text>
                                 <MaskInput keyboardType='number-pad' 
                                     value={dataNeed.amount} onChangeText={(masked, unmasked, obfuscated) => { handleChangeNeed(unmasked, 'amount') }}
@@ -255,13 +244,13 @@ export default function EditNeeds({ navigation }) {
                                     error && <Text style={{ color: "red" }}>error: {error}</Text>
                                 }
                                 <TouchableOpacity onPress={handleSubmitNeeds} style={ { backgroundColor:'#ea8685',marginHorizontal:20,padding:10 } }>
-                                    <Text style={ { ...styles.buttonText, color: 'white' } }>Submit</Text>
+                                    <Text style={ { color: 'white' } }>Submit</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={()=>{
                                     setOpenForm(false)
                                     setDataNeed({ title: "", amount: "", due_date: new Date() })
                                 }} style={ { backgroundColor:'#ea8685',marginHorizontal:20,padding:10 } }>
-                                    <Text style={ { ...styles.buttonText, color: 'white' } }>Cancel</Text>
+                                    <Text style={ { color: 'white' } }>Cancel</Text>
                                 </TouchableOpacity>
                             </>
                         }

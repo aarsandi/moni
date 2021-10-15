@@ -16,11 +16,11 @@ export async function fetchHistTab(dispatch, cb) {
     if(dataHistTab) {
         const result = JSON.parse(dataHistTab)
         dispatch(setDataHistTab(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{ 
         await AsyncStorage.setItem('DATAHISTTAB', JSON.stringify([]))
         dispatch(resetDataHistTab())
-        cb({message: "error"})
+        cb&&cb({message: "error"})
     }
 }
 
