@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { toRupiah } from '../../helpers/NumberToString'
@@ -11,6 +11,7 @@ import CompFormInputPenghasilan from '../../components/Form/CompFormInputPenghas
 export default function FormInputPenghasilan({navigation}) {
     const dispatch = useDispatch()
     const { amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const [loading, setLoading] = useState(true)
     
     const handleSubmit = (val) => {
         Alert.alert("Info", "are you sure?", [{
@@ -31,12 +32,16 @@ export default function FormInputPenghasilan({navigation}) {
     }
     
     useEffect(() => {
-        if(amountDompet===null&&amountRealDompet===null) {
+        if(amountDompet===null, amountRealDompet===null) {
             fetchFinance(dispatch, (el) => {
-                if(el.message !== "success") {
+                if(el.message==="success") {
+                    setLoading(false)
+                }else{
                     navigation.navigate("Splash")
                 }
             })
+        }else{
+            setLoading(false)
         }
     }, [])
 

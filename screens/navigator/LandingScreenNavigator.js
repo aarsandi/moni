@@ -3,7 +3,7 @@ import { useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { setIsDarkMode } from '../../store/app/function';
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 // Sreens
 import AppScreenNavigator from './AppScreenNavigator';
@@ -11,16 +11,15 @@ import Intro from '../landingScreen/Intro';
 import Register from '../landingScreen/Register';
 import Splash from '../landingScreen/Splash';
 import { navigationRef } from '../../helpers/rootNavigation';
-// import { createChannelNotification } from '../../helpers/pushNotification'
 
 export default function LandingScreenNavigator() {
   const Stack = createNativeStackNavigator();
+  const {isDarkMode} = useSelector((state) => state.appReducer)
   const darkMode = useColorScheme();
   const dispatch = useDispatch()
 
   useEffect(() => {
-    // createChannelNotification()
-    dispatch(setIsDarkMode(darkMode === 'dark'))
+    dispatch(setIsDarkMode(darkMode === 'dark' ? '#000000':'#ffffff'))
   }, [darkMode])
 
   return (

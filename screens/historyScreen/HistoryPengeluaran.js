@@ -12,13 +12,9 @@ export default function HistoryPengeluaran() {
 
     useEffect(() => {
         if(dataHistPeng===null) {
-            fetchHistPeng(dispatch, (el) => {
-                if(el.message !== "success") {
-                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
-                }
-            })
+            fetchHistPeng(dispatch)
         }
-    }, [dataHistPeng])
+    }, [])
 
     return (
         <View>

@@ -1,7 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-
-import { fetchFinance, updateFinance, resetFinance, addLoan, updateLoan, removeLoan } from '../finance/function'
-import { fetchPlan, updatePlan, resetPlan } from '../plan/function'
+import { updateFinance, addLoan, updateLoan, removeLoan } from '../finance/function'
 import { addHistPeng } from '../historyPengeluaran/function'
 import { addHistDom } from '../historyActivityDompet/function'
 import { addHistDomCash } from '../historyActivityDompetCash/function'
@@ -225,7 +222,7 @@ export async function inputPayLoan(dispatch, val, cb) {
         }, (el) => {
             if(el.message==="success") {
                 addHistDom(dispatch, {
-                    title: title,
+                    title: "Pinjaman",
                     type: "Pengeluaran",
                     amount: amountDompet-amountDompetAft,
                     balanceAfr: amountDompetAft,
@@ -233,7 +230,7 @@ export async function inputPayLoan(dispatch, val, cb) {
                 }, (el) => {
                     if(el.message==="success") {
                         addHistTab(dispatch, {
-                            title: title,
+                            title: "Pinjaman",
                             type: "Pemasukan",
                             amount: amountTabunganAft-amountTabungan,
                             balanceAfr: amountTabunganAft,
@@ -409,7 +406,7 @@ export async function inputNabung(dispatch, val, cb) {
         updateFinance(dispatch, {amountDompet: amountDompetAft, amountTabungan: amountTabunganAft}, (el) => {
             if(el.message === "success") {
                 addHistDom(dispatch, {
-                    title: title,
+                    title: "Nabung",
                     type:"Pengeluaran",
                     amount:amountDompet-amountDompetAft,
                     balanceAfr: amountDompetAft,
@@ -417,7 +414,7 @@ export async function inputNabung(dispatch, val, cb) {
                 }, (el) => {
                     if(el.message === "success") {
                         addHistTab(dispatch, {
-                            title: title,
+                            title: "Nabung",
                             type: "Pemasukan",
                             amount: amountTabunganAft-amountTabungan,
                             balanceAfr: amountTabunganAft,
@@ -456,7 +453,7 @@ export async function inputNabung(dispatch, val, cb) {
         updateFinance(dispatch, {amountRealDompet: amountRealDompet-amount, amountTabungan:amountTabunganAft}, (el) => {
             if(el.message === "success") {
                 addHistDomCash(dispatch, {
-                    title: title,
+                    title: "Nabung",
                     type:"Pengeluaran",
                     amount:amount,
                     balanceAfr: amountRealDompet-amount,
@@ -464,7 +461,7 @@ export async function inputNabung(dispatch, val, cb) {
                 }, (el) => {
                     if(el.message === "success") {
                         addHistTab(dispatch, {
-                            title: title,
+                            title: "Nabung",
                             type: "Pemasukan",
                             amount: amountTabunganAft-amountTabungan,
                             balanceAfr: amountTabunganAft,
@@ -516,7 +513,7 @@ export async function inputPengeluaran(dispatch, val, cb) {
                 addHistPeng(dispatch, inputHistPeng, (el) => {
                     if(el.message === "success") {
                         addHistDomCash(dispatch, {
-                            title: title,
+                            title: `Pengeluaran ${type}`,
                             type: "Pengeluaran",
                             amount: amount,
                             balanceAfr: amountRealDompet-amount,
@@ -542,7 +539,7 @@ export async function inputPengeluaran(dispatch, val, cb) {
                 addHistPeng(dispatch, inputHistPeng, (el) => {
                     if(el.message === "success") {
                         addHistDom(dispatch, {
-                            title: title,
+                            title: `Pengeluaran ${type}`,
                             type:"Pengeluaran",
                             amount:amount+tax,
                             balanceAfr:amountDompetAft,
@@ -568,7 +565,7 @@ export async function inputPengeluaran(dispatch, val, cb) {
                 addHistPeng(dispatch, inputHistPeng, (el) => {
                     if(el.message === "success") {
                         addHistTab(dispatch, {
-                            title: title,
+                            title: `Pengeluaran ${type}`,
                             type: "Pengeluaran",
                             amount: amount+tax,
                             balanceAfr: amountTabunganAft,

@@ -22,7 +22,7 @@ function historyPengeluaranReducer(state = initialState, action) {
         return { ...state, allData: [payload].concat(state.allData) }
     }
     if (type === 'RESETHISTPENG') {
-        return { ...state, allData: null }
+        return { ...state, allData: [] }
     }
 
     return state

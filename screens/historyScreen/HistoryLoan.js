@@ -12,13 +12,9 @@ export default function HistoryLoan() {
 
     useEffect(() => {
         if(dataHistLoan===null) {
-            fetchHistLoan(dispatch, (el) => {
-                if(el.message !== "success") {
-                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
-                }
-            })
+            fetchHistLoan(dispatch)
         }
-    }, [dataHistLoan])
+    }, [])
 
     return (
         <View>

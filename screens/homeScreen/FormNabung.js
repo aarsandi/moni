@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { toRupiah } from '../../helpers/NumberToString'
 
+import { useIsFocused } from "@react-navigation/native";
 import { inputNabung } from '../../store/app/function'
 import { fetchPlan, updatePlan } from '../../store/plan/function';
 import { fetchFinance } from '../../store/finance/function'
@@ -13,14 +14,16 @@ import { leftDaysinMonth } from '../../helpers/calcDate'
 export default function FormNabung({route, navigation}) {
     const dispatch = useDispatch()
     const { isPlan } = route.params;
+    const isFocused = useIsFocused();
+    const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)   
+    
+    const [ loading, setLoading ] = useState(true)
     const [dataFinance, setDataFinance] = useState({
         totalBulanan: 0,
         totalSisa: 0,
         jumlahDitabung: 0
     })
-    
-    const { nama, amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
-    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)    
 
     const handleSubmit = (val) => {
         Alert.alert("Info", "are you sure?", [{
@@ -65,21 +68,22 @@ export default function FormNabung({route, navigation}) {
     }
     
     useEffect(() => {
-        if(nama===null&&amountDompet===null&&amountRealDompet===null) {
+        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
             fetchFinance(dispatch, (el) => {
-                if(el.message !== "success") {
+                if(el.message==="success") {
+                    fetchPlan(dispatch)
+                    setLoading(false)
+                }else{
                     navigation.navigate("Splash")
                 }
             })
+        }else{
+            setLoading(false)
         }
     }, [])
 
     useEffect(() => {
-        if(status===null&&uangTotal===null&&jumlahDitabung===null) {
-            fetchPlan(dispatch, (el) => {
-                
-            })
-        }else{
+        if(status) {
             if(isPlan) {
                 if(pengeluaranBulanan.length) {
                     const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
@@ -105,7 +109,7 @@ export default function FormNabung({route, navigation}) {
                 }
             }            
         }
-    }, [])
+    }, [isFocused])
 
     return (
         <View>

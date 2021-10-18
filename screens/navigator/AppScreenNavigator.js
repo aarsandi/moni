@@ -22,7 +22,7 @@ export default function AppScreenNavigator({ navigation }) {
     }, [isFocused])
 
     return (
-        <Tab.Navigator 
+        <Tab.Navigator
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName;

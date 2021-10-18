@@ -12,13 +12,9 @@ export default function HistoryTabungan() {
 
     useEffect(() => {
         if(dataHistTab===null) {
-            fetchHistTab(dispatch, (el) => {
-                if(el.message !== "success") {
-                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
-                }
-            })
+            fetchHistTab(dispatch)
         }
-    }, [dataHistTab])
+    }, [])
     return (
         <View>
             <Text>data history</Text>

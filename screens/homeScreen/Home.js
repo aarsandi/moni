@@ -1,15 +1,31 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, Button, Alert, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView, Button } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import moment from "moment"
+import { useIsFocused } from "@react-navigation/native";
 import { toRupiah } from '../../helpers/NumberToString'
 import { leftDaysinMonth } from '../../helpers/calcDate'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { fetchPlan, updatePlan } from '../../store/plan/function'
-// import { handleNotif } from '../../helpers/pushNotification'
+import { fetchFinance } from '../../store/finance/function'
+import { fetchHistPeng } from '../../store/historyPengeluaran/function'
 
 export default function Home({ navigation }) {
     const dispatch = useDispatch()
+    const isFocused = useIsFocused();
+    const { isDarkMode } = useSelector((state) => state.appReducer)
+    const [thisMonthLoan,setThisMonthLoan]=useState([])
+    const [todayHistPeng,setTodayHistPeng]=useState({
+        total: 0,
+        date: new Date,
+        data: []
+    })
+    const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
+    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan,updateCron } = useSelector((state) => state.planReducer)
+    const dataHistPeng = useSelector((state) => state.historyPengeluaranReducer.allData)
+    
+    const [loading, setLoading] = useState(true)
     const [dataFinance, setDataFinance] = useState({
         totalBulanan: 0,
         totalSisa: 0,
@@ -19,14 +35,28 @@ export default function Home({ navigation }) {
         uangTotal: 0
     })
 
-    const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
-    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan,updateCron } = useSelector((state) => state.planReducer)
-    
-    // fetch and setup data plan
     useEffect(() => {
-        fetchPlan(dispatch, (el) => {
-                
-        })
+        if(dataHistPeng===null) {
+            fetchHistPeng(dispatch)
+        }
+    }, [])
+
+    useEffect(() => {
+        if(nama===null, amountTabungan===null, amountDompet===null, amountRealDompet===null) {
+            fetchFinance(dispatch, (el) => {
+                if(el.message==="success") {
+                    fetchPlan(dispatch)
+                    setLoading(false)
+                }else{
+                    navigation.navigate("Splash")
+                }
+            })
+        }else{
+            setLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
         if(status) {
             if(uangTotal<=0) {
                 updatePlan(dispatch, {status:"failed"}, (el) => {
@@ -70,118 +100,157 @@ export default function Home({ navigation }) {
                 setDataFinance(calcFinance)
             }
         }
-    }, [])
+    }, [isFocused])
+
+    useEffect(() => {
+        if(loan.length){
+            const nowDate = new Date().getMonth();
+            const thisMonthLoan = loan.filter((el) => new Date(el.due_date).getMonth() === nowDate)
+            setThisMonthLoan(thisMonthLoan)
+        }
+    }, [loan])
+
+    useEffect(() => {
+        if(dataHistPeng){
+            let time = new Date().setHours(0, 0, 0, 0e2)
+            const todayPeng = dataHistPeng.filter((el) => el.date >= time)
+            const resTot = dataHistPeng.reduce(function (accumulator, item) {
+                return accumulator + (item.amount+item.tax);
+            }, 0)
+            setTodayHistPeng({
+                total: resTot,
+                date: time,
+                data: todayPeng
+            })
+        }
+    }, [dataHistPeng])
 
     return (
-        <View>
-            <Text>Selamat Datang {nama}</Text>
-            <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                { status?
-                    <View style={{paddingVertical: 20}}>
-                        <Text>Total: {dataFinance?toRupiah(dataFinance.uangTotal, "Rp. "):"Rp. 0"}</Text>
-                        <Text>jumlah Ditabung: {dataFinance?toRupiah(dataFinance.jumlahDitabung):"Rp. 0"}</Text>
-                        <Text>Uang harian: {dataFinance?toRupiah(dataFinance.totalHarian):"Rp. 0"}{dataFinance?` - ${dataFinance.sisaHari} remains days`:""}</Text>
-                        <Text>Uang bulanan: {dataFinance?toRupiah(dataFinance.totalBulanan):"Rp. 0"}</Text>
-                        <Text style={{marginBottom:10}}>Uang sisa: {dataFinance?toRupiah(dataFinance.totalSisa):"Rp. 0"}</Text>
-
-                        <Text>batas Harian: {toRupiah(uangHarian)}</Text>
-                        <Text>pengeluaran hari ini: {toRupiah(uangHariIni)}</Text>
-                        <Text>updated at: {updateCron?new Date(updateCron).toLocaleString():"-"}</Text>
-                        <View style={{flexDirection:'row', alignItems:'center'}}>
-                            <Text style={{flex:4}}>Uang yang ingin ditabung: {toRupiah(jumlahDitabung, "Rp. ")}</Text>
-                            {
-                                jumlahDitabung>0&&
-                                <View style={{flex:1, paddingVertical:5}}>
-                                    <Button title="Tabung" onPress={() => {
-                                        navigation.navigate("FormNabung", {
-                                            isPlan: true
-                                        })
-                                    }}/>
-                                </View>
-                            }
-                        </View>
-                        {
-                            status!=="active"&&
-                            <>
-                                <Text>Plan anda {status==="completed"?"sudah selesai":"gagal atau balance plan habis"}</Text>
-                                <Button title="Create New Plan" onPress={() => {
-                                    navigation.navigate("PlanScreenNavigator", { screen: 'SetupPlan' })
-                                }} />
-                            </>
-                        }
-                    </View>:
-                    <View style={{paddingVertical: 20}}>
-                        <Text>Anda Belum mengaktifkan finansial plan</Text>
-                        <Button title="Aktifkan" onPress={() => {
-                            navigation.navigate("PlanScreenNavigator", { screen: 'SetupPlan' })
-                        }} />
+        <View style={{ backgroundColor: isDarkMode, flex: 1, flexDirection:'column' }}>
+            <View style={{backgroundColor: "#14213d", padding: 10 }}>
+                <View style={{flexDirection:'row', paddingVertical: 8 }}>
+                    <View style={{flex: 2, paddingLeft: 10, justifyContent: 'center'}}>
+                        <Text style={{ color: 'white', fontSize: 15, fontWeight: "500" }}>SAVING ACCOUNT</Text>
                     </View>
-                }
-
-                <View style={{paddingVertical: 5}}>
-                    <Text>tabungan: {amountTabungan}</Text>
-                    <Text>uang rekening: {amountDompet}</Text>
-                    <Text>uang cash: {amountRealDompet}</Text>
+                    <View style={{flex: 3, paddingLeft: 10, alignItems: 'flex-end'}}>
+                        <Text style={{ color: 'white', fontSize: 20, fontWeight: "bold" }}>{toRupiah(amountTabungan, "Rp. ")}</Text>
+                    </View>
                 </View>
 
-                <View style={{paddingVertical: 5}}>
-                    <Text>Loan Bill</Text>
+                <View style={{flexDirection:'row', paddingVertical: 8 }}>
+                    <View style={{flex: 2, paddingLeft: 10, justifyContent: 'center'}}>
+                        <Text style={{ color: 'white', fontSize: 15, fontWeight: "500" }}>WALLET ACCOUNT</Text>
+                    </View>
+                    <View style={{flex: 3, paddingLeft: 10, alignItems: 'flex-end'}}>
+                        <Text style={{ color: 'white', fontSize: 20, fontWeight: "bold" }}>{toRupiah(amountDompet, "Rp. ")}</Text>
+                    </View>
+                </View>
+
+                <View style={{flexDirection:'row', paddingVertical: 8 }}>
+                    <View style={{flex: 2, paddingLeft: 10, justifyContent: 'center'}}>
+                        <Text style={{ color: 'white', fontSize: 15, fontWeight: "500" }}>CASH</Text>
+                    </View>
+                    <View style={{flex: 3, paddingLeft: 10, alignItems: 'flex-end'}}>
+                        <Text style={{ color: 'white', fontSize: 20, fontWeight: "bold" }}>{toRupiah(amountRealDompet, "Rp. ")}</Text>
+                    </View>
+                </View>
+            </View>
+            <View style={{backgroundColor: "#e5e5e5" }}>
+                <View style={{ flexDirection:'row' }}>
+                    <TouchableOpacity style={{ padding: 10, flex: 2, alignItems:'center' }} onPress={() => { navigation.navigate("FormAmbilCash") }}>
+                        <Text><Ionicons name="cash" color="#31572c" size={40} /></Text>
+                        <Text style={{ fontWeight: '500' }}>take cash</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ padding: 10, flex: 2, alignItems:'center' }} onPress={() => { navigation.navigate("FormInputPenghasilan") }}>
+                        <Text><Ionicons name="wallet" color="#31572c" size={40} /></Text>
+                        <Text style={{ fontWeight: '500' }}>load wallet account</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ padding: 10, flex: 2, alignItems:'center' }} onPress={() => { navigation.navigate("FormNabung", { isPlan: false }) }}>
+                        <Text><Ionicons name="card" color="#31572c" size={40} /></Text>
+                        <Text style={{ fontWeight: '500' }}>move to savings</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            <View>
+                { !status?
+                    <View style={{ margin: 10 }}>
+                        <Text style={{ fontSize: 17, fontWeight: "500" }}>Anda Belum Mengaktifkan Finansial Plan</Text>
+                        <TouchableOpacity onPress={()=> navigation.navigate("PlanScreenNavigator", { screen: 'SetupPlan' })} style={{ backgroundColor: '#8a8600', padding: 10, borderRadius: 10 }}>
+                            <Text style={ { color: 'white', fontSize: 15, fontWeight: "bold", alignSelf: 'center' } }>Aktifkan Sekarang</Text>
+                        </TouchableOpacity>
+                    </View>:
+                    <></>
+                }
+            </View>
+                
+            <ScrollView contentInsetAdjustmentBehavior="automatic" >
+                <View style={{backgroundColor: "#bee3db", margin: 10, borderRadius: 5, padding: 20 }}>
+                    <View style={{ flexDirection: "row" }}>
+                        <Text style={{ flex: 3, fontSize: 15, fontWeight: '800' }}>Upcoming Loan Payment</Text>
+                        <TouchableOpacity
+                            style={{ flex: 1 }}
+                            onPress={() => navigation.navigate("FormLoan")}
+                        >
+                            <Text style={{ color: '#31572c', fontWeight:"700", fontSize: 13, textAlign: "right" }}>Add Loan</Text>
+                        </TouchableOpacity>
+                    </View>
                     {
-                        loan.length?loan.map((el, index) => {
+                        thisMonthLoan.length?thisMonthLoan.map((el, index) => {
                             return(
-                                <View key={index} style={{flexDirection:'row', alignItems:'center'}}>
-                                    <Text style={{flex:4}}>{moment(el.due_date).format("DD MMM")} - {toRupiah(el.amountPay[0].amount, "Rp. ")}</Text>
-                                    <View style={{flex:1, paddingVertical:5}}>
-                                        <Button title="Pay" onPress={() => {
-                                            navigation.navigate("FormBayarHutang", {
-                                                itemId: el.id
-                                            })
-                                        }}/>
+                                <View key={index} style={{flexDirection:'row', paddingTop: 10, paddingBottom: 5, borderColor:'#8e9399', borderBottomWidth: 1}}>
+                                    <View style={{flex:4}}>
+                                        <Text style={{ fontSize:15, fontWeight:"400" }}>{toRupiah(el.amountPay[0].amount, "Rp. ")}</Text>
+                                        <Text style={{ fontSize:13, fontWeight:"300" }}>{moment(el.due_date).format("DD MMM")}</Text>
+                                    </View>
+                                    <View style={{flex:2}}>
+                                        <TouchableOpacity
+                                            onPress={ () => navigation.navigate("FormBayarHutang", {itemId: el.id})}
+                                        >
+                                            <Text style={{ color: '#31572c', fontWeight:"700", fontSize: 13, textAlign: "right" }}>Pay Now</Text>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
                             )
                         }):
-                        <Text>You don't have any bill yet</Text>
+                        <Text>you don't have yet</Text>
                     }
-
                 </View>
-
-                {/* <View style={{marginVertical:10}}>
-                    <Button title="Coba Notif" onPress={() => {
-                        handleNotif("Plan", "coba")
-                    }} />
-                </View> */}
-
-                <View style={{marginVertical:10}}>
-                    <Button title="Ambil Cash" onPress={() => {
-                        navigation.navigate("FormAmbilCash")
-                    }} />
-                </View>
-
-                <View style={{marginVertical:10}}>
-                    <Button title="Input Penghasilan" onPress={() => {
-                        navigation.navigate("FormInputPenghasilan")
-                    }} />
-                </View>
-
-                <View style={{marginVertical:10}}>
-                    <Button title="Nabung" onPress={() => {
-                        navigation.navigate("FormNabung", {
-                            isPlan: false
-                        })
-                    }} />
-                </View>
-
-                <View style={{marginVertical:10}}>
-                    <Button title="Input Pinjaman" onPress={() => {
-                        navigation.navigate("FormLoan")
-                    }} />
-                </View>
+                <TouchableOpacity onPress={ () => navigation.navigate("FormSpend") } style={{backgroundColor: '#31572c', padding: 10, borderRadius: 10, marginHorizontal: 10}}>
+                    <Text style={ { color: '#bee3db', fontSize: 15, alignSelf: 'center' } }>Spending Form</Text>
+                </TouchableOpacity>
                 
-                <View style={{marginVertical:10}}>
-                    <Button title="Input Pengeluaran" onPress={() => {
-                        navigation.navigate("FormSpend")
-                    }} />
+                <View style={{backgroundColor: "#bee3db", margin: 10, borderRadius: 5, padding: 20 }}>
+                    <View style={{ flexDirection: "row" }}>
+                        <Text style={{ flex: 3, fontSize: 15, fontWeight: '800' }}>Recent Spending</Text>
+                        <TouchableOpacity
+                            style={{ flex: 1 }}
+                            onPress={() => navigation.navigate("HistoryScreenNavigator", { screen: 'HistoryPengeluaran' })}
+                        >
+                            <Text style={{ color: '#31572c', fontWeight:"700", fontSize: 13, textAlign: "right" }}>All Data</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {
+                        todayHistPeng.data.length?todayHistPeng.data.map((el, index) => {
+                            return(
+                                <View key={index} style={{flexDirection:'row', paddingTop: 10, paddingBottom: 5, borderColor:'#8e9399', borderBottomWidth: 1}}>
+                                    <View style={{flex:4}}>
+                                        <Text style={{ fontSize:15, fontWeight:"600" }}>{el.title}</Text>
+                                        <Text style={{ fontSize:13, fontWeight:"300" }}>{moment(el.date).format('LT')}</Text>
+                                    </View>
+                                    <View style={{flex:2, alignItems: 'flex-end' }}>
+                                        <Text style={{ fontSize:15, fontWeight:"600" }}>{toRupiah(el.amount+el.tax, "Rp. ")}</Text>
+                                        <Text style={{ fontSize:15, fontWeight:"800" }}>{el.type}</Text>
+                                    </View>
+                                </View>
+                            )
+                        }):
+                        <Text>you don't have yet</Text>
+                    }
+                    <View style={{ flexDirection: "row" }}>
+                        <Text style={{ flex: 3, fontSize: 15, fontWeight: '800' }}>Total</Text>
+                        <Text style={{ flex: 1, color: '#31572c', fontWeight:"700", fontSize: 13, textAlign: "right" }}>{toRupiah(todayHistPeng.total, "Rp. ")}</Text>
+                    </View>
                 </View>
             </ScrollView>
         </View>

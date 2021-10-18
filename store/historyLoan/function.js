@@ -16,28 +16,32 @@ export async function fetchHistLoan(dispatch, cb) {
     if(dataHistLoan) {
         const result = JSON.parse(dataHistLoan)
         dispatch(setDataHistLoan(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{ 
         await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify([]))
-        dispatch(setDataHistLoan([]))
-        cb({message: "success"})
+        dispatch(resetDataHistLoan())
+        cb&&cb({message: "error"})
     }
 }
 
 export async function addHistLoan(dispatch, val, cb) {
-    const { title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date = Date.parse(new Date()) } = val
-    const dataHistLoan = await AsyncStorage.getItem('DATAHISTLOAN')
-    if(dataHistLoan) {
-        const result = JSON.parse(dataHistLoan)
-        const newResult = [{id:result.length+1, title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date}].concat(result)
-        await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify(newResult))
-        dispatch(setDataHistLoan(newResult))
-        cb({message: "success"})
-    }else{ 
-        const newResult = [{id:1, title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date}]
-        await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify(newResult))
-        dispatch(setDataHistLoan(newResult))
-        cb({message: "success"})
+    try {
+        const { title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date = Date.parse(new Date()) } = val
+        const dataHistLoan = await AsyncStorage.getItem('DATAHISTLOAN')
+        if(dataHistLoan) {
+            const result = JSON.parse(dataHistLoan)
+            const newResult = [{id:result.length+1, title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date}].concat(result)
+            await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify(newResult))
+            dispatch(setDataHistLoan(newResult))
+            cb({message: "success"})
+        }else{ 
+            const newResult = [{id:1, title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date}]
+            await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify(newResult))
+            dispatch(setDataHistLoan(newResult))
+            cb({message: "success"})
+        }
+    } catch(err) {
+        cb({message: "error"})
     }
 }
 

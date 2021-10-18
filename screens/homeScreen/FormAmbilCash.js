@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, Alert, } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -11,6 +11,7 @@ import CompFormAmbilCash from '../../components/Form/CompFormAmbilCash';
 export default function FormAmbilCash({ navigation }) {
     const dispatch = useDispatch()
     const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const [loading, setLoading] = useState(true)
     
     const handleSubmit = (val) => {
         Alert.alert("Info", "are you sure?", [{
@@ -30,12 +31,16 @@ export default function FormAmbilCash({ navigation }) {
     }
 
     useEffect(() => {
-        if(amountTabungan===null&&amountDompet===null&&amountRealDompet===null) {
+        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
             fetchFinance(dispatch, (el) => {
-                if(el.message !== "success") {
+                if(el.message==="success") {
+                    setLoading(false)
+                }else{
                     navigation.navigate("Splash")
                 }
             })
+        }else{
+            setLoading(false)
         }
     }, [])
 

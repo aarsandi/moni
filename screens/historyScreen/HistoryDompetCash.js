@@ -12,13 +12,9 @@ export default function HistoryDompetCash() {
 
     useEffect(() => {
         if(dataHistDomCash===null) {
-            fetchHistDomCash(dispatch, (el) => {
-                if(el.message !== "success") {
-                    Alert.alert( "Alert Title", el.message, [ { text: "Oke", style: "cancel", } ]);
-                }
-            })
+            fetchHistDomCash(dispatch)
         }
-    }, [dataHistDomCash])
+    }, [])
 
     return (
         <View>

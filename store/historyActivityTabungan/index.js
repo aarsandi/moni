@@ -1,6 +1,6 @@
 // contoh data => {
     // "id": 1,
-    // "title": "Nabung Bulanan||Nabung||Pinjaman",
+    // "title": "Nabung||Change Amount||Pinjaman" or "Pengeluaran Harian"||"Pengeluaran Bulanan"||"Pengeluaran Lainnya",
     // "type": "Pengeluaran"||"Pemasukan"
     // "amount": 500000,
     // "balanceAfr": 2800000,
@@ -21,7 +21,7 @@ function historyActivityTabunganReducer(state = initialState, action) {
         return { ...state, allData: [payload].concat(state.allData) }
     }
     if (type === 'RESETHISTTAB') {
-        return { ...state, allData: null }
+        return { ...state, allData: [] }
     }
 
     return state
