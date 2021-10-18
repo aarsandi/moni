@@ -13,7 +13,12 @@ export default function FinanceScreenNavigator() {
     const Stack = createNativeStackNavigator();
 
     return (
-        <Stack.Navigator initialRouteName="History">
+        <Stack.Navigator initialRouteName="History" screenOptions={{
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#14213d'
+            }
+        }}>
             <Stack.Screen name="History" component={History} options={{ title: 'History' }}  />
             <Stack.Screen name="HistoryPengeluaran" component={HistoryPengeluaran} options={{ title: 'History Pengeluaran' }}  />
             <Stack.Screen name="HistoryDompet" component={HistoryDompet} options={{ title: 'History Dompet' }}  />

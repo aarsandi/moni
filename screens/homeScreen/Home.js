@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView, Button } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView, StatusBar } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import moment from "moment"
 import { useIsFocused } from "@react-navigation/native";
@@ -22,24 +22,10 @@ export default function Home({ navigation }) {
         data: []
     })
     const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
-    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan,updateCron } = useSelector((state) => state.planReducer)
+    const { status,uangTotal } = useSelector((state) => state.planReducer)
     const dataHistPeng = useSelector((state) => state.historyPengeluaranReducer.allData)
     
     const [loading, setLoading] = useState(true)
-    const [dataFinance, setDataFinance] = useState({
-        totalBulanan: 0,
-        totalSisa: 0,
-        totalHarian: 0,
-        sisaHari: 0,
-        jumlahDitabung: 0,
-        uangTotal: 0
-    })
-
-    useEffect(() => {
-        if(dataHistPeng===null) {
-            fetchHistPeng(dispatch)
-        }
-    }, [])
 
     useEffect(() => {
         if(nama===null, amountTabungan===null, amountDompet===null, amountRealDompet===null) {
@@ -65,42 +51,8 @@ export default function Home({ navigation }) {
                     }
                 })
             }
-            if(pengeluaranBulanan.length) {
-                const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
-                    return accumulator + item.amount;
-                }, 0)
-                let calcFinance = {
-                    totalBulanan: resTotBulanan,
-                    totalSisa: 0,
-                    totalHarian: 0,
-                    sisaHari: 0,
-                    jumlahDitabung: jumlahDitabung,
-                    uangTotal: uangTotal,
-                    tanggalGajian: tanggalGajian
-                }
-                const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
-                calcFinance.sisaHari = leftDaysinMonth(new Date(tanggalGajian))+1
-                calcFinance.totalHarian = resultTotalHarian
-                calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
-                setDataFinance(calcFinance)
-            }else{
-                let calcFinance = {
-                    totalBulanan: 0,
-                    totalSisa: 0,
-                    totalHarian: 0,
-                    sisaHari: 0,
-                    jumlahDitabung: jumlahDitabung,
-                    uangTotal: uangTotal,
-                    tanggalGajian: tanggalGajian
-                }
-                const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
-                calcFinance.sisaHari = leftDaysinMonth(new Date(tanggalGajian))+1
-                calcFinance.totalHarian = resultTotalHarian
-                calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
-                setDataFinance(calcFinance)
-            }
         }
-    }, [isFocused])
+    }, [])
 
     useEffect(() => {
         if(loan.length){
@@ -108,9 +60,6 @@ export default function Home({ navigation }) {
             const thisMonthLoan = loan.filter((el) => new Date(el.due_date).getMonth() === nowDate)
             setThisMonthLoan(thisMonthLoan)
         }
-    }, [loan])
-
-    useEffect(() => {
         if(dataHistPeng){
             let time = new Date().setHours(0, 0, 0, 0e2)
             const todayPeng = dataHistPeng.filter((el) => el.date >= time)
@@ -123,10 +72,14 @@ export default function Home({ navigation }) {
                 data: todayPeng
             })
         }
-    }, [dataHistPeng])
+    }, [])
 
     return (
         <View style={{ backgroundColor: isDarkMode, flex: 1, flexDirection:'column' }}>
+            <StatusBar
+                backgroundColor='#14213d'
+                barStyle="dark-content"
+            />
             <View style={{backgroundColor: "#14213d", padding: 10 }}>
                 <View style={{flexDirection:'row', paddingVertical: 8 }}>
                     <View style={{flex: 2, paddingLeft: 10, justifyContent: 'center'}}>

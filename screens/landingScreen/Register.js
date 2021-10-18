@@ -25,6 +25,7 @@ export default function Register({navigation}) {
         if(findEmpty) {
             setError(`harap isi field ${findEmpty}`)
         } else {
+            // console.log(dataRegister)
             setupFinance(dataRegister, dispatch, (el) => {
                 if(el.message=="success") {
                     setError(null)
@@ -67,7 +68,7 @@ export default function Register({navigation}) {
                     precision: 3,
                     })}
                 />
-                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Dompet (Non Cash)</Text>
+                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Dompet (Account)</Text>
                 <MaskInput keyboardType='number-pad'  style={styles.textInput}
                     value={dataRegister.amountDompet} onChangeText={(masked, unmasked, obfuscated) => { onHandleChange(unmasked, 'amountDompet') }}
                     mask={createNumberMask({
