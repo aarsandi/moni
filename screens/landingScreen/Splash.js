@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, StatusBar } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { fetchFinance } from '../../store/finance/function';
 import { fetchPlan } from '../../store/plan/function';
@@ -9,6 +9,7 @@ import { useIsFocused } from "@react-navigation/native";
 export default function Splash({navigation}) {
     const isFocused = useIsFocused();
     const dispatch = useDispatch()
+    const {isDarkMode} = useSelector((state) => state.appReducer)
     const { nama, amountTabungan, amountDompet } = useSelector((state) => state.financeReducer)
 
     useEffect(() => {
@@ -28,8 +29,12 @@ export default function Splash({navigation}) {
     }, [isFocused])
 
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Loading</Text>
+        <View style={{ backgroundColor: isDarkMode, flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <StatusBar
+                backgroundColor={isDarkMode}
+                barStyle="dark-content"
+            />
+            <Text style={{ color: '#bee3db', fontSize:50 }}>...</Text>
         </View>
     )
 }

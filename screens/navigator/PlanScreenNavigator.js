@@ -10,10 +10,15 @@ export default function PlanScreenNavigator() {
     const Stack = createNativeStackNavigator();
 
     return (
-        <Stack.Navigator initialRouteName="Plan">
+        <Stack.Navigator initialRouteName="Plan" screenOptions={{
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#14213d'
+            }
+        }}>
             <Stack.Screen name="Plan" component={Plan} options={{ title: 'Plan' }}  />
-            <Stack.Screen name="SetupPlan" component={SetupPlan} options={{ title: 'Set Up Plan' }}  />
-            <Stack.Screen name="EditNeeds" component={EditNeeds} options={{ title: ' ' }}  />
+            <Stack.Screen name="SetupPlan" component={SetupPlan} options={{ title: 'Set Up Plan' }} />
+            <Stack.Screen name="EditNeeds" component={EditNeeds} options={{ title: ' ' }} />
         </Stack.Navigator>
     )
 }

@@ -1,6 +1,6 @@
 const initialState = {
     // data app
-    isDarkMode : false
+    isDarkMode : "#ffffff"
 }
 
 function appReducer(state = initialState, action) {

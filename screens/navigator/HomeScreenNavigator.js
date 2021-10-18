@@ -13,8 +13,13 @@ import FormBayarHutang from '../homeScreen/FormBayarHutang';
 export default function HomeScreenNavigator() {
     const Stack = createNativeStackNavigator();
     return (
-        <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" component={Home} options={{ title: 'Home' }}  />
+        <Stack.Navigator initialRouteName="Home" screenOptions={{
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#14213d'
+            }
+        }}>
+            <Stack.Screen name="Home" component={Home} options={{ title: 'Moni' }}  />
             <Stack.Screen name="FormSpend" component={FormSpend} options={{ title: ' ' }}  />
             <Stack.Screen name="FormAmbilCash" component={FormAmbilCash} options={{ title: ' ' }}  />
             <Stack.Screen name="FormInputPenghasilan" component={FormInputPenghasilan} options={{ title: ' ' }}  />

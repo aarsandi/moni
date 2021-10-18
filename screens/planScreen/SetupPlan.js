@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Alert, Button } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { fetchPlan, setupPlanAction } from '../../store/plan/function'
@@ -69,8 +69,7 @@ export default function SetupPlan({ navigation }) {
             {loading?
             <Text>Loading...</Text>:
             <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                <Text>Form Setup Plan</Text>
-                <CompFormSetupPlan data={{amountTabungan, amountDompet, amountRealDompet, loan:thisMonthLoan}} onSubmit={handleSubmit} navigation={navigation}/>
+                <CompFormSetupPlan data={{loan:thisMonthLoan}} onSubmit={handleSubmit} navigation={navigation}/>
             </ScrollView>
             }
         </View>

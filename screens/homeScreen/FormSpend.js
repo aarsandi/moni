@@ -203,7 +203,6 @@ export default function FormSpend({ navigation }) {
                     <Text>Loading</Text>
                 </View>:
                 <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                    <Text>Pengeluaran</Text>
                     <CompFormSpend data={{ amountTabungan, amountDompet, amountRealDompet, status, pengeluaranBulanan,
                         planBulanan: dataFinance.totalBulanan+dataFinance.totalSisa,
                         planHarian: dataFinance.totalHarian+dataFinance.totalSisa,

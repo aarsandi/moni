@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, Button, TextInput, Alert } from 'react-native'
+import { StyleSheet, Text, View, Button, TextInput, TouchableWithoutFeedback } from 'react-native'
 import MaskInput, { createNumberMask }  from 'react-native-mask-input';
 import SelectDropdown from 'react-native-select-dropdown'
 import { toRupiah } from '../../helpers/NumberToString'
+import DatePicker from 'react-native-date-picker'
+import moment from 'moment';
 
 // Note: disini pengirimnya si Tabungan maka taxnya dari pengirim yaitu rek tabungan
 export default function CompFormLoan({data, onSubmit, navigation}) {
     const { amountDompet, amountTabungan } = data
     
+    const [openDatePick, setOpenDatePick] = useState(false)
     const [formData, setFormData] = useState({
         title: "",
         detail: "",
@@ -19,6 +22,7 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
         taxPenerima: "",
         amountTabunganAft: "",
         amountDompetAft: "",
+        due_date: new Date()
     })
 
     const [error, setError] = useState(null)
@@ -43,12 +47,16 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
             setError(`harap isi field ${findEmpty}`)
         } else {
             if(Number(formData.taxPengirim)>=0&&Number(formData.taxPenerima)>=0) {
-                const nowDate = new Date()
-                const time = new Date(nowDate.getTime());
                 let amountPayArr = []
-                for (let i=1; i<=Number(formData.tenor); i++) {
-                    const raiseDate = time.setMonth(nowDate.getMonth() + i)
-                    amountPayArr.push({amount:Number(formData.totalPerbulan),due_date:raiseDate})
+                if(formData.type==="Cash") {
+                    amountPayArr.push({amount:Number(formData.totalPerbulan),due_date:Date.parse(formData.due_date)})
+                }else{
+                    const nowDate = new Date()
+                    const time = new Date(nowDate.getTime());
+                    for (let i=1; i<=Number(formData.tenor); i++) {
+                        const raiseDate = time.setMonth(nowDate.getMonth() + i)
+                        amountPayArr.push({amount:Number(formData.totalPerbulan),due_date:raiseDate})
+                    }
                 }
                 const result = {
                     title: formData.title,
@@ -121,6 +129,26 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
                             onChangeText={text => handleChange(text, 'detail')}
                         />
                     </View>
+                    <Text style={ styles.formTitle }>Due Date :</Text>
+                    <TouchableWithoutFeedback onPress={() => setOpenDatePick(true)}>
+                        <View><View pointerEvents="none">
+                            <TextInput
+                                style={styles.formInput}
+                                value={moment(formData.due_date).format("DD MMM YYYY")}
+                                editable={false}
+                                placeholder={moment(formData.due_date).format("DD MMM YYYY")}
+                            />
+                        </View></View>
+                    </TouchableWithoutFeedback>
+                    <DatePicker modal open={openDatePick} date={formData.due_date} mode="date"
+                        onConfirm={(date) => {
+                            setOpenDatePick(false)
+                            handleChange(date, 'due_date')
+                        }}
+                        onCancel={() => {
+                            setOpenDatePick(false)
+                        }}
+                    />
                 </>
             }
 
