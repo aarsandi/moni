@@ -127,25 +127,32 @@ export default function Plan({ navigation }) {
                                         <Text style={{ fontSize: 15, fontWeight: "bold" }}>{dataFinance?`${dataFinance.sisaHari} remains days`:"-"}</Text>
                                     </View>
                                 </View>
-                                <View style={{ flexDirection:'row', marginTop: 5, marginHorizontal: 10, padding:4, alignItems:'center', justifyContent:'center' }}>
+                                <View style={{ flexDirection:'row', marginTop: 5, marginHorizontal: 10, padding:4, alignItems:'center' }}>
                                     <Text style={{ flex: 4 }}>Daily Amount</Text>
                                     <Text style={{ flex: 2 }}>{toRupiah(uangHariIni)}</Text>
                                 </View>
-                                <View style={{ flexDirection:'row', marginHorizontal: 10, padding:4, alignItems:'center', justifyContent:'center' }}>
+                                <View style={{ flexDirection:'row', marginHorizontal: 10, padding:4, alignItems:'center' }}>
                                     <Text style={{ flex: 4 }}>Daily Limit</Text>
                                     <Text style={{ flex: 2 }}>{toRupiah(uangHarian)}</Text>
                                 </View>
-                                <View style={{ flexDirection:'row', marginTop: 5, marginHorizontal: 10, padding:4, alignItems:'center', justifyContent:'center' }}>
+                                <View style={{ flexDirection:'row', marginTop: 5, marginHorizontal: 10, padding:4, alignItems:'center' }}>
                                     <Text style={{ flex: 4 }}>Monthly Amount</Text>
                                     <Text style={{ flex: 2 }}>{dataFinance?toRupiah(dataFinance.totalBulanan):"Rp. 0"}</Text>
                                 </View>
-                                <View style={{ flexDirection:'row', marginHorizontal: 10, padding:4, alignItems:'center', justifyContent:'center' }}>
+                                <View style={{ flexDirection:'row', marginHorizontal: 10, padding:4, alignItems:'center' }}>
                                     <Text style={{ flex: 4 }}>Other Amount</Text>
                                     <Text style={{ flex: 2 }}>{dataFinance?toRupiah(dataFinance.totalSisa):"Rp. 0"}</Text>
                                 </View>
-                                <View style={{ flexDirection:'row', marginHorizontal: 10, padding:4, alignItems:'center', justifyContent:'center' }}>
+                                <View style={{ flexDirection:'row', marginHorizontal: 10, padding:4, alignItems:'center' }}>
                                     <Text style={{ flex: 4 }}>Amount Saving</Text>
-                                    <Text style={{ flex: 2 }}>{dataFinance?toRupiah(dataFinance.jumlahDitabung):"Rp. 0"}</Text>
+                                    <View style={{ flex: 2 }}>
+                                        <Text>{dataFinance?toRupiah(dataFinance.jumlahDitabung):"Rp. 0"}</Text>
+                                        <TouchableOpacity
+                                            onPress={() => navigation.navigate("FormNabung", { isPlan: true })}
+                                        >
+                                            <Text style={{ color: '#31572c', fontWeight:"700", fontSize: 13 }}>Tabung Sekarang</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
 

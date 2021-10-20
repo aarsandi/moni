@@ -78,7 +78,7 @@ export default function Home({ navigation }) {
         <View style={{ backgroundColor: isDarkMode, flex: 1, flexDirection:'column' }}>
             <StatusBar
                 backgroundColor='#14213d'
-                barStyle="dark-content"
+                barStyle='light-content'
             />
             <View style={{backgroundColor: "#14213d", padding: 10 }}>
                 <View style={{flexDirection:'row', paddingVertical: 8 }}>
@@ -153,10 +153,11 @@ export default function Home({ navigation }) {
                             return(
                                 <View key={index} style={{flexDirection:'row', paddingTop: 10, paddingBottom: 5, borderColor:'#8e9399', borderBottomWidth: 1}}>
                                     <View style={{flex:4}}>
-                                        <Text style={{ fontSize:15, fontWeight:"400" }}>{toRupiah(el.amountPay[0].amount, "Rp. ")}</Text>
+                                        <Text style={{ fontSize:15, fontWeight:"400" }}>{el.title}</Text>
                                         <Text style={{ fontSize:13, fontWeight:"300" }}>{moment(el.due_date).format("DD MMM")}</Text>
                                     </View>
                                     <View style={{flex:2}}>
+                                        <Text style={{ fontSize:15, fontWeight:"400", textAlign: "right" }}>{toRupiah(el.amountPay[0].amount, "Rp. ")}</Text>
                                         <TouchableOpacity
                                             onPress={ () => navigation.navigate("FormBayarHutang", {itemId: el.id})}
                                         >

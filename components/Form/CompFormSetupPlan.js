@@ -51,7 +51,7 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
         })
     },[navigation]);
     
-    React.useLayoutEffect(() => {
+    React.useEffect(() => {
         if(dataInput.type!==""&&dataInput.uangTotal!==""&&dataInput.jumlahDitabung!==""&&dataInput.uangHarian!==""&&dataInput.uangBulanan!==""&&dataInput.uangLainnya!=="") {
             navigation.setOptions({
                 headerRight: () => (

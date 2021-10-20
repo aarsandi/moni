@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, Button, TextInput, Alert } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import MaskInput, { createNumberMask }  from 'react-native-mask-input';
-import SelectDropdown from 'react-native-select-dropdown'
-import { toRupiah } from '../../helpers/NumberToString'
-import { changeFinanceAmount } from '../../store/app/function'
 import { useDispatch } from 'react-redux';
 
-export default function CompFormChangeAmount({data, navigation}) {
+export default function CompFormChangeAmount({data, onSubmit, navigation}) {
     const dispatch = useDispatch()
     const { amountTabungan, amountDompet, amountRealDompet } = data
-    const [ error, setError ] = useState(null)
     const [dataForm, setDataForm] = useState({
         amountTabunganAft: "0",
         amountDompetAft: "0",
@@ -30,22 +26,46 @@ export default function CompFormChangeAmount({data, navigation}) {
         })
     }
 
-    const handleSubmit = (value, field) => {
-        Alert.alert("Info", "are you sure?", [{
-            text: "Ok",
-            onPress: () => {
-                const result = {[field]:value}
-                changeFinanceAmount(dispatch, {...result, amountTabungan, amountDompet, amountRealDompet}, (el) => {
-                    if(el.message === "success") {
-                        Alert.alert("Success", "Success change", [], { cancelable:true })
-                    }else{
-                        Alert.alert("Error", "error function", [], { cancelable:true })
-                    }
-                })
-            },
-            style: "ok",
-        }], { cancelable:true }) 
+    const handleSubmit = () => {
+        const findEmpty = Object.keys(dataForm).find((el) => dataForm[el]==="")
+        if(findEmpty) {
+            ToastAndroid.show(`harap isi field ${findEmpty}`, ToastAndroid.SHORT)
+        } else {
+            const result = {
+                amountTabungan: [Number(dataForm.amountTabunganAft), "amountTabunganAft"],
+                amountDompet: [Number(dataForm.amountDompetAft), "amountDompetAft"],
+                amountRealDompet: [Number(dataForm.amountRealDompetAft), "amountRealDompetAft"]
+            }
+            onSubmit(result)
+        }
     }
+    
+    React.useEffect(() => {
+        navigation.addListener('beforeRemove', (e) => {
+            e.preventDefault();
+            navigation.dispatch(e.data.action)
+        })
+    },[navigation]);
+
+    React.useEffect(() => {
+        if(dataForm.amountTabunganAft!=amountTabungan||dataForm.amountDompetAft!=amountDompet||dataForm.amountRealDompetAft!=amountRealDompet) {
+            navigation.setOptions({
+                headerRight: () => (
+                    <TouchableOpacity onPress={handleSubmit}>
+                        <Text style={{ color: 'white', fontSize: 18, paddingRight: 10 }}>Change</Text>
+                    </TouchableOpacity>
+                ),
+            });
+        }else{
+            navigation.setOptions({
+                headerRight: () => (
+                    <TouchableOpacity disabled={true}>
+                        <Text style={{ color: 'grey', fontSize: 18, paddingRight: 10 }}>Change</Text>
+                    </TouchableOpacity>
+                ),
+            });
+        }
+    }, [navigation, dataForm.amountTabunganAft, dataForm.amountDompetAft, dataForm.amountRealDompetAft ]);
 
     useEffect(() => {
         if(amountTabungan&&amountDompet&&amountRealDompet) {
@@ -54,52 +74,46 @@ export default function CompFormChangeAmount({data, navigation}) {
     }, [amountTabungan, amountDompet, amountRealDompet])
 
     return (
-        <View>
+        <View style={{paddingHorizontal:18, paddingTop: 18}}>
             <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Amount Cash:</Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
-                <MaskInput keyboardType='number-pad' style={{flex:4}}
+                <MaskInput keyboardType='number-pad' style={{flex:3}}
                     value={dataForm.amountRealDompetAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, "amountRealDompetAft") }}
                     mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                 />
                 {
                     dataForm.amountRealDompetAft!=amountRealDompet&&
-                    <View style={{flex:1, paddingVertical:5}}>
-                        <Button title="Change" onPress={() => {
-                            handleSubmit(Number(dataForm.amountRealDompetAft), "amountRealDompetAft")
-                        }}/>
-                    </View>
+                    <TouchableOpacity style={{ flex:1, paddingVertical:5 }} onPress={() => handleChange(String(amountRealDompet) , "amountRealDompetAft")}>
+                        <Text style={{ fontWeight: '500', textAlign: 'right' }}>cancel</Text>
+                    </TouchableOpacity>
                 }
             </View>
 
             <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Amount Dompet:</Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
-                <MaskInput keyboardType='number-pad' style={{flex:4}}
+                <MaskInput keyboardType='number-pad' style={{flex:3}}
                     value={dataForm.amountDompetAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, "amountDompetAft") }}
                     mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                 />
                 {
                     dataForm.amountDompetAft!=amountDompet&&
-                    <View style={{flex:1, paddingVertical:5}}>
-                        <Button title="Change" onPress={() => {
-                            handleSubmit(Number(dataForm.amountDompetAft), "amountDompetAft")
-                        }}/>
-                    </View>
+                    <TouchableOpacity style={{ flex:1, paddingVertical:5 }} onPress={() => handleChange(String(amountDompet) , "amountDompetAft")}>
+                        <Text style={{ fontWeight: '500', textAlign: 'right' }}>cancel</Text>
+                    </TouchableOpacity>
                 }
             </View>
 
             <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Amount Tabungan:</Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
-                <MaskInput keyboardType='number-pad' style={{flex:4}}
+                <MaskInput keyboardType='number-pad' style={{flex:3}}
                     value={dataForm.amountTabunganAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, "amountTabunganAft") }}
                     mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                 />
                 {
                     dataForm.amountTabunganAft!=amountTabungan&&
-                    <View style={{flex:1, paddingVertical:5}}>
-                        <Button title="Change" onPress={() => {
-                            handleSubmit(Number(dataForm.amountTabunganAft), "amountTabunganAft")
-                        }}/>
-                    </View>
+                    <TouchableOpacity style={{ flex:1, paddingVertical:5 }} onPress={() => handleChange(String(amountTabungan) , "amountTabunganAft")}>
+                        <Text style={{ fontWeight: '500', textAlign: 'right' }}>cancel</Text>
+                    </TouchableOpacity>
                 }
             </View>
         </View>

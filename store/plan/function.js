@@ -53,5 +53,5 @@ export async function updatePlan(dispatch, val, cb) {
 export async function resetPlan(dispatch, cb) {
     await AsyncStorage.removeItem('DATAPLAN')
     dispatch(resetDataPlan())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

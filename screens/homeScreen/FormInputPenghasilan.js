@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
+import { StyleSheet, View, ScrollView, Alert } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { toRupiah } from '../../helpers/NumberToString'
 
@@ -48,9 +48,6 @@ export default function FormInputPenghasilan({navigation}) {
     return (
         <View>
             <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                <Text style={ { fontSize: 20, fontWeight: 'bold' } }>Form Input Penghasilan</Text>
-                <Text >Cash anda sekarang: {toRupiah(amountRealDompet, "Rp. ")}</Text>
-                <Text style={{marginBottom:30}}>Rekening anda sekarang: {toRupiah(amountDompet, "Rp. ")}</Text>
                 <CompFormInputPenghasilan data={{amountDompet, amountRealDompet}} onSubmit={handleSubmit} navigation={navigation} />
             </ScrollView>
         </View>

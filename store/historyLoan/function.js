@@ -48,5 +48,5 @@ export async function addHistLoan(dispatch, val, cb) {
 export async function resetHistLoan(dispatch, cb) {
     await AsyncStorage.removeItem('DATAHISTLOAN')
     dispatch(resetDataHistLoan())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

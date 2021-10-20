@@ -1,5 +1,5 @@
 import React, {useEffect,useState} from 'react'
-import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
+import { StyleSheet, View, ScrollView, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { inputPayLoan } from '../../store/app/function'
 
@@ -53,10 +53,6 @@ export default function FormBayarHutang({ route, navigation }) {
     return (
         <View>
             <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                <Text style={{fontSize: 20}}>Form Pinjaman</Text>
-                <Text style={{fontSize: 15}}>Uang Dompet: {amountDompet}</Text>
-                <Text style={{fontSize: 15}}>Uang Dompet Cash: {amountRealDompet}</Text>
-                <Text style={{fontSize: 15}}>Uang Tabungan: {amountTabungan}</Text>
                 {
                     !loading&&selectedLoan&&
                     <CompFormPayLoan data={{amountDompet, amountRealDompet, amountTabungan, ...selectedLoan}} onSubmit={handleSubmit} navigation={navigation}/>

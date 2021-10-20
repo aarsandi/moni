@@ -48,5 +48,5 @@ export async function addHistTab(dispatch, val, cb) {
 export async function resetHistTab(dispatch, cb) {
     await AsyncStorage.removeItem('DATAHISTTAB')
     dispatch(resetDataHistTab())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

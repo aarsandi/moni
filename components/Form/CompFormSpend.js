@@ -23,8 +23,8 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
             [field]: value
         })
     }
-
-    const handleSubmit = () => {
+    
+    const handleSubmit = async () => {
         if(Number(dataForm.tax)>=0) {
             const result = {
                 title: dataForm.title,
@@ -65,7 +65,7 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
         })
     },[navigation]);
 
-    React.useLayoutEffect(() => {
+    React.useEffect(() => {
         if(dataForm.title!==""&&dataForm.type!==""&&dataForm.payWith!==""&&dataForm.amount!==""&&dataForm.amountDompetAft!==""&&dataForm.amountTabunganAft!=="") {
             navigation.setOptions({
                 headerRight: () => (
@@ -83,7 +83,7 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
                 ),
             });
         }
-    }, [navigation, dataForm.title, dataForm.type, dataForm.payWith, dataForm.amount, dataForm.amountDompetAft, dataForm.amountTabunganAft ]);
+    }, [navigation, dataForm.title, dataForm.type, dataForm.payWith, dataForm.amount, dataForm.amountDompetAft, dataForm.amountTabunganAft, dataForm.tax ]);
 
     useEffect(() => {
         if(dataForm.payWith === "Rekening Dompet"&&dataForm.amountDompetAft&&amountDompet&&dataForm.amount) {

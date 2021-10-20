@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, Button, TextInput } from 'react-native'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ToastAndroid } from 'react-native'
 import MaskInput, { createNumberMask }  from 'react-native-mask-input';
 import SelectDropdown from 'react-native-select-dropdown'
 import { toRupiah } from '../../helpers/NumberToString'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function CompFormNabung({data, onSubmit, navigation}) {
     const { amountTabungan, amountDompet, amountRealDompet, jumlahDitabung } = data
-    const [error, setError] = useState(null)
     const [formData, setFormData] = useState({
         type: "",
-        amount: jumlahDitabung?String(jumlahDitabung):"",
+        amount: "",
         taxPengirim: "0",
         taxPenerima: "0",
         amountDompetAft: "",
@@ -33,7 +33,7 @@ export default function CompFormNabung({data, onSubmit, navigation}) {
     const handleSubmit = () => {
         const findEmpty = Object.keys(formData).find((el) => formData[el]==="")
         if(findEmpty) {
-            setError(`harap isi field ${findEmpty}`)
+            ToastAndroid.show(`harap isi field ${findEmpty}`, ToastAndroid.SHORT)
         } else {
             if(Number(formData.taxPengirim)>=0&&Number(formData.taxPenerima)>=0) {
                 const result = {
@@ -46,10 +46,37 @@ export default function CompFormNabung({data, onSubmit, navigation}) {
                 }
                 onSubmit(result)
             }else{
-                setError('kesalahan pada form balance')
+                ToastAndroid.show('kesalahan pada form balance', ToastAndroid.SHORT)
             }
         }
     }
+
+    React.useEffect(() => {
+        navigation.addListener('beforeRemove', (e) => {
+            e.preventDefault();
+            navigation.dispatch(e.data.action)
+        })
+    },[navigation]);
+
+    React.useEffect(() => {
+        if(formData.type!==""&&formData.amount!==""&&formData.amountDompetAft!==""&&formData.amountTabunganAft!=="") {
+            navigation.setOptions({
+                headerRight: () => (
+                    <TouchableOpacity onPress={handleSubmit}>
+                        <Text style={{ color: 'white', fontSize: 18, paddingRight: 10 }}>Create</Text>
+                    </TouchableOpacity>
+                ),
+            });
+        }else{
+            navigation.setOptions({
+                headerRight: () => (
+                    <TouchableOpacity disabled={true}>
+                        <Text style={{ color: 'grey', fontSize: 18, paddingRight: 10 }}>Create</Text>
+                    </TouchableOpacity>
+                ),
+            });
+        }
+    }, [navigation, formData.type, formData.amount, formData.amountDompetAft, formData.amountTabunganAft ]);
 
     useEffect(() => {
         if(formData.type==="Rekening"&&formData.amountTabunganAft&&formData.amountDompetAft&&formData.amount) {
@@ -68,101 +95,106 @@ export default function CompFormNabung({data, onSubmit, navigation}) {
 
     useEffect(() => {
         if(jumlahDitabung){
-            handleChangeMany({ taxPengirim: "0", taxPenerima: "0", amountDompetAft: "", amountTabunganAft: "" })
+            handleChangeMany({ amount: String(jumlahDitabung) , taxPengirim: "0", taxPenerima: "0", amountDompetAft: "", amountTabunganAft: "" })
         }else{
             handleChangeMany({ amount: "", taxPengirim: "0", taxPenerima: "0", amountDompetAft: "", amountTabunganAft: "" })
         }
     }, [formData.type])
 
     return (
-        <View>
-            {formData.type==="Cash"&&
-                <Text style={{marginBottom:30}}>Uang Cash sekarang: {toRupiah(amountRealDompet, "Rp. ")}</Text>
-            }
-            {formData.type==="Rekening"&&
-                <Text style={{marginBottom:30}}>Rekening anda sekarang: {toRupiah(amountDompet, "Rp. ")}</Text>
-            }
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Metode Nabung</Text>
-            <SelectDropdown data={["Cash", "Rekening"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>
+        <View style={{paddingHorizontal:18, paddingTop: 18}}>
+            <Text style={styles.titleForm}>Metode Nabung</Text>
+            <SelectDropdown buttonStyle={{ width: '100%' }} renderDropdownIcon={() => <Text><Ionicons name="chevron-down" color="#31572c" size={30} /></Text>}
+                data={["Cash", "Rekening"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>
             {
-                formData.type==="Rekening"?
+                formData.type==="Rekening"&&
                 <>
                     {
                         jumlahDitabung?
                         <>
-                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah:</Text>
-                            <TextInput editable={false} value={toRupiah(formData.amount, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
+                            <Text style={styles.titleForm}>Jumlah</Text>
+                            <TextInput style={styles.formInput} editable={false} value={toRupiah(formData.amount, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
                         </>:
                         <>
-                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah:</Text>
-                            <MaskInput keyboardType='number-pad'
+                            <Text style={styles.titleForm}>Jumlah</Text>
+                            <MaskInput keyboardType='number-pad' style={styles.formInput}
                                 value={formData.amount} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, "amount") }}
                                 mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                             />
                         </>
                     }
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Uang Direkening:</Text>
-                    <Text style={ { fontSize: 8, fontWeight: 'bold' } }>note: pastikan uang sudah di transfer</Text>
-                    <MaskInput keyboardType='number-pad'
-                        value={formData.amountDompetAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, 'amountDompetAft') }}
-                        mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
-                    />
+                    <View style={{ flexDirection: 'row' }}>
+                        <View style={{ flex: 1, paddingRight: 10 }}>
+                            <Text style={styles.titleForm}>Balance Rekening</Text>
+                            <TextInput editable={false} value={toRupiah(amountDompet)} placeholder="Rp. 0" placeholderTextColor="#838383"/>
+                            <Text style={styles.titleForm}>Rekening Setelahnya</Text>
+                            <Text style={ { fontSize: 8, fontWeight: 'bold' } }>note: pastikan uang sudah di transfer</Text>
+                            <MaskInput keyboardType='number-pad' style={styles.formInput}
+                                value={formData.amountDompetAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, 'amountDompetAft') }}
+                                mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
+                            />
+                            <Text style={styles.titleForm}>Tax Pengirim :</Text>
+                            <TextInput editable={false} value={toRupiah(formData.taxPengirim, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
+                        </View>
+                        <View style={{ flex: 1, marginLeft: 10 }}>
+                            <Text style={styles.titleForm}>Balance Tabungan</Text>
+                            <TextInput editable={false} value={toRupiah(amountTabungan)} placeholder="Rp. 0" placeholderTextColor="#838383"/>
+                            <Text style={styles.titleForm}>Tabunggan Setelahnya</Text>
+                            <Text style={ { fontSize: 8, fontWeight: 'bold' } }>note: pastikan uang sudah di transfer</Text>
+                            <MaskInput keyboardType='number-pad' style={styles.formInput}
+                                value={formData.amountTabunganAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, 'amountTabunganAft') }}
+                                mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
+                            />
 
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Uang DiTabungan:</Text>
-                    <Text style={ { fontSize: 8, fontWeight: 'bold' } }>note: pastikan uang sudah di transfer</Text>
-                    <MaskInput keyboardType='number-pad'
-                        value={formData.amountTabunganAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, 'amountTabunganAft') }}
-                        mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
-                    />
+                            <Text style={styles.titleForm}>Tax Penerima :</Text>
+                            <TextInput editable={false} value={toRupiah(formData.taxPenerima, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
+                        </View>
+                    </View>
 
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tax Pengirim :</Text>
-                    <TextInput editable={false} value={toRupiah(formData.taxPengirim, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tax Penerima :</Text>
-                    <TextInput editable={false} value={toRupiah(formData.taxPenerima, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
-                </>:
+                </>
+            }
+
+            { formData.type==="Cash"&&
                 <>
                     {
                         jumlahDitabung?
                         <>
-                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah:</Text>
-                            <TextInput editable={false} value={toRupiah(formData.amount, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
+                            <Text style={styles.titleForm}>Jumlah</Text>
+                            <TextInput style={styles.formInput} editable={false} value={toRupiah(formData.amount, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
                         </>:
                         <>
-                            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah:</Text>
-                            <MaskInput keyboardType='number-pad'
+                            <Text style={styles.titleForm}>Jumlah</Text>
+                            <MaskInput keyboardType='number-pad' style={styles.formInput}
                                 value={formData.amount} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, "amount") }}
                                 mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                             />
                         </>
                     }
 
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Uang DiTabungan:</Text>
+                    <Text style={styles.titleForm}>Balance Tabungan</Text>
+                    <TextInput editable={false} value={toRupiah(amountTabungan)} placeholder="Rp. 0" placeholderTextColor="#838383"/>
+                    <Text style={styles.titleForm}>Tabunggan Setelahnya</Text>
                     <Text style={ { fontSize: 8, fontWeight: 'bold' } }>note: pastikan uang sudah di transfer</Text>
-                    <MaskInput keyboardType='number-pad'
+                    <MaskInput keyboardType='number-pad' style={styles.formInput}
                         value={formData.amountTabunganAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, 'amountTabunganAft') }}
                         mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                     />
 
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tax Penerima :</Text>
+                    <Text style={styles.titleForm}>Tax Penerima</Text>
                     <TextInput editable={false} value={toRupiah(formData.taxPenerima, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
                 </>
             }
-            {
-                error&&
-                <Text style={{ color: "red" }}>note: {error}</Text>
-            }
-            <View style={{marginVertical:10}}>
-                <Button title="Submit" onPress={handleSubmit} />
-            </View>
-            
-            <View style={{marginVertical:10}}>
-                <Button title="Cancel" onPress={() => {
-                    setFormData({type: "",amount: "", taxPengirim: "0", taxPenerima: "0", amountDompetAft: "",amountTabunganAft: ""})
-                    navigation.navigate("Splash")
-                }} />
-            </View>
         </View>
     )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    titleForm: {
+        fontSize: 15, fontWeight: 'bold'
+    },
+    formInput: {
+        borderBottomWidth: 2,
+        borderColor:'#bee3db',
+        marginBottom: 10
+    }
+})

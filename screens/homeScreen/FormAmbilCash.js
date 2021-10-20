@@ -46,10 +46,6 @@ export default function FormAmbilCash({ navigation }) {
 
     return (
         <View>
-            <Text>Ambil Cash</Text>
-            <Text>Uang di dompet rekening : {amountDompet}</Text>
-            <Text>uang Cash : {amountRealDompet}</Text>
-
             <CompFormAmbilCash data={{amountDompet}} onSubmit={handleSubmit} navigation={navigation}/>
         </View>
     )

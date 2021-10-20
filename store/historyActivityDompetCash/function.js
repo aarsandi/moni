@@ -49,5 +49,5 @@ export async function addHistDomCash(dispatch, val, cb) {
 export async function resetHistDomCash(dispatch, cb) {
     await AsyncStorage.removeItem('DATAHISTDOMCASH')
     dispatch(resetDataHistDomCash())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

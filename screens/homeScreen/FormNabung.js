@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
+import { StyleSheet, View, ScrollView, Alert } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
-import { toRupiah } from '../../helpers/NumberToString'
 
 import { useIsFocused } from "@react-navigation/native";
 import { inputNabung } from '../../store/app/function'
@@ -114,9 +113,6 @@ export default function FormNabung({route, navigation}) {
     return (
         <View>
             <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                <Text style={ { fontSize: 20, fontWeight: 'bold' } }>Form Nabung</Text>
-                <Text>Tabungan anda sekarang: {toRupiah(amountTabungan, "Rp. ")}</Text>
-                <Text>Uang Total Plan anda sekarang: {toRupiah(uangTotal, "Rp. ")}</Text>
                 {
                     isPlan?
                     <CompFormNabung data={{amountTabungan, amountDompet, amountRealDompet, uangTotal, jumlahDitabung:jumlahDitabung}} onSubmit={handleSubmit} navigation={navigation}/>:

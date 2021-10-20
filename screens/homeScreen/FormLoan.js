@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, Alert, ScrollView } from 'react-native'
+import { StyleSheet, View, Alert, ScrollView } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
 import CompFormLoan from '../../components/Form/CompFormLoan'
@@ -48,12 +48,9 @@ export default function FormLoan({ navigation }) {
     return (
         <View>
             <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                <Text style={{fontSize: 20}}>Form Pinjaman</Text>
-                <Text style={{fontSize: 15}}>Tabungan: {amountTabungan}</Text>
-                <Text style={{fontSize: 15}}>Rekening: {amountDompet}</Text>
                 {
                     !loading&&
-                    <CompFormLoan data={{amountDompet, amountRealDompet, amountTabungan}} onSubmit={handleSubmit} navigation={navigation}/>
+                    <CompFormLoan data={{amountDompet, amountTabungan}} onSubmit={handleSubmit} navigation={navigation}/>
                 }
             </ScrollView>
         </View>

@@ -25,7 +25,6 @@ export default function Register({navigation}) {
         if(findEmpty) {
             setError(`harap isi field ${findEmpty}`)
         } else {
-            // console.log(dataRegister)
             setupFinance(dataRegister, dispatch, (el) => {
                 if(el.message=="success") {
                     setError(null)

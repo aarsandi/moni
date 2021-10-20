@@ -48,5 +48,5 @@ export async function addHistPeng(dispatch, val, cb) {
 export async function resetHistPeng(dispatch, cb) {
     await AsyncStorage.removeItem('DATAHISTPENG')
     dispatch(resetDataHistPeng())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

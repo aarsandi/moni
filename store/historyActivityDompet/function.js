@@ -48,5 +48,5 @@ export async function addHistDom(dispatch, val, cb) {
 export async function resetHistDom(dispatch, cb) {
     await AsyncStorage.removeItem('DATAHISTDOM')
     dispatch(resetDataHistDom())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

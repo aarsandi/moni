@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, Button, TextInput, TouchableWithoutFeedback } from 'react-native'
+import { StyleSheet, Text, View, ToastAndroid, TextInput, TouchableWithoutFeedback, TouchableOpacity } from 'react-native'
 import MaskInput, { createNumberMask }  from 'react-native-mask-input';
 import SelectDropdown from 'react-native-select-dropdown'
 import { toRupiah } from '../../helpers/NumberToString'
 import DatePicker from 'react-native-date-picker'
 import moment from 'moment';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Note: disini pengirimnya si Tabungan maka taxnya dari pengirim yaitu rek tabungan
 export default function CompFormLoan({data, onSubmit, navigation}) {
@@ -18,14 +19,12 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
         amount: "",
         tenor: "",
         totalPerbulan: "",
-        taxPengirim: "",
-        taxPenerima: "",
+        taxPengirim: "0",
+        taxPenerima: "0",
         amountTabunganAft: "",
         amountDompetAft: "",
         due_date: new Date()
     })
-
-    const [error, setError] = useState(null)
 
     const handleChange = (value, field) => {
         setFormData({
@@ -44,7 +43,7 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
     const handleSubmit = () => {
         const findEmpty = Object.keys(formData).find((el) => formData[el]==="")
         if(findEmpty) {
-            setError(`harap isi field ${findEmpty}`)
+            ToastAndroid.show(`harap isi field ${findEmpty}`, ToastAndroid.SHORT)
         } else {
             if(Number(formData.taxPengirim)>=0&&Number(formData.taxPenerima)>=0) {
                 let amountPayArr = []
@@ -72,10 +71,37 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
                 }
                 onSubmit(result)
             } else {
-                setError('kesalahan pada form balance')
+                ToastAndroid.show('kesalahan pada form balance', ToastAndroid.SHORT)
             }
         }
     }
+
+    React.useEffect(() => {
+        navigation.addListener('beforeRemove', (e) => {
+            e.preventDefault();
+            navigation.dispatch(e.data.action)
+        })
+    },[navigation]);
+
+    React.useEffect(() => {
+        if(formData.title!==""&&formData.detail!==""&&formData.type!==""&&formData.amount!==""&&formData.amountDompetAft!==""&&formData.amountTabunganAft!=="") {
+            navigation.setOptions({
+                headerRight: () => (
+                    <TouchableOpacity onPress={handleSubmit}>
+                        <Text style={{ color: 'white', fontSize: 18, paddingRight: 10 }}>Create</Text>
+                    </TouchableOpacity>
+                ),
+            });
+        }else{
+            navigation.setOptions({
+                headerRight: () => (
+                    <TouchableOpacity disabled={true}>
+                        <Text style={{ color: 'grey', fontSize: 18, paddingRight: 10 }}>Create</Text>
+                    </TouchableOpacity>
+                ),
+            });
+        }
+    }, [navigation, formData.title, formData.detail, formData.type, formData.amount, formData.amountDompetAft, formData.amountTabunganAft, formData.taxPengirim, formData.taxPenerima ]);
 
     // hitung suku bunga
     useEffect(() => {
@@ -104,20 +130,21 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
 
     // handle jika option di ganti
     useEffect(() => {
-        handleChangeMany({ title: "", detail: "", amount: "", tenor: "", totalPerbulan: "", taxPengirim: "", taxPenerima: "", amountTabunganAft: "", amountDompetAft: ""})
+        handleChangeMany({ title: "", detail: "", amount: "", tenor: "", totalPerbulan: "", taxPengirim: "0", taxPenerima: "0", amountTabunganAft: "", amountDompetAft: ""})
     }, [formData.type])
 
     return (
-        <View>
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Type: </Text>
-            <SelectDropdown data={["Cash", "Tabungan"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>
+        <View style={{paddingHorizontal:18, paddingTop: 18}}>
+            <Text style={styles.titleForm}>Type: </Text>
+            <SelectDropdown buttonStyle={{ width: '100%' }} renderDropdownIcon={() => <Text><Ionicons name="chevron-down" color="#31572c" size={30} /></Text>}
+                data={["Cash", "Tabungan"]} onSelect={(selectedItem) => { handleChange(selectedItem, 'type') }}/>
 
             { formData.type==="Cash"&&
                 <>
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Title:</Text>
-                    <TextInput onChangeText={text => handleChange(text, 'title')} placeholder="Judul" placeholderTextColor="#838383" />
+                    <Text style={styles.titleForm}>Title</Text>
+                    <TextInput style={styles.formInput} onChangeText={text => handleChange(text, 'title')} placeholder="Judul" placeholderTextColor="#838383" />
 
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Detail:</Text>
+                    <Text style={styles.titleForm}>Detail:</Text>
                     <View style={styles.textAreaContainer} >
                         <TextInput
                             style={styles.textArea}
@@ -152,109 +179,66 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
                 </>
             }
 
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah:</Text>
-            <MaskInput keyboardType='number-pad'
+            <Text style={styles.titleForm}>Jumlah:</Text>
+            <MaskInput keyboardType='number-pad' style={styles.formInput}
                 value={formData.amount} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, "amount") }}
                 mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
             />
             {
                 formData.type==="Tabungan"&&
-                <>
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tenor: </Text>
-                    <SelectDropdown data={["1", "3", "6", "9"]} onSelect={(selectedItem) => {
-                        handleChange(selectedItem, 'tenor') }}
-                        buttonTextAfterSelection={(selectedItem, index) => {
-                            return selectedItem+ " bulan"
-                        }}
-                        rowTextForSelection={(item) => {
-                        return item+" bulan"
-                    }}/>
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Bayar Perbulan :</Text>
-                    <TextInput editable={false} value={toRupiah(formData.totalPerbulan, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
-
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Tabungan Setelahnya:</Text>
-                    <MaskInput keyboardType='number-pad'
-                        value={formData.amountTabunganAft} onChangeText={(masked, unmasked, obfuscated) => { handleChangeMany({amountTabunganAft:unmasked}) }}
-                        mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
-                    />
-
-                    <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Rekening Setelahnya:</Text>
-                    <MaskInput keyboardType='number-pad'
-                        value={formData.amountDompetAft} onChangeText={(masked, unmasked, obfuscated) => { handleChangeMany({amountDompetAft:unmasked}) }}
-                        mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
-                    />
-                </>
+                <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flex: 1, paddingRight: 10 }}>
+                        <Text style={styles.titleForm}>Tenor</Text>
+                        <SelectDropdown defaultButtonText="Choose.." buttonStyle={{ width: '100%' }} renderDropdownIcon={() => <Text><Ionicons name="chevron-down" color="#31572c" size={30} /></Text>}
+                            data={["1", "3", "6", "9"]} onSelect={(selectedItem) => {
+                                handleChange(selectedItem, 'tenor') }}
+                                buttonTextAfterSelection={(selectedItem, index) => {
+                                    return selectedItem+ " bulan"
+                                }}
+                                rowTextForSelection={(item) => {
+                                return item+" bulan"
+                            }}/>
+                        <Text style={styles.titleForm}>Balance Rekening:</Text>
+                        <TextInput editable={false} value={toRupiah(amountDompet)} placeholder="Rp. 0" placeholderTextColor="#838383" />
+                        <Text style={styles.titleForm}>Rekening Setelahnya:</Text>
+                        <MaskInput style={styles.formInput} keyboardType='number-pad'
+                            value={formData.amountDompetAft} onChangeText={(masked, unmasked, obfuscated) => { handleChangeMany({amountDompetAft:unmasked}) }}
+                            mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
+                        />
+                        <Text style={styles.titleForm}>Tax Pengirim</Text>
+                        <TextInput editable={false} value={toRupiah(formData.taxPengirim, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383" />
+                    </View>
+                    <View style={{ flex: 1, marginLeft: 10 }}>
+                        <Text style={styles.titleForm}>Bayar Perbulan :</Text>
+                        <TextInput editable={false} value={toRupiah(formData.totalPerbulan, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383"/>
+                        <Text style={styles.titleForm}>Balance Tabungan:</Text>
+                        <TextInput editable={false} value={toRupiah(amountTabungan)} placeholder="Rp. 0" placeholderTextColor="#838383" />
+                        <Text style={styles.titleForm}>Tabungan Setelahnya:</Text>
+                        <MaskInput style={styles.formInput} keyboardType='number-pad'
+                            value={formData.amountTabunganAft} onChangeText={(masked, unmasked, obfuscated) => { handleChangeMany({amountTabunganAft:unmasked}) }}
+                            mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
+                        />
+                        <Text style={styles.titleForm}>Tax Penerima</Text>
+                        <TextInput editable={false} value={toRupiah(formData.taxPenerima, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383" />
+                    </View>
+                </View>
             }
-
-            {
-                error&&
-                <Text style={{ color: "red" }}>note: {error}</Text>
-            }
-
-            <View style={{marginVertical:10}}>
-                <Button title="Submit" onPress={handleSubmit} />
-            </View>
-            
-            <View style={{marginVertical:10}}>
-                <Button title="Cancel" onPress={() => {
-                    setFormData({type: "",amount: ""})
-                    navigation.navigate("Splash")
-                }} />
-            </View>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-    centeredView: {
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: "center",
-        alignItems: "center",
-        // marginTop: 22
+    titleForm: {
+        fontSize: 15, fontWeight: 'bold'
     },
-    modalView: {
-        width: 350,
-        // height: 300,
-        // margin: 20,
-        backgroundColor: "white",
-        borderRadius: 20,
-        padding: 35,
-        // alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5
-    },
-    button: {
-        borderRadius: 20,
-        padding: 10,
-        elevation: 2,
-        marginVertical: 10
-    },
-    buttonOpen: {
-        backgroundColor: "#F194FF",
-    },
-    buttonClose: {
-        backgroundColor: "#2196F3",
-    },
-    textStyle: {
-        color: "white",
-        fontWeight: "bold",
-        textAlign: "center"
-    },
-    modalText: {
-        fontSize: 20, fontWeight: 'bold',
-        marginBottom: 15,
-        textAlign: "center"
+    formInput: {
+        borderBottomWidth: 2,
+        borderColor:'#bee3db',
+        marginBottom: 10
     },
     textAreaContainer: {
-        // borderColor: COLORS.grey20,
-        borderWidth: 1,
+        marginVertical: 10,
+        elevation: 1,
         paddingHorizontal: 5
     },
     textArea: {
