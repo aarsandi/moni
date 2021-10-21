@@ -75,9 +75,9 @@ export default function CompFormChangeAmount({data, onSubmit, navigation}) {
 
     return (
         <View style={{paddingHorizontal:18, paddingTop: 18}}>
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Amount Cash:</Text>
+            <Text style={styles.formTitle}>Amount Cash:</Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
-                <MaskInput keyboardType='number-pad' style={{flex:3}}
+                <MaskInput keyboardType='number-pad' style={{ ...styles.formInput, flex:3}}
                     value={dataForm.amountRealDompetAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, "amountRealDompetAft") }}
                     mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                 />
@@ -89,9 +89,9 @@ export default function CompFormChangeAmount({data, onSubmit, navigation}) {
                 }
             </View>
 
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Amount Dompet:</Text>
+            <Text style={styles.formTitle}>Amount Dompet:</Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
-                <MaskInput keyboardType='number-pad' style={{flex:3}}
+                <MaskInput keyboardType='number-pad' style={{ ...styles.formInput, flex:3}}
                     value={dataForm.amountDompetAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, "amountDompetAft") }}
                     mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                 />
@@ -103,9 +103,9 @@ export default function CompFormChangeAmount({data, onSubmit, navigation}) {
                 }
             </View>
 
-            <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Amount Tabungan:</Text>
+            <Text style={styles.formTitle}>Amount Tabungan:</Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
-                <MaskInput keyboardType='number-pad' style={{flex:3}}
+                <MaskInput keyboardType='number-pad' style={{ ...styles.formInput, flex:3}}
                     value={dataForm.amountTabunganAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, "amountTabunganAft") }}
                     mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                 />
@@ -120,4 +120,14 @@ export default function CompFormChangeAmount({data, onSubmit, navigation}) {
     )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    formInput: {
+        borderBottomWidth: 2,
+        borderColor:'#bee3db',
+        marginBottom: 10
+    },
+    formTitle: {
+        fontSize: 15,
+        fontWeight: 'bold'
+    }
+})

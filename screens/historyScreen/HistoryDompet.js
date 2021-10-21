@@ -1,34 +1,43 @@
-import React, { useEffect } from 'react'
-import { StyleSheet, Text, View, Alert } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, Text, View, FlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
-import moment from "moment"
-import { toRupiah } from '../../helpers/NumberToString'
 
+import HistoryDomCard from '../../components/Card/HistoryDomCard';
 import { fetchHistDom } from '../../store/historyActivityDompet/function'
 
 export default function HistoryDompet() {
     const dispatch = useDispatch()
     const dataHistDom = useSelector((state) => state.historyActivityDompetReducer.allData)
+    const [loading, setLoading] = useState(true);
+    const [ dataHist , setDataHist ] = useState({
+        data: []
+    });
 
     useEffect(() => {
         if(dataHistDom===null) {
             fetchHistDom(dispatch)
+        }else{
+            setDataHist({
+                data: dataHistDom
+            })
         }
+        setLoading(false)
     }, [])
 
     return (
         <View>
-            <Text>data history</Text>
-            
-            <View style={{marginVertical:10}}>
-                {
-                    dataHistDom&&dataHistDom.slice(0, 10).map((el, index) => {
-                        return (
-                            <Text key={index}>{el.type} - {el.title} - {toRupiah(el.amount, "Rp. ")} - {moment(el.date).format('lll')}</Text>
-                        )
-                    })
-                }
-            </View>
+            {
+                loading?
+                <Text>.........</Text>:
+                <View style={{backgroundColor: "#bee3db", margin: 10, borderRadius: 5, paddingHorizontal: 20, paddingBottom: 20 }}>
+                    <FlatList
+                        data= {dataHist.data}
+                        renderItem= {({ item: dataHist }) => <HistoryDomCard data={dataHist}/>  }
+                        keyExtractor={(item) => item.id}
+                    >
+                    </FlatList>
+                </View>
+            }
         </View>
     )
 }

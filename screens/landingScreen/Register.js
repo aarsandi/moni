@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ToastAndroid } from 'react-native'
 import { setupFinance } from "../../store/finance/function"
 import { useSelector, useDispatch } from 'react-redux'
 import { useIsFocused } from "@react-navigation/native";
@@ -10,7 +10,6 @@ export default function Register({navigation}) {
     const {isDarkMode} = useSelector((state) => state.appReducer)
     const isFocused = useIsFocused();
     const { nama, amountTabungan, amountDompet } = useSelector((state) => state.financeReducer)
-    const [error, setError] = useState(null)
     const [dataRegister, setDataRegister] = useState({ nama: "", amountTabungan : "", amountDompet : "", amountRealDompet : "" })
 
     const onHandleChange = (value, field) => {
@@ -23,14 +22,13 @@ export default function Register({navigation}) {
     const handleSubmit = () => {
         const findEmpty = Object.keys(dataRegister).find((el) => dataRegister[el]==="")
         if(findEmpty) {
-            setError(`harap isi field ${findEmpty}`)
+            ToastAndroid.show(`harap isi field ${findEmpty}`, ToastAndroid.SHORT)
         } else {
             setupFinance(dataRegister, dispatch, (el) => {
-                if(el.message=="success") {
-                    setError(null)
+                if(el.message!=="success") {
                     navigation.navigate("AppScreenNavigator")
                 }else{
-                    setError("function error!")
+                    ToastAndroid.show('function error!', ToastAndroid.SHORT)
                 }
             })
         }
@@ -80,9 +78,6 @@ export default function Register({navigation}) {
                 <TouchableOpacity onPress={ handleSubmit } style={styles.buttonSubmit}>
                     <Text style={ { color: '#bee3db', fontSize: 15, alignSelf: 'center' } }>Submit</Text>
                 </TouchableOpacity>
-                { 
-                    error && <Text>{error}</Text>
-                }
             </View>
         </View>
     )
