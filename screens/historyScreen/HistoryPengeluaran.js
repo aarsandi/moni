@@ -79,35 +79,45 @@ export default function HistoryPengeluaran() {
                     data: dataHistPeng
                 })
             }
-            setLoading(false)
         }
+        setLoading(false)
     }, [filterDate]);
 
     return (
         <View>
             {
                 loading?
-                <Text>.........</Text>:
-                <View style={{backgroundColor: "#bee3db", margin: 10, borderRadius: 5, paddingHorizontal: 20, paddingBottom: 20 }}>
-                    <View style={{ flexDirection: "row" }}>
-                        <Text style={{ flex: 4, fontSize: 15, fontWeight: '800', alignSelf: 'center' }}>Spending History List</Text>
-                        <SelectDropdown defaultValue={filterDate} buttonStyle={{ flex: 2, backgroundColor: "#bee3db" }} renderDropdownIcon={() => <Text><Ionicons name="chevron-down" color="#31572c" size={25} /></Text>}
-                            data={["Today", "Week", "Month", "All"]} onSelect={(selectedItem) => { setFilterDate(selectedItem) }}/>
-                    </View>
-                    <View style={{ flexDirection: "row", paddingBottom: 5 }}>
-                        <Text style={{ flex: 4, fontSize: 15, fontWeight: '800', textAlign: 'left' }}>Total</Text>
-                        <Text style={{ flex: 2, fontSize: 15, fontWeight: '800', textAlign: 'right' }}>{toRupiah(dataHist.total)}</Text>
-                    </View>
-                    <FlatList
-                        data= {dataHist.data}
-                        renderItem= {({ item: dataHist }) => <HistoryListCard data={dataHist}/>  }
-                        keyExtractor={(item) => item.id}
-                    >
-                    </FlatList>
+                <Text style={{ textAlign: 'center', fontSize: 20, fontWeight: '800' }}>...</Text>:
+                <View style={styles.container}>
+                    {
+                        dataHist.data.length?
+                        <>
+                            <View style={{ flexDirection: "row" }}>
+                                <Text style={{ flex: 4, fontSize: 15, fontWeight: '800', alignSelf: 'center' }}>Spending History List</Text>
+                                <SelectDropdown defaultValue={filterDate} buttonStyle={{ flex: 2, backgroundColor: "#bee3db" }} renderDropdownIcon={() => <Text><Ionicons name="chevron-down" color="#31572c" size={25} /></Text>}
+                                    data={["Today", "Week", "Month", "All"]} onSelect={(selectedItem) => { setFilterDate(selectedItem) }}/>
+                            </View>
+                            <View style={{ flexDirection: "row", paddingBottom: 5 }}>
+                                <Text style={{ flex: 4, fontSize: 15, fontWeight: '800', textAlign: 'left' }}>Total</Text>
+                                <Text style={{ flex: 2, fontSize: 15, fontWeight: '800', textAlign: 'right' }}>{toRupiah(dataHist.total)}</Text>
+                            </View>
+                            <FlatList
+                                data= {dataHist.data}
+                                renderItem= {({ item: dataHist }) => <HistoryListCard data={dataHist}/>  }
+                                keyExtractor={(item) => item.id}
+                            >
+                            </FlatList>
+                        </> :
+                        <Text style={{ textAlign: 'center', fontSize: 20, fontWeight: '800' }}>no data</Text>
+                    }
                 </View>
             }
         </View>
     )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: "#bee3db", margin: 10, borderRadius: 5, paddingHorizontal: 20, paddingBottom: 20, paddingTop: 10
+    }
+})
