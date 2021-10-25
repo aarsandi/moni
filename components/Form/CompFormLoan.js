@@ -84,7 +84,7 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
     },[navigation]);
 
     React.useEffect(() => {
-        if(formData.title!==""&&formData.detail!==""&&formData.type!==""&&formData.amount!==""&&formData.amountDompetAft!==""&&formData.amountTabunganAft!=="") {
+        if(formData.title!==""&&formData.detail!==""&&formData.type!==""&&formData.amount!==""&&formData.amountDompetAft!==""&&formData.amountTabunganAft!==""&&formData.totalPerbulan!=="") {
             navigation.setOptions({
                 headerRight: () => (
                     <TouchableOpacity onPress={handleSubmit}>
@@ -101,7 +101,7 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
                 ),
             });
         }
-    }, [navigation, formData.title, formData.detail, formData.type, formData.amount, formData.amountDompetAft, formData.amountTabunganAft, formData.taxPengirim, formData.taxPenerima ]);
+    }, [navigation, formData.title, formData.detail, formData.type, formData.amount, formData.amountDompetAft, formData.amountTabunganAft, formData.taxPengirim, formData.taxPenerima, formData.totalPerbulan ]);
 
     // hitung suku bunga
     useEffect(() => {
@@ -168,6 +168,7 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
                         </View></View>
                     </TouchableWithoutFeedback>
                     <DatePicker modal open={openDatePick} date={formData.due_date} mode="date"
+                        minimumDate={new Date()}
                         onConfirm={(date) => {
                             setOpenDatePick(false)
                             handleChange(date, 'due_date')
@@ -205,8 +206,8 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
                             value={formData.amountDompetAft} onChangeText={(masked, unmasked, obfuscated) => { handleChangeMany({amountDompetAft:unmasked}) }}
                             mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                         />
-                        <Text style={styles.titleForm}>Tax Pengirim</Text>
-                        <TextInput editable={false} value={toRupiah(formData.taxPengirim, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383" />
+                        <Text style={styles.titleForm}>Tax Penerima</Text>
+                        <TextInput editable={false} value={toRupiah(formData.taxPenerima, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383" />
                     </View>
                     <View style={{ flex: 1, marginLeft: 10 }}>
                         <Text style={styles.titleForm}>Bayar Perbulan :</Text>
@@ -218,8 +219,8 @@ export default function CompFormLoan({data, onSubmit, navigation}) {
                             value={formData.amountTabunganAft} onChangeText={(masked, unmasked, obfuscated) => { handleChangeMany({amountTabunganAft:unmasked}) }}
                             mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
                         />
-                        <Text style={styles.titleForm}>Tax Penerima</Text>
-                        <TextInput editable={false} value={toRupiah(formData.taxPenerima, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383" />
+                        <Text style={styles.titleForm}>Tax Pengirim</Text>
+                        <TextInput editable={false} value={toRupiah(formData.taxPengirim, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383" />
                     </View>
                 </View>
             }

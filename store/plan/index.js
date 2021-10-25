@@ -1,13 +1,13 @@
 const initialState = {
     status: null, // "null||active"||"completed"||"failed"
-    type: null, // "Gaji"||"Bulanan"
+    type: null, // "Payday"||"Monthly"
     uangTotal: null, // jika typenya gaji ? maka dari input gajiny : maka dari (dompet+dompetReal)
     jumlahDitabung: null,
     uangHarian: null, // uang harian fix bisa dirubah
     uangHariIni: null, // uang sisa hari ini direset tiap jam 23.30
     uangHarianLebih: null, // uang yang harus diirit (jika uang harian lebih dari batas nambah ini) -> uangHarianLebih=uangHariIni-uangHarian
     tanggalGajian: null,
-    pengeluaranBulanan: [], // [{title: "", amount: "", due_date: new Date()}]
+    pengeluaranBulanan: [], // [{title: "", amount: "", due_date: new Date(), isLoang: false||true}]
     updateCron: null // ini tanggal update harian
 
     // uangBulanan: null, // ini ambil dari : total pengeluaranBulanan (bisa di rubah jika ditambah pengeluaran perbulanny)

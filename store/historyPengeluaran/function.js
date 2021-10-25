@@ -25,23 +25,19 @@ export async function fetchHistPeng(dispatch, cb) {
 }
 
 export async function addHistPeng(dispatch, val, cb) {
-    try {
-        const { title, detail, type, amount, tax, payWith, date= Date.parse(new Date()) } = val
-        const dataHistPeng = await AsyncStorage.getItem('DATAHISTPENG')
-        if(dataHistPeng) {
-            const result = JSON.parse(dataHistPeng)
-            const newResult = [{id:result.length+1, title, detail, type, amount, tax, payWith, date}].concat(result)
-            await AsyncStorage.setItem('DATAHISTPENG', JSON.stringify(newResult))
-            dispatch(setDataHistPeng(newResult))
-            cb({message: "success"})
-        }else{ 
-            const newResult = [{id:1, title, detail, type, amount, tax, payWith, date}]
-            await AsyncStorage.setItem('DATAHISTPENG', JSON.stringify(newResult))
-            dispatch(setDataHistPeng(newResult))
-            cb({message: "success"})
-        }
-    } catch(err) {
-        cb({message: "error"})
+    const { title, detail, type, amount, tax, payWith, date= Date.parse(new Date()) } = val
+    const dataHistPeng = await AsyncStorage.getItem('DATAHISTPENG')
+    if(dataHistPeng) {
+        const result = JSON.parse(dataHistPeng)
+        const newResult = [{id:result.length+1, title, detail, type, amount, tax, payWith, date}].concat(result)
+        await AsyncStorage.setItem('DATAHISTPENG', JSON.stringify(newResult))
+        dispatch(setDataHistPeng(newResult))
+        cb({message: "success"})
+    }else{ 
+        const newResult = [{id:1, title, detail, type, amount, tax, payWith, date}]
+        await AsyncStorage.setItem('DATAHISTPENG', JSON.stringify(newResult))
+        dispatch(setDataHistPeng(newResult))
+        cb({message: "success"})
     }
 }
 

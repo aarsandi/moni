@@ -187,6 +187,8 @@ export default function CompEditNeeds({data, onSubmit, navigation}) {
                     </View></View>
                 </TouchableWithoutFeedback>
                 <DatePicker modal open={openBulanan} date={dataNeed.due_date} mode="date"
+                    minimumDate={new Date()}
+                    maximumDate={new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)}
                     onConfirm={(date) => {
                         setOpenBulanan(false)
                         handleChangeNeed({due_date:date})

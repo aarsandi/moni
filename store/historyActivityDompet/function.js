@@ -25,23 +25,19 @@ export async function fetchHistDom(dispatch, cb) {
 }
 
 export async function addHistDom(dispatch, val, cb) {
-    try{
-        const { title, type, amount, balanceAfr, balanceBfr, date=Date.parse(new Date()) } = val
-        const dataHistDom = await AsyncStorage.getItem('DATAHISTDOM')
-        if(dataHistDom) {
-            const result = JSON.parse(dataHistDom)
-            const newResult = [{id:result.length+1, title, type, amount, balanceAfr, balanceBfr, date }].concat(result)
-            await AsyncStorage.setItem('DATAHISTDOM', JSON.stringify(newResult))
-            dispatch(setDataHistDom(newResult))
-            cb({message: "success"})
-        }else{ 
-            const newResult = [{id:1, title, type, amount, balanceAfr, balanceBfr, date}]
-            await AsyncStorage.setItem('DATAHISTDOM', JSON.stringify(newResult))
-            dispatch(setDataHistDom(newResult))
-            cb({message: "success"})
-        }
-    } catch(err) {
-        cb({message: "error"})
+    const { title, type, amount, balanceAfr, balanceBfr, date=Date.parse(new Date()) } = val
+    const dataHistDom = await AsyncStorage.getItem('DATAHISTDOM')
+    if(dataHistDom) {
+        const result = JSON.parse(dataHistDom)
+        const newResult = [{id:result.length+1, title, type, amount, balanceAfr, balanceBfr, date }].concat(result)
+        await AsyncStorage.setItem('DATAHISTDOM', JSON.stringify(newResult))
+        dispatch(setDataHistDom(newResult))
+        cb({message: "success"})
+    }else{ 
+        const newResult = [{id:1, title, type, amount, balanceAfr, balanceBfr, date}]
+        await AsyncStorage.setItem('DATAHISTDOM', JSON.stringify(newResult))
+        dispatch(setDataHistDom(newResult))
+        cb({message: "success"})
     }
 }
 

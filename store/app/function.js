@@ -118,7 +118,7 @@ export async function inputPenghasilan(dispatch, val, cb) {
         updateFinance(dispatch, {amountDompet: amountDompetAft}, (el) => {
             if(el.message === "success") {
                 addHistDom(dispatch, {
-                    title: "Penghasilan",type:"Pemasukan",amount:amountDompetAft-amountDompet,
+                    title: "Penghasilan",type:"Pemasukan",amount:amount,
                     balanceAfr: amountDompetAft, balanceBfr:amountDompet
                 }, (el) => {
                     if(el.message === "success") {
@@ -153,133 +153,135 @@ export async function inputPenghasilan(dispatch, val, cb) {
 
 export async function inputPayLoan(dispatch, val, cb) {
     const {
-        title,detail,amount,type,amountRealDompet,amountTabungan,amountDompet,taxPengirim,taxPenerima,amountTabunganAft,amountDompetAft,selectedLoan
+        title,detail,amount,type,amountRealDompet,amountTabungan,amountDompet,taxPengirim,amountTabunganAft,amountDompetAft,selectedLoan
     } = val
-    if(type === "Cash") {
-        addHistPeng(dispatch, {
-            title: title,
-            detail: detail,
-            type: "Pinjaman",
-            amount: amount,
-            tax: 0,
-            payWith: "Cash",
-            balanceAfr: amountRealDompet-amount,
-            balanceBfr: amountRealDompet
-        }, (el) => {
-            if(el.message==="success") {
-                addHistDomCash(dispatch, {
-                    title: "Pinjaman",
-                    type: "Pengeluaran",
-                    amount: amount,
-                    balanceAfr: amountRealDompet-amount,
-                    balanceBfr: amountRealDompet
-                }, (el) => {
-                    if(el.message==="success") {
-                        selectedLoan.amountPay.shift()
-                        if(selectedLoan.amountPay.length) {
-                            selectedLoan.due_date = selectedLoan.amountPay[0].due_date
-                            updateLoan(dispatch, {
-                                inputLoan: selectedLoan,
-                                amountRealDompet: amountRealDompet-amount
-                            }, (el) => {
-                                if(el.message === "success") {
-                                    cb({message: "success"})
-                                }else {
-                                    cb({message: "error"})
-                                }
-                            })
-                            cb({message: "success"})
-                        }else{
-                            removeLoan(dispatch, {
-                                loanId: selectedLoan.id,
-                                amountRealDompet: amountRealDompet-amount
-                            }, (el) => {
-                                if(el.message === "success") {
-                                    cb({message: "success"})
-                                }else{
-                                    cb({message: "error"})                            
-                                }
-                            })
-                        }
-                    }else {
-                        cb({message: "error"})
-                    }
-                })
-            }else{
-                cb({message: "error"})
-            }
-        })
-    }else if(type === "Tabungan"){
-        addHistPeng(dispatch, {
-            title: title,
-            detail: detail,
-            type: "Pinjaman",
-            amount: amount,
-            tax: taxPengirim,
-            payWith: "Rekening Dompet",
-            balanceAfr: amountDompetAft,
-            balanceBfr: amountDompet
-        }, (el) => {
-            if(el.message==="success") {
-                addHistDom(dispatch, {
-                    title: "Pinjaman",
-                    type: "Pengeluaran",
-                    amount: amountDompet-amountDompetAft,
-                    balanceAfr: amountDompetAft,
-                    balanceBfr: amountDompet
-                }, (el) => {
-                    if(el.message==="success") {
-                        addHistTab(dispatch, {
-                            title: "Pinjaman",
-                            type: "Pemasukan",
-                            amount: amountTabunganAft-amountTabungan,
-                            balanceAfr: amountTabunganAft,
-                            balanceBfr: amountTabungan
-                        }, (el) => {
-                            if(el.message==="success") {
-                                selectedLoan.amountPay.shift()
-                                if(selectedLoan.amountPay.length) {
-                                    selectedLoan.due_date = selectedLoan.amountPay[0].due_date
-                                    updateLoan(dispatch, {
-                                        inputLoan: selectedLoan,
-                                        amountDompet: amountDompetAft,
-                                        amountTabungan: amountTabunganAft
-                                    }, (el) => {
-                                        if(el.message === "success") {
-                                            cb({message: "success"})
-                                        }else {
-                                            cb({message: "error"})
-                                        }
-                                    })
-                                    cb({message: "success"})
-                                }else{
-                                    removeLoan(dispatch, {
-                                        loanId: selectedLoan.id,
-                                        amountDompet: amountDompetAft,
-                                        amountTabungan: amountTabunganAft
-                                    }, (el) => {
-                                        if(el.message === "success") {
-                                            cb({message: "success"})
-                                        }else{
-                                            cb({message: "error"})                            
-                                        }
-                                    })
-                                }
-                            }else {
-                                cb({message: "error"})
-                            }
-                        })
-                    }else{
-                        cb({message: "error"})
-                    }
-                })
-            }else{
-                cb({message: "error"})
-            }
-        })
-    }else{
-        cb({message: "error"})
-    }
+    console.log({title,detail,amount,type,amountRealDompet,amountTabungan,amountDompet,taxPengirim,amountTabunganAft,amountDompetAft,selectedLoan})
+    cb({message: "error"})
+    // if(type === "Cash") {
+    //     addHistPeng(dispatch, {
+    //         title: title,
+    //         detail: detail,
+    //         type: "Pinjaman",
+    //         amount: amount,
+    //         tax: 0,
+    //         payWith: "Cash",
+    //         balanceAfr: amountRealDompet-amount,
+    //         balanceBfr: amountRealDompet
+    //     }, (el) => {
+    //         if(el.message==="success") {
+    //             addHistDomCash(dispatch, {
+    //                 title: "Pinjaman",
+    //                 type: "Pengeluaran",
+    //                 amount: amount,
+    //                 balanceAfr: amountRealDompet-amount,
+    //                 balanceBfr: amountRealDompet
+    //             }, (el) => {
+    //                 if(el.message==="success") {
+    //                     selectedLoan.amountPay.shift()
+    //                     if(selectedLoan.amountPay.length) {
+    //                         selectedLoan.due_date = selectedLoan.amountPay[0].due_date
+    //                         updateLoan(dispatch, {
+    //                             inputLoan: selectedLoan,
+    //                             amountRealDompet: amountRealDompet-amount
+    //                         }, (el) => {
+    //                             if(el.message === "success") {
+    //                                 cb({message: "success"})
+    //                             }else {
+    //                                 cb({message: "error"})
+    //                             }
+    //                         })
+    //                         cb({message: "success"})
+    //                     }else{
+    //                         removeLoan(dispatch, {
+    //                             loanId: selectedLoan.id,
+    //                             amountRealDompet: amountRealDompet-amount
+    //                         }, (el) => {
+    //                             if(el.message === "success") {
+    //                                 cb({message: "success"})
+    //                             }else{
+    //                                 cb({message: "error"})                            
+    //                             }
+    //                         })
+    //                     }
+    //                 }else {
+    //                     cb({message: "error"})
+    //                 }
+    //             })
+    //         }else{
+    //             cb({message: "error"})
+    //         }
+    //     })
+    // }else if(type === "Tabungan"){
+    //     addHistPeng(dispatch, {
+    //         title: title,
+    //         detail: detail,
+    //         type: "Pinjaman",
+    //         amount: amount,
+    //         tax: taxPengirim,
+    //         payWith: "Rekening Dompet",
+    //         balanceAfr: amountDompetAft,
+    //         balanceBfr: amountDompet
+    //     }, (el) => {
+    //         if(el.message==="success") {
+    //             addHistDom(dispatch, {
+    //                 title: "Pinjaman",
+    //                 type: "Pengeluaran",
+    //                 amount: amountDompet-amountDompetAft,
+    //                 balanceAfr: amountDompetAft,
+    //                 balanceBfr: amountDompet
+    //             }, (el) => {
+    //                 if(el.message==="success") {
+    //                     addHistTab(dispatch, {
+    //                         title: "Pinjaman",
+    //                         type: "Pemasukan",
+    //                         amount: amountTabunganAft-amountTabungan,
+    //                         balanceAfr: amountTabunganAft,
+    //                         balanceBfr: amountTabungan
+    //                     }, (el) => {
+    //                         if(el.message==="success") {
+    //                             selectedLoan.amountPay.shift()
+    //                             if(selectedLoan.amountPay.length) {
+    //                                 selectedLoan.due_date = selectedLoan.amountPay[0].due_date
+    //                                 updateLoan(dispatch, {
+    //                                     inputLoan: selectedLoan,
+    //                                     amountDompet: amountDompetAft,
+    //                                     amountTabungan: amountTabunganAft
+    //                                 }, (el) => {
+    //                                     if(el.message === "success") {
+    //                                         cb({message: "success"})
+    //                                     }else {
+    //                                         cb({message: "error"})
+    //                                     }
+    //                                 })
+    //                                 cb({message: "success"})
+    //                             }else{
+    //                                 removeLoan(dispatch, {
+    //                                     loanId: selectedLoan.id,
+    //                                     amountDompet: amountDompetAft,
+    //                                     amountTabungan: amountTabunganAft
+    //                                 }, (el) => {
+    //                                     if(el.message === "success") {
+    //                                         cb({message: "success"})
+    //                                     }else{
+    //                                         cb({message: "error"})                            
+    //                                     }
+    //                                 })
+    //                             }
+    //                         }else {
+    //                             cb({message: "error"})
+    //                         }
+    //                     })
+    //                 }else{
+    //                     cb({message: "error"})
+    //                 }
+    //             })
+    //         }else{
+    //             cb({message: "error"})
+    //         }
+    //     })
+    // }else{
+    //     cb({message: "error"})
+    // }
 }
 
 export async function inputPengajuanLoan(dispatch, val, cb) {
@@ -398,9 +400,8 @@ export async function inputPengajuanLoan(dispatch, val, cb) {
 export async function inputNabung(dispatch, val, cb) {
     const {
         amountRealDompet,amountTabungan,amountDompet,amountTabunganAft,amountDompetAft,
-        title,type,amount,taxPengirim,taxPenerima
+        title,type,amount,taxPengirim
     } = val
-    cb({message: "success"})
     
     if(type === "Rekening"){
         updateFinance(dispatch, {amountDompet: amountDompetAft, amountTabungan: amountTabunganAft}, (el) => {

@@ -109,6 +109,15 @@ export default function Home({ navigation }) {
                 </View>
             </View>
             <View style={{backgroundColor: "#e5e5e5" }}>
+                { !status?
+                    <View style={{ margin: 10 }}>
+                        <Text style={{ fontSize: 17, fontWeight: "500" }}>Anda Belum Mengaktifkan Finansial Plan</Text>
+                        <TouchableOpacity onPress={()=> navigation.navigate("PlanScreenNavigator")} style={{ backgroundColor: '#8a8600', padding: 10, borderRadius: 10 }}>
+                            <Text style={ { color: 'white', fontSize: 15, fontWeight: "bold", alignSelf: 'center' } }>Aktifkan Sekarang</Text>
+                        </TouchableOpacity>
+                    </View>:
+                    <></>
+                }
                 <View style={{ flexDirection:'row' }}>
                     <TouchableOpacity style={{ padding: 10, flex: 2, alignItems:'center' }} onPress={() => { navigation.navigate("FormAmbilCash") }}>
                         <Text><Ionicons name="cash" color="#31572c" size={40} /></Text>
@@ -116,25 +125,13 @@ export default function Home({ navigation }) {
                     </TouchableOpacity>
                     <TouchableOpacity style={{ padding: 10, flex: 2, alignItems:'center' }} onPress={() => { navigation.navigate("FormInputPenghasilan") }}>
                         <Text><Ionicons name="wallet" color="#31572c" size={40} /></Text>
-                        <Text style={{ fontWeight: '500' }}>load wallet account</Text>
+                        <Text style={{ fontWeight: '500' }}>input income</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={{ padding: 10, flex: 2, alignItems:'center' }} onPress={() => { navigation.navigate("FormNabung", { isPlan: false }) }}>
                         <Text><Ionicons name="card" color="#31572c" size={40} /></Text>
                         <Text style={{ fontWeight: '500' }}>move to savings</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
-
-            <View>
-                { !status?
-                    <View style={{ margin: 10 }}>
-                        <Text style={{ fontSize: 17, fontWeight: "500" }}>Anda Belum Mengaktifkan Finansial Plan</Text>
-                        <TouchableOpacity onPress={()=> navigation.navigate("PlanScreenNavigator", { screen: 'SetupPlan' })} style={{ backgroundColor: '#8a8600', padding: 10, borderRadius: 10 }}>
-                            <Text style={ { color: 'white', fontSize: 15, fontWeight: "bold", alignSelf: 'center' } }>Aktifkan Sekarang</Text>
-                        </TouchableOpacity>
-                    </View>:
-                    <></>
-                }
             </View>
                 
             <ScrollView contentInsetAdjustmentBehavior="automatic" >
@@ -154,10 +151,10 @@ export default function Home({ navigation }) {
                                 <View key={index} style={{flexDirection:'row', paddingTop: 10, paddingBottom: 5, borderColor:'#8e9399', borderBottomWidth: 1}}>
                                     <View style={{flex:4}}>
                                         <Text style={{ fontSize:15, fontWeight:"400" }}>{el.title}</Text>
-                                        <Text style={{ fontSize:13, fontWeight:"300" }}>{moment(el.due_date).format("DD MMM")}</Text>
+                                        <Text style={{ fontSize:13, fontWeight:"300" }}>{moment(el.due_date).format("dddd, DD MMM")}</Text>
                                     </View>
                                     <View style={{flex:2}}>
-                                        <Text style={{ fontSize:15, fontWeight:"400", textAlign: "right" }}>{toRupiah(el.amountPay[0].amount, "Rp. ")}</Text>
+                                        <Text style={{ fontSize:15, fontWeight:"400", textAlign: "right" }}>{el.amountPay[0]?toRupiah(el.amountPay[0].amount, "Rp. "):""}</Text>
                                         <TouchableOpacity
                                             onPress={ () => navigation.navigate("FormBayarHutang", {itemId: el.id})}
                                         >
@@ -179,7 +176,7 @@ export default function Home({ navigation }) {
                         <Text style={{ flex: 3, fontSize: 15, fontWeight: '800' }}>Recent Spending</Text>
                         <TouchableOpacity
                             style={{ flex: 1 }}
-                            onPress={() => navigation.navigate("HistoryScreenNavigator", { screen: 'HistoryPengeluaran' })}
+                            onPress={() => navigation.navigate("HistoryScreenNavigator")}
                         >
                             <Text style={{ color: '#31572c', fontWeight:"700", fontSize: 13, textAlign: "right" }}>All Data</Text>
                         </TouchableOpacity>

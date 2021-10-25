@@ -14,7 +14,7 @@ export default function SetupPlan({ navigation }) {
     const { amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
 
     const handleSubmit = (val) => {
-        const {type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan,uangLainnya} = val  
+        const {type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan,uangLainnya} = val
         const percPenghasilan = (uangTotal/100)*10
         if(uangLainnya>percPenghasilan) {
             setupPlanAction({type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan}, dispatch, (el) => {
@@ -25,7 +25,7 @@ export default function SetupPlan({ navigation }) {
                 }
             })
         }else{
-            Alert.alert("Warning", "Uang Lainnya Kurang dari 10 Persen dari Penghasilan, apakah anda yakin ?", [{
+            Alert.alert("Warning", "other amount must more than 10% from your salary, are you sure to continue ?", [{
                 text: "Ok",
                 onPress: () => {              
                     setupPlanAction({type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan}, dispatch, (el) => {

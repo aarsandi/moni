@@ -14,6 +14,7 @@ export default function Plan({ navigation }) {
     const isFocused = useIsFocused();
     const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
     const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
+
     const [isLoading,setIsLoading] = useState(true)
 
     const [dataFinance, setDataFinance] = useState({
@@ -171,18 +172,29 @@ export default function Plan({ navigation }) {
                                         return(
                                             <View key={index} style={{flexDirection:'row', paddingTop: 10, paddingBottom: 5, borderColor:'#8e9399', borderBottomWidth: 1}}>
                                                 <View style={{flex:4}}>
-                                                    <Text style={{ fontSize:15, fontWeight:"500" }}>{el.title}</Text>
+                                                    <Text style={{ fontSize:15, fontWeight:"500" }}>{el.title}{el.loanId?" (Loan)":""}</Text>
                                                     <Text style={{ fontSize:15, fontWeight:"400" }}>{toRupiah(el.amount, "Rp. ")}</Text>
                                                     <Text style={{ fontSize:13, fontWeight:"300" }}>{moment(el.due_date).format("DD MMM")}</Text>
                                                 </View>
-                                                {/* <View style={{flex:2}}>
-                                                    <Text style={{ fontSize:15, fontWeight:"500" }}>{toRupiah(el.amount, "Rp. ")}</Text>
-                                                    <TouchableOpacity
-                                                        onPress={ () => }
-                                                    >
-                                                        <Text style={{ color: '#31572c', fontWeight:"700", fontSize: 13, textAlign: "right" }}>Pay Now</Text>
-                                                    </TouchableOpacity>
-                                                </View> */}
+                                                {
+                                                    el.loanId?
+                                                    <View style={{flex:2}}>
+                                                        <Text style={{ fontSize:15, fontWeight:"500", textAlign: "right" }}>{toRupiah(el.amount, "Rp. ")}</Text>
+                                                        <TouchableOpacity
+                                                            onPress={ () => navigation.navigate("FormBayarHutang", {itemId: el.loanId})}
+                                                        >
+                                                            <Text style={{ color: '#31572c', fontWeight:"700", fontSize: 13, textAlign: "right" }}>Pay Now</Text>
+                                                        </TouchableOpacity>
+                                                    </View>:
+                                                    <View style={{flex:2}}>
+                                                        <Text style={{ fontSize:15, fontWeight:"500", textAlign: "right" }}>{toRupiah(el.amount, "Rp. ")}</Text>
+                                                        <TouchableOpacity
+                                                            onPress={ () => navigation.navigate("FormSpend")}
+                                                        >
+                                                            <Text style={{ color: '#31572c', fontWeight:"700", fontSize: 13, textAlign: "right" }}>Pay Now</Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                }
                                             </View>
                                         )
                                     }):

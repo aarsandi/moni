@@ -126,7 +126,7 @@ export default function CompFormSpend({data, onSubmit, navigation}) {
                 dataForm.type==="Bulanan"?
                 <>
                     {
-                        pengeluaranBulanan.map((el, index) => {
+                        pengeluaranBulanan.filter(el => el.loanId === null).map((el, index) => {
                             return(
                                 <View key={index} style={{flexDirection:'row'}}>
                                     <Text style={{flex:4}}>{el.title} - {toRupiah(el.amount, "Rp. ")}</Text>

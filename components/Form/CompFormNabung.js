@@ -76,7 +76,7 @@ export default function CompFormNabung({data, onSubmit, navigation}) {
                 ),
             });
         }
-    }, [navigation, formData.type, formData.amount, formData.amountDompetAft, formData.amountTabunganAft ]);
+    }, [navigation, formData.type, formData.amount, formData.amountDompetAft, formData.amountTabunganAft, formData.taxPenerima, formData.taxPengirim ]);
 
     useEffect(() => {
         if(formData.type==="Rekening"&&formData.amountTabunganAft&&formData.amountDompetAft&&formData.amount) {

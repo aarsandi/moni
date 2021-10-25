@@ -84,6 +84,7 @@ export default function CompFormAmbilCash({data, onSubmit, navigation}) {
                 value={dataForm.amountDompetAft} onChangeText={(masked, unmasked, obfuscated) => { handleChange(unmasked, 'amountDompetAft') }}
                 mask={createNumberMask({ prefix: ['Rp.', ' '], delimiter: ',', precision: 3 })}
             />
+            <Text style={styles.titleForm}>Amount in Account : {toRupiah(amountDompet)}</Text>
             <Text style={styles.titleForm}>Tax</Text>
             <TextInput editable={false} value={toRupiah(dataForm.tax, "Rp. ")} placeholder="Rp. 0" placeholderTextColor="#838383" />
         </View>

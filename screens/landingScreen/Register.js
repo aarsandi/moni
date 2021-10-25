@@ -25,7 +25,7 @@ export default function Register({navigation}) {
             ToastAndroid.show(`harap isi field ${findEmpty}`, ToastAndroid.SHORT)
         } else {
             setupFinance(dataRegister, dispatch, (el) => {
-                if(el.message!=="success") {
+                if(el.message==="success") {
                     navigation.navigate("AppScreenNavigator")
                 }else{
                     ToastAndroid.show('function error!', ToastAndroid.SHORT)
@@ -43,11 +43,11 @@ export default function Register({navigation}) {
     return (
         <View style={{ backgroundColor: isDarkMode, flex: 1, justifyContent: 'center' }}>
             <View style={{ borderColor: "#bee3db", borderWidth: 2, margin: 10, borderRadius: 5, paddingVertical: 35, paddingHorizontal: 20 }}>
-                <Text style={{ fontSize: 30, alignSelf: 'center', marginBottom:30, fontWeight: 'bold' }}>Data Finansial</Text>
-                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Nama</Text>
-                <TextInput style={styles.textInput} onChangeText={text => onHandleChange(text, 'nama')} placeholder="nama lengkap" />
+                <Text style={{ fontSize: 30, alignSelf: 'center', marginBottom:30, fontWeight: 'bold' }}>Finance Form</Text>
+                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Full Name</Text>
+                <TextInput style={styles.textInput} onChangeText={text => onHandleChange(text, 'nama')} placeholder="full name" />
                 
-                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Tabungan</Text>
+                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Saving Amount</Text>
                 <MaskInput keyboardType='number-pad' style={styles.textInput}
                     value={dataRegister.amountTabungan} onChangeText={(masked, unmasked, obfuscated) => { onHandleChange(unmasked, 'amountTabungan') }}
                     mask={createNumberMask({
@@ -56,7 +56,7 @@ export default function Register({navigation}) {
                     precision: 3,
                     })}
                 />
-                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Dompet (Cash)</Text>
+                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Wallet Amount (in cash)</Text>
                 <MaskInput keyboardType='number-pad' style={styles.textInput}
                     value={dataRegister.amountRealDompet} onChangeText={(masked, unmasked, obfuscated) => { onHandleChange(unmasked, 'amountRealDompet') }}
                     mask={createNumberMask({
@@ -65,7 +65,7 @@ export default function Register({navigation}) {
                     precision: 3,
                     })}
                 />
-                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Jumlah Dompet (Account)</Text>
+                <Text style={ { fontSize: 15, fontWeight: 'bold' } }>Wallet Amount (in account)</Text>
                 <MaskInput keyboardType='number-pad'  style={styles.textInput}
                     value={dataRegister.amountDompet} onChangeText={(masked, unmasked, obfuscated) => { onHandleChange(unmasked, 'amountDompet') }}
                     mask={createNumberMask({

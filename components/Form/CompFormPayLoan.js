@@ -4,7 +4,7 @@ import MaskInput, { createNumberMask }  from 'react-native-mask-input';
 import { toRupiah } from '../../helpers/NumberToString'
 
 export default function CompFormPayLoan({data, onSubmit, navigation}) {
-    const { amountDompet, amountRealDompet, amountTabungan, title, detail, type, amountPay } = data
+    const { amountDompet, amountTabungan, title, detail, type, amountPay } = data
 
     const [formData, setFormData] = useState({
         taxPengirim: "0",

@@ -25,23 +25,19 @@ export async function fetchHistTab(dispatch, cb) {
 }
 
 export async function addHistTab(dispatch, val, cb) {
-    try {
-        const { title, type, amount, balanceAfr, balanceBfr, date=Date.parse(new Date()) } = val
-        const dataHistTab = await AsyncStorage.getItem('DATAHISTTAB')
-        if(dataHistTab) {
-            const result = JSON.parse(dataHistTab)
-            const newResult = [{id:result.length+1, title, type, amount, balanceAfr, balanceBfr, date}].concat(result)
-            await AsyncStorage.setItem('DATAHISTTAB', JSON.stringify(newResult))
-            dispatch(setDataHistTab(newResult))
-            cb({message: "success"})
-        }else{ 
-            const newResult = [{id:1, title, type, amount, balanceAfr, balanceBfr, date}]
-            await AsyncStorage.setItem('DATAHISTTAB', JSON.stringify(newResult))
-            dispatch(setDataHistTab(newResult))
-            cb({message: "success"})
-        }
-    } catch(err) {
-        cb({message: "error"})
+    const { title, type, amount, balanceAfr, balanceBfr, date=Date.parse(new Date()) } = val
+    const dataHistTab = await AsyncStorage.getItem('DATAHISTTAB')
+    if(dataHistTab) {
+        const result = JSON.parse(dataHistTab)
+        const newResult = [{id:result.length+1, title, type, amount, balanceAfr, balanceBfr, date}].concat(result)
+        await AsyncStorage.setItem('DATAHISTTAB', JSON.stringify(newResult))
+        dispatch(setDataHistTab(newResult))
+        cb({message: "success"})
+    }else{ 
+        const newResult = [{id:1, title, type, amount, balanceAfr, balanceBfr, date}]
+        await AsyncStorage.setItem('DATAHISTTAB', JSON.stringify(newResult))
+        dispatch(setDataHistTab(newResult))
+        cb({message: "success"})
     }
 }
 

@@ -2,6 +2,7 @@ import React, {useEffect,useState} from 'react'
 import { StyleSheet, View, ScrollView, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { inputPayLoan } from '../../store/app/function'
+import { updatePlan } from '../../store/plan/function';
 
 import { useIsFocused } from "@react-navigation/native";
 import CompFormPayLoan from '../../components/Form/CompFormPayLoan'
@@ -11,6 +12,7 @@ export default function FormBayarHutang({ route, navigation }) {
     const { itemId } = route.params;
     const isFocused = useIsFocused();
     const { amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
+    const { status,uangTotal,pengeluaranBulanan } = useSelector((state) => state.planReducer)
     const [selectedLoan, setSelectedLoan] = useState(null)
     const [loading, setLoading] = useState(true)
 
@@ -19,13 +21,46 @@ export default function FormBayarHutang({ route, navigation }) {
             Alert.alert("Info", "are you sure?", [{
                 text: "Ok",
                 onPress: () => {
-                    inputPayLoan(dispatch, {...val, amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan}, (el) => {
-                        if(el.message === "success") {
-                            navigation.navigate("Splash")
+                    if(status==="active"&&pengeluaranBulanan.length) {
+                        const findPengBul = pengeluaranBulanan.find((el) => {
+                            return el.loanId === selectedLoan.id
+                        })
+                        if(findPengBul) {
+                            inputPayLoan(dispatch, {...val, amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan}, (el) => {
+                                if(el.message === "success") {
+                                    // updatePlan(dispatch, {
+                                    //     uangTotal:uangTotal-(val.amount+val.taxPengirim),
+                                    //     pengeluaranBulanan:pengeluaranBulanan.filter(el => el.id !== findPengBul.id)
+                                    // }, (el) => {
+                                    //     if(el.message==="success"){
+                                    //         navigation.navigate("Splash")
+                                    //     }else{
+                                    //         Alert.alert("Error", "error function", [], { cancelable:true })
+                                    //     }
+                                    // })
+                                    navigation.navigate("Splash")
+                                }else{
+                                    Alert.alert("Error", "Error Function", [], { cancelable:true })
+                                }
+                            })
                         }else{
-                            Alert.alert("Error", "Error Function", [], { cancelable:true })
+                            inputPayLoan(dispatch, {...val, amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan}, (el) => {
+                                if(el.message === "success") {
+                                    navigation.navigate("Splash")
+                                }else{
+                                    Alert.alert("Error", "Error Function", [], { cancelable:true })
+                                }
+                            })
                         }
-                    })
+                    }else{
+                        inputPayLoan(dispatch, {...val, amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan}, (el) => {
+                            if(el.message === "success") {
+                                navigation.navigate("Splash")
+                            }else{
+                                Alert.alert("Error", "Error Function", [], { cancelable:true })
+                            }
+                        })
+                    }
                 },
                 style: "ok",
             }], { cancelable:true })        
@@ -35,6 +70,7 @@ export default function FormBayarHutang({ route, navigation }) {
     }
 
     useEffect(() => {
+        setLoading(true)
         if(loan.length&&itemId&&amountDompet!==null) {
             const findLoan = loan.find((el) => {
                 return el.id === itemId
