@@ -15,7 +15,7 @@ export default function FormNabung({route, navigation}) {
     const { isPlan } = route.params;
     const isFocused = useIsFocused();
     const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
-    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)   
+    const { status,uangTotal,type,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)   
     
     const [ loading, setLoading ] = useState(true)
     const [dataFinance, setDataFinance] = useState({
@@ -93,7 +93,8 @@ export default function FormNabung({route, navigation}) {
                         totalSisa: 0,
                         jumlahDitabung: jumlahDitabung
                     }
-                    const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
+                    const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+                    const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
                     calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
                     setDataFinance(calcFinance)
                 }else{
@@ -102,7 +103,8 @@ export default function FormNabung({route, navigation}) {
                         totalSisa: 0,
                         jumlahDitabung: jumlahDitabung
                     }
-                    const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
+                    const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+                    const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
                     calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
                     setDataFinance(calcFinance)
                 }

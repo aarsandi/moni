@@ -15,7 +15,7 @@ export default function FormSpend({ navigation }) {
     const isFocused = useIsFocused();
     const [ loading, setLoading ] = useState(true)
     const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
-    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
+    const { status,uangTotal,type,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
 
     const [dataFinance, setDataFinance] = useState({
         totalBulanan: 0,
@@ -171,8 +171,9 @@ export default function FormSpend({ navigation }) {
                     uangTotal: uangTotal,
                     tanggalGajian: tanggalGajian
                 }
-                const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
-                calcFinance.sisaHari = leftDaysinMonth(new Date(tanggalGajian))+1
+                const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+                const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
+                calcFinance.sisaHari = dateComp+1
                 calcFinance.totalHarian = resultTotalHarian
                 calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
                 setDataFinance(calcFinance)
@@ -186,8 +187,9 @@ export default function FormSpend({ navigation }) {
                     uangTotal: uangTotal,
                     tanggalGajian: tanggalGajian
                 }
-                const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
-                calcFinance.sisaHari = leftDaysinMonth(new Date(tanggalGajian))+1
+                const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+                const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
+                calcFinance.sisaHari = dateComp+1
                 calcFinance.totalHarian = resultTotalHarian
                 calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
                 setDataFinance(calcFinance)

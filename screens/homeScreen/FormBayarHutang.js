@@ -2,7 +2,6 @@ import React, {useEffect,useState} from 'react'
 import { StyleSheet, View, ScrollView, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { inputPayLoan } from '../../store/app/function'
-import { updatePlan } from '../../store/plan/function';
 
 import { useIsFocused } from "@react-navigation/native";
 import CompFormPayLoan from '../../components/Form/CompFormPayLoan'
@@ -26,25 +25,23 @@ export default function FormBayarHutang({ route, navigation }) {
                             return el.loanId === selectedLoan.id
                         })
                         if(findPengBul) {
-                            inputPayLoan(dispatch, {...val, amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan}, (el) => {
+                            inputPayLoan(dispatch, {
+                                ...val,
+                                amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan,
+                                pengeluaranBulanan: pengeluaranBulanan.filter(el => el.id !== findPengBul.id), uangTotal: uangTotal
+                            }, (el) => {
                                 if(el.message === "success") {
-                                    // updatePlan(dispatch, {
-                                    //     uangTotal:uangTotal-(val.amount+val.taxPengirim),
-                                    //     pengeluaranBulanan:pengeluaranBulanan.filter(el => el.id !== findPengBul.id)
-                                    // }, (el) => {
-                                    //     if(el.message==="success"){
-                                    //         navigation.navigate("Splash")
-                                    //     }else{
-                                    //         Alert.alert("Error", "error function", [], { cancelable:true })
-                                    //     }
-                                    // })
                                     navigation.navigate("Splash")
                                 }else{
                                     Alert.alert("Error", "Error Function", [], { cancelable:true })
                                 }
                             })
                         }else{
-                            inputPayLoan(dispatch, {...val, amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan}, (el) => {
+                            inputPayLoan(dispatch, {
+                                ...val,
+                                amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan,
+                                pengeluaranBulanan: null, uangTotal: null
+                            }, (el) => {
                                 if(el.message === "success") {
                                     navigation.navigate("Splash")
                                 }else{
@@ -53,7 +50,11 @@ export default function FormBayarHutang({ route, navigation }) {
                             })
                         }
                     }else{
-                        inputPayLoan(dispatch, {...val, amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan}, (el) => {
+                        inputPayLoan(dispatch, {
+                            ...val,
+                            amountTabungan: amountTabungan, amountDompet: amountDompet, amountRealDompet: amountRealDompet, selectedLoan: selectedLoan,
+                            pengeluaranBulanan: null, uangTotal: null
+                        }, (el) => {
                             if(el.message === "success") {
                                 navigation.navigate("Splash")
                             }else{

@@ -7,7 +7,7 @@ import { toRupiah } from '../../helpers/NumberToString'
 import { leftDaysinMonth } from '../../helpers/calcDate'
 
 export default function CompEditNeeds({data, onSubmit, navigation}) {
-    const { uangTotal, jumlahDitabung, uangHarian, uangHariIni, tanggalGajian, pengeluaranBulanan } = data
+    const { uangTotal, jumlahDitabung, type, uangHarian, uangHariIni, tanggalGajian, pengeluaranBulanan } = data
 
     const [openBulanan, setOpenBulanan] = useState(false)
     const [dataFinance, setDataFinance] = useState({
@@ -17,7 +17,7 @@ export default function CompEditNeeds({data, onSubmit, navigation}) {
         sisaHari: 0,
         monthlyNeeds: pengeluaranBulanan
     })
-    const [dataNeed, setDataNeed] = useState({ title: "", amount: "", due_date: new Date() })
+    const [dataNeed, setDataNeed] = useState({ title: "", amount: "", due_date: new Date(), loanId: null })
 
     const handleDeleteNeeds = (id, amount) => {
         const result = Number(dataFinance.totalBulanan)-Number(amount)
@@ -51,16 +51,16 @@ export default function CompEditNeeds({data, onSubmit, navigation}) {
                     const result = Number(dataFinance.totalBulanan)+Number(dataNeed.amount)
                     handleChangeFinance({totalBulanan: String(result), monthlyNeeds: [
                         ...dataFinance.monthlyNeeds,
-                        { id: dataFinance.monthlyNeeds[dataFinance.monthlyNeeds.length-1].id+1, title: dataNeed.title, amount: Number(dataNeed.amount), due_date: Date.parse(dataNeed.due_date) }
+                        { id: dataFinance.monthlyNeeds[dataFinance.monthlyNeeds.length-1].id+1, title: dataNeed.title, amount: Number(dataNeed.amount), due_date: Date.parse(dataNeed.due_date), loanId: null }
                     ]})
                 } else {
                     handleChangeFinance({totalBulanan: String(dataNeed.amount), monthlyNeeds: [
                         ...dataFinance.monthlyNeeds,
-                        { id: 1, title: dataNeed.title, amount: Number(dataNeed.amount), due_date: Date.parse(dataNeed.due_date) }
+                        { id: 1, title: dataNeed.title, amount: Number(dataNeed.amount), due_date: Date.parse(dataNeed.due_date), loanId: null }
                     ]})
                 }
             }
-            setDataNeed({ title: "", amount: "", due_date: new Date() })
+            setDataNeed({ title: "", amount: "", due_date: new Date(), loanId: null })
         }
     }
     
@@ -102,9 +102,9 @@ export default function CompEditNeeds({data, onSubmit, navigation}) {
                 totalHarian: 0,
                 sisaHari: 0
             }
-            
-            const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
-            calcFinance.sisaHari = leftDaysinMonth(new Date(tanggalGajian))+1
+            const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+            const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
+            calcFinance.sisaHari = dateComp+1
             calcFinance.totalHarian = resultTotalHarian
             calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
             handleChangeFinance(calcFinance)
@@ -115,8 +115,9 @@ export default function CompEditNeeds({data, onSubmit, navigation}) {
                 totalHarian: 0,
                 sisaHari: 0
             }
-            const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
-            calcFinance.sisaHari = leftDaysinMonth(new Date(tanggalGajian))+1
+            const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+            const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
+            calcFinance.sisaHari = dateComp+1
             calcFinance.totalHarian = resultTotalHarian
             calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
             handleChangeFinance(calcFinance)

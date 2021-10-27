@@ -9,7 +9,7 @@ import CompEditNeeds from '../../components/Form/CompEditNeeds'
 export default function EditNeeds({ navigation }) {
     const dispatch = useDispatch()
     const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
-    const { uangTotal, jumlahDitabung, uangHarian, uangHariIni, tanggalGajian, pengeluaranBulanan } = useSelector((state) => state.planReducer)
+    const { uangTotal, type, jumlahDitabung, uangHarian, uangHariIni, tanggalGajian, pengeluaranBulanan } = useSelector((state) => state.planReducer)
 
     const [loading, setLoading] = useState(true)
 
@@ -43,7 +43,7 @@ export default function EditNeeds({ navigation }) {
             { loading?
                 <Text>Loading...</Text>:
                 <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                    <CompEditNeeds data={{ uangTotal, jumlahDitabung, uangHarian, uangHariIni, tanggalGajian, pengeluaranBulanan }} onSubmit={handleSubmit} navigation={navigation}/>
+                    <CompEditNeeds data={{ uangTotal, type, jumlahDitabung, uangHarian, uangHariIni, tanggalGajian, pengeluaranBulanan }} onSubmit={handleSubmit} navigation={navigation}/>
                 </ScrollView>
             }
         </View>
