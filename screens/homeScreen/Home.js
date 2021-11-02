@@ -5,6 +5,7 @@ import moment from "moment"
 import { useIsFocused } from "@react-navigation/native";
 import { toRupiah } from '../../helpers/NumberToString'
 import { leftDaysinMonth } from '../../helpers/calcDate'
+import { dailyUpdatePlan } from '../../helpers/cronjob'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { fetchPlan, updatePlan } from '../../store/plan/function'
@@ -13,7 +14,6 @@ import { fetchHistPeng } from '../../store/historyPengeluaran/function'
 
 export default function Home({ navigation }) {
     const dispatch = useDispatch()
-    const isFocused = useIsFocused();
     const { isDarkMode } = useSelector((state) => state.appReducer)
     const [thisMonthLoan,setThisMonthLoan]=useState([])
     const [todayHistPeng,setTodayHistPeng]=useState({
@@ -43,14 +43,12 @@ export default function Home({ navigation }) {
     }, [])
 
     useEffect(() => {
-        if(status) {
-            if(uangTotal<=0) {
-                updatePlan(dispatch, {status:"failed"}, (el) => {
-                    if(el.message !== "success") {
-                        Alert.alert("Error", "Error Function", [], { cancelable:true })
-                    }
-                })
-            }
+        if(status==="active") {
+            dailyUpdatePlan((el) => {
+                if(el==="fetch") {
+                    fetchPlan(dispatch)
+                }
+            })
         }
     }, [])
 

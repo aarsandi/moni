@@ -3,8 +3,6 @@ export const leftDaysinMonth = (inputDate) => {
     if(inputDate) {
         const oneDay = 86400000;
         let inputDateGetDate = new Date(inputDate.getTime())
-        inputDateGetDate.setMonth(inputDateGetDate.getMonth() + 1)
-
         const diffDays = Math.round(Math.abs((date - inputDateGetDate) / oneDay));
         return diffDays
     }else{
