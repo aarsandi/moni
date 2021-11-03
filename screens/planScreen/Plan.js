@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, Button, ScrollView, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
-import { fetchFinance } from '../../store/finance/function'
 import { fetchPlan } from '../../store/plan/function'
 import { useIsFocused } from "@react-navigation/native";
 import { leftDaysinMonth } from '../../helpers/calcDate'
@@ -13,7 +12,7 @@ import moment from 'moment'
 export default function Plan({ navigation }) {
     const dispatch = useDispatch()
     const isFocused = useIsFocused();
-    const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const { nama } = useSelector((state) => state.financeReducer)
     const { status,type,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan,uangHarianLebih,uangHarianExtra,updateCron } = useSelector((state) => state.planReducer)
 
     const [isLoading,setIsLoading] = useState(true)
@@ -22,82 +21,53 @@ export default function Plan({ navigation }) {
         totalBulanan: 0,
         totalSisa: 0,
         totalHarian: 0,
-        sisaHari: 0,
-        jumlahDitabung: 0,
-        uangTotal: 0
+        sisaHari: 0
     })
 
     useEffect(() => {
-        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
-            fetchFinance(dispatch, (el) => {
-                if(el.message==="success") {
-                    fetchPlan(dispatch)
-                    setIsLoading(false)
-                }else{
-                    navigation.navigate("Splash")
-                }
-            })
+        if(nama===null) {
+            navigation.navigate("Splash")
         }else{
-            setIsLoading(false)
-        }
-    }, [])
-
-    useEffect(() => {
-        if(status==="active") {
-            dailyUpdatePlan((el) => {
-                if(el==="fetch") {
-                    fetchPlan(dispatch)
-                }
-            })
-        }
-    }, [])
-
-    useEffect(() => {
-        if(status) {
-            if(uangTotal<=0) {
-                updatePlan(dispatch, {status:"failed"}, (el) => {
-                    if(el.message !== "success") {
-                        Alert.alert("Error", "Error Function", [], { cancelable:true })
+            fetchPlan(dispatch)
+            if(status==="active") {
+                dailyUpdatePlan((el) => {
+                    if(el==="fetch") {
+                        fetchPlan(dispatch)
                     }
                 })
-            }
-            if(pengeluaranBulanan.length) {
-                const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
-                    return accumulator + item.amount;
-                }, 0)
-                let calcFinance = {
-                    totalBulanan: resTotBulanan,
-                    totalSisa: 0,
-                    totalHarian: 0,
-                    sisaHari: 0,
-                    jumlahDitabung: jumlahDitabung,
-                    uangTotal: uangTotal,
-                    tanggalGajian: tanggalGajian
+                if(pengeluaranBulanan.length) {
+                    const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
+                        return accumulator + item.amount;
+                    }, 0)
+                    let calcFinance = {
+                        totalBulanan: resTotBulanan,
+                        totalSisa: 0,
+                        totalHarian: 0,
+                        sisaHari: 0
+                    }
+                    const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+                    const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
+                    calcFinance.sisaHari = dateComp+1
+                    calcFinance.totalHarian = resultTotalHarian
+                    calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
+                    setDataFinance(calcFinance)
+                }else{
+                    let calcFinance = {
+                        totalBulanan: 0,
+                        totalSisa: 0,
+                        totalHarian: 0,
+                        sisaHari: 0
+                    }
+                    const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+                    const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
+                    calcFinance.sisaHari = dateComp+1
+                    calcFinance.totalHarian = resultTotalHarian
+                    calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
+                    setDataFinance(calcFinance)
                 }
-                const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
-                const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
-                calcFinance.sisaHari = dateComp+1
-                calcFinance.totalHarian = resultTotalHarian
-                calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
-                setDataFinance(calcFinance)
-            }else{
-                let calcFinance = {
-                    totalBulanan: 0,
-                    totalSisa: 0,
-                    totalHarian: 0,
-                    sisaHari: 0,
-                    jumlahDitabung: jumlahDitabung,
-                    uangTotal: uangTotal,
-                    tanggalGajian: tanggalGajian
-                }
-                const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
-                const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
-                calcFinance.sisaHari = dateComp+1
-                calcFinance.totalHarian = resultTotalHarian
-                calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
-                setDataFinance(calcFinance)
             }
         }
+        setIsLoading(false)
     }, [isFocused])
 
     return (
@@ -105,7 +75,7 @@ export default function Plan({ navigation }) {
             {
                 isLoading?
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text>Loading</Text>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
                 </View>:
                 <ScrollView contentInsetAdjustmentBehavior="automatic" >
                     { !status?
@@ -134,7 +104,7 @@ export default function Plan({ navigation }) {
                                             </View>
                                             <View style={{flex: 3, alignItems:'center', justifyContent:'center'}}>
                                                 <Text style={{ fontSize: 12 }}>Plan Limit</Text>
-                                                <Text style={{ fontSize: 20, fontWeight: "bold" }}>{dataFinance?toRupiah(dataFinance.uangTotal, "Rp. "):"Rp. 0"}</Text>
+                                                <Text style={{ fontSize: 20, fontWeight: "bold" }}>{toRupiah(uangTotal)}</Text>
                                             </View>
                                             <View style={{flex: 3, alignItems:'center', justifyContent:'center'}}>
                                                 <Text style={{ fontSize: 12 }}>Days Left</Text>
@@ -178,21 +148,11 @@ export default function Plan({ navigation }) {
                                         <View style={{ flexDirection:'row', marginHorizontal: 10, padding:4, alignItems:'center' }}>
                                             <Text style={{ flex: 4 }}>Amount Saving</Text>
                                             <View style={{ flex: 2 }}>
-                                                <Text>{dataFinance?toRupiah(dataFinance.jumlahDitabung):"Rp. 0"}</Text>
+                                                <Text>{toRupiah(jumlahDitabung)}</Text>
                                                 <TouchableOpacity
                                                     onPress={() => navigation.navigate("FormNabung", { isPlan: true })}
                                                 >
                                                     <Text style={{ color: '#31572c', fontWeight:"700", fontSize: 13 }}>Tabung Sekarang</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-                                        <View style={{ flexDirection:'row', marginHorizontal: 10, padding:4, alignItems:'center' }}>
-                                            <Text style={{ flex: 4 }}>Update</Text>
-                                            <View style={{ flex: 2 }}>
-                                                <TouchableOpacity
-                                                    onPress={() => dailyUpdatePlan()}
-                                                >
-                                                    <Text style={{ color: '#31572c', fontWeight:"700", fontSize: 13 }}>Update</Text>
                                                 </TouchableOpacity>
                                             </View>
                                         </View>
@@ -239,7 +199,7 @@ export default function Plan({ navigation }) {
                                                     </View>
                                                 )
                                             }):
-                                            <></>
+                                            <Text style={{ marginTop: 5, fontSize: 20, alignSelf:'center', fontWeight: '600' }}>you don't have yet</Text>
                                         }
                                     </View>
                                 </>

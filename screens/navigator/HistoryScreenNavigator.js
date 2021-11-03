@@ -19,12 +19,12 @@ export default function FinanceScreenNavigator() {
                 backgroundColor: '#14213d'
             }
         }}>
-            <Stack.Screen name="History" component={History} options={{ title: 'History' }}  />
-            <Stack.Screen name="HistoryPengeluaran" component={HistoryPengeluaran} options={{ title: 'History Pengeluaran' }}  />
-            <Stack.Screen name="HistoryDompet" component={HistoryDompet} options={{ title: 'History Dompet' }}  />
-            <Stack.Screen name="HistoryDompetCash" component={HistoryDompetCash} options={{ title: 'History Dompet Cash' }}  />
-            <Stack.Screen name="HistoryTabungan" component={HistoryTabungan} options={{ title: 'History Tabungan' }}  />
-            <Stack.Screen name="HistoryLoan" component={HistoryLoan} options={{ title: 'History Loan' }}  />
+            <Stack.Screen name="History" component={History} options={{ title: 'History' }} />
+            <Stack.Screen name="HistoryPengeluaran" component={HistoryPengeluaran} options={{ title: 'History Pengeluaran' }} />
+            <Stack.Screen name="HistoryDompet" component={HistoryDompet} options={{ title: 'History Dompet' }} />
+            <Stack.Screen name="HistoryDompetCash" component={HistoryDompetCash} options={{ title: 'History Dompet Cash' }} />
+            <Stack.Screen name="HistoryTabungan" component={HistoryTabungan} options={{ title: 'History Tabungan' }} />
+            <Stack.Screen name="HistoryLoan" component={HistoryLoan} options={{ title: 'History Loan' }} />
         </Stack.Navigator>
     )
 }

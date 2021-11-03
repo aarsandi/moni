@@ -13,9 +13,9 @@ export default function SettingScreenNavigator() {
                 backgroundColor: '#14213d'
             }
         }}>
-            <Stack.Screen name="Setting" component={Setting} options={{ title: 'Settings' }}  />
-            <Stack.Screen name="EditFinance" component={EditFinance} options={{ title: 'Edit Finance' }}  />
-            <Stack.Screen name="Reset" component={Reset} options={{ title: 'Reset' }}  />
+            <Stack.Screen name="Setting" component={Setting} options={{ title: 'Settings' }} />
+            <Stack.Screen name="EditFinance" component={EditFinance} options={{ title: 'Edit Finance' }} />
+            <Stack.Screen name="Reset" component={Reset} options={{ title: 'Reset' }} />
         </Stack.Navigator>
     )
 }
