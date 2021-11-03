@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, Alert, } from 'react-native'
+import { StyleSheet, Text, View, Alert } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { inputAmbilCash } from '../../store/app/function'
-import { fetchFinance } from '../../store/finance/function'
 
 import CompFormAmbilCash from '../../components/Form/CompFormAmbilCash';
 
 
 export default function FormAmbilCash({ navigation }) {
     const dispatch = useDispatch()
-    const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const { nama, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
     const [loading, setLoading] = useState(true)
     
     const handleSubmit = (val) => {
@@ -31,22 +30,22 @@ export default function FormAmbilCash({ navigation }) {
     }
 
     useEffect(() => {
-        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
-            fetchFinance(dispatch, (el) => {
-                if(el.message==="success") {
-                    setLoading(false)
-                }else{
-                    navigation.navigate("Splash")
-                }
-            })
-        }else{
+        if(nama===null) {
+            navigation.navigate("Splash")
+        } else {
             setLoading(false)
         }
     }, [])
 
     return (
         <View>
-            <CompFormAmbilCash data={{amountDompet}} onSubmit={handleSubmit} navigation={navigation}/>
+            {
+                loading?
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
+                <CompFormAmbilCash data={{amountDompet}} onSubmit={handleSubmit} navigation={navigation}/>
+            }
         </View>
     )
 }

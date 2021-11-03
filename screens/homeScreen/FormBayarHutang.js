@@ -1,19 +1,17 @@
 import React, {useEffect,useState} from 'react'
-import { StyleSheet, View, ScrollView, Alert } from 'react-native'
+import { StyleSheet, View, ScrollView, Alert, Text } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { inputPayLoan } from '../../store/app/function'
 
-import { useIsFocused } from "@react-navigation/native";
 import CompFormPayLoan from '../../components/Form/CompFormPayLoan'
 
 export default function FormBayarHutang({ route, navigation }) {
     const dispatch = useDispatch()
     const { itemId } = route.params;
-    const isFocused = useIsFocused();
-    const { amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
+    const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
     const { status,uangTotal,pengeluaranBulanan } = useSelector((state) => state.planReducer)
-    const [selectedLoan, setSelectedLoan] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const [ selectedLoan, setSelectedLoan ] = useState(null)
+    const [ loading, setLoading ] = useState(true)
 
     const handleSubmit = (val) => {
         if(amountDompet&&amountRealDompet&&amountTabungan&&selectedLoan) {
@@ -71,30 +69,39 @@ export default function FormBayarHutang({ route, navigation }) {
     }
 
     useEffect(() => {
-        setLoading(true)
-        if(loan.length&&itemId&&amountDompet!==null) {
-            const findLoan = loan.find((el) => {
-                return el.id === itemId
-            })
-            if(findLoan) {
-                setSelectedLoan(findLoan)
-                setLoading(false)
-            }else {
+        if(nama===null) {
+            navigation.navigate("Splash")
+        } else {
+            if(loan.length&&itemId) {
+                const findLoan = loan.find((el) => {
+                    return el.id === itemId
+                })
+                if(findLoan) {
+                    setSelectedLoan(findLoan)
+                    setLoading(false)
+                } else {
+                    navigation.navigate("Splash")
+                }
+            } else {
                 navigation.navigate("Splash")
             }
-        }else{
-            navigation.navigate("Splash")
         }
-    }, [itemId, loan, isFocused])
+    }, [itemId, loan])
 
     return (
         <View>
-            <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                {
-                    !loading&&selectedLoan&&
-                    <CompFormPayLoan data={{amountDompet, amountRealDompet, amountTabungan, ...selectedLoan}} onSubmit={handleSubmit} navigation={navigation}/>
-                }
-            </ScrollView>
+            {
+                loading?
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
+                <ScrollView contentInsetAdjustmentBehavior="automatic" >
+                    {
+                        selectedLoan&&
+                        <CompFormPayLoan data={{amountDompet, amountRealDompet, amountTabungan, ...selectedLoan}} onSubmit={handleSubmit} navigation={navigation}/>
+                    }
+                </ScrollView>
+            }
         </View>
     )
 }

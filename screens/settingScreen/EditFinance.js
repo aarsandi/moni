@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { StyleSheet, Alert, View } from 'react-native'
+import { StyleSheet, Alert, View, Text } from 'react-native'
 import CompFormChangeAmount from '../../components/Form/CompFormChangeAmount'
 import { fetchFinance } from '../../store/finance/function'
 import { changeFinanceAmount } from '../../store/app/function'
@@ -49,7 +49,10 @@ export default function EditFinance({navigation}) {
     return (
         <View>
             {
-                !loading&&
+                loading?
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
                 <CompFormChangeAmount data={{amountDompet: financeData.amountDompet, amountRealDompet: financeData.amountRealDompet, amountTabungan: financeData.amountTabungan}} onSubmit={handleSubmit} navigation={navigation}/>
             }
         </View>

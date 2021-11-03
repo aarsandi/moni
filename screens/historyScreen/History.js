@@ -1,8 +1,17 @@
-import React from 'react'
-import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native'
+import React, { useEffect } from 'react'
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useSelector } from 'react-redux';
 
 export default function History({ navigation }) {
+    const { nama } = useSelector((state) => state.financeReducer)
+
+    useEffect(() => {
+        if(nama===null) {
+            navigation.navigate("Splash")
+        }
+    }, [])
+
     return (
         <View style={{ padding: 10 }}>
             <TouchableOpacity style={{ flexDirection:'row', paddingTop: 20 }} onPress={() => navigation.navigate("HistoryPengeluaran")}>

@@ -18,9 +18,7 @@ export default function Reset({navigation}) {
                     text: "Ok",
                     onPress: () => {
                         resetPlan(dispatch, _ => {
-                            resetHistPeng(dispatch, _ => {
-                                navigation.navigate("Splash")
-                            })
+                            navigation.navigate("Splash")
                         })
                     },
                     style: "ok",

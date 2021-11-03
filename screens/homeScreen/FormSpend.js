@@ -3,27 +3,22 @@ import { StyleSheet, Text, View, Alert, ScrollView } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { leftDaysinMonth } from '../../helpers/calcDate'
 
-import { useIsFocused } from "@react-navigation/native";
 import { inputPengeluaran } from '../../store/app/function'
-import { fetchFinance } from '../../store/finance/function'
 import { fetchPlan, updatePlan } from '../../store/plan/function';
 
 import CompFormSpend from '../../components/Form/CompFormSpend';
 
 export default function FormSpend({ navigation }) {
     const dispatch = useDispatch()
-    const isFocused = useIsFocused();
     const [ loading, setLoading ] = useState(true)
-    const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const { nama, amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
     const { status,uangTotal,type,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)
 
     const [dataFinance, setDataFinance] = useState({
         totalBulanan: 0,
         totalSisa: 0,
         totalHarian: 0,
-        sisaHari: 0,
-        jumlahDitabung: 0,
-        uangTotal: 0
+        sisaHari: 0
     })
 
     const handleSubmit = (val) => {
@@ -142,67 +137,52 @@ export default function FormSpend({ navigation }) {
     }
 
     useEffect(() => {
-        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
-            fetchFinance(dispatch, (el) => {
-                if(el.message==="success") {
-                    fetchPlan(dispatch)
-                    setLoading(false)
-                }else{
-                    navigation.navigate("Splash")
-                }
-            })
+        if(nama===null) {
+            navigation.navigate("Splash")
         }else{
+            fetchPlan(dispatch)
+            if(status==="active") {
+                if(pengeluaranBulanan.length) {
+                    const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
+                        return accumulator + item.amount;
+                    }, 0)
+                    let calcFinance = {
+                        totalBulanan: resTotBulanan,
+                        totalSisa: 0,
+                        totalHarian: 0,
+                        sisaHari: 0
+                    }
+                    const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+                    const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
+                    calcFinance.sisaHari = dateComp+1
+                    calcFinance.totalHarian = resultTotalHarian
+                    calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
+                    setDataFinance(calcFinance)
+                }else{
+                    let calcFinance = {
+                        totalBulanan: 0,
+                        totalSisa: 0,
+                        totalHarian: 0,
+                        sisaHari: 0
+                    }
+                    const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+                    const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
+                    calcFinance.sisaHari = dateComp+1
+                    calcFinance.totalHarian = resultTotalHarian
+                    calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
+                    setDataFinance(calcFinance)
+                }
+            }
             setLoading(false)
         }
     }, [])
-
-    useEffect(() => {
-        if(status) {
-            if(pengeluaranBulanan.length) {
-                const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
-                    return accumulator + item.amount;
-                }, 0)
-                let calcFinance = {
-                    totalBulanan: resTotBulanan,
-                    totalSisa: 0,
-                    totalHarian: 0,
-                    sisaHari: 0,
-                    jumlahDitabung: jumlahDitabung,
-                    uangTotal: uangTotal,
-                    tanggalGajian: tanggalGajian
-                }
-                const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
-                const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
-                calcFinance.sisaHari = dateComp+1
-                calcFinance.totalHarian = resultTotalHarian
-                calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
-                setDataFinance(calcFinance)
-            }else{
-                let calcFinance = {
-                    totalBulanan: 0,
-                    totalSisa: 0,
-                    totalHarian: 0,
-                    sisaHari: 0,
-                    jumlahDitabung: jumlahDitabung,
-                    uangTotal: uangTotal,
-                    tanggalGajian: tanggalGajian
-                }
-                const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
-                const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
-                calcFinance.sisaHari = dateComp+1
-                calcFinance.totalHarian = resultTotalHarian
-                calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
-                setDataFinance(calcFinance)
-            }
-        }
-    }, [isFocused])
 
     return (
         <View>
             {
                 loading?
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text>Loading</Text>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
                 </View>:
                 <ScrollView contentInsetAdjustmentBehavior="automatic" >
                     <CompFormSpend data={{ amountTabungan, amountDompet, amountRealDompet, status, pengeluaranBulanan,

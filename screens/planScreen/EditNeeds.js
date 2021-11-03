@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { StyleSheet, Text, View, ScrollView, ToastAndroid } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { updatePlan, fetchPlan } from '../../store/plan/function'
-import { fetchFinance } from '../../store/finance/function'
+import { updatePlan } from '../../store/plan/function'
 import CompEditNeeds from '../../components/Form/CompEditNeeds'
 
 export default function EditNeeds({ navigation }) {
     const dispatch = useDispatch()
-    const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const { nama } = useSelector((state) => state.financeReducer)
     const { uangTotal, type, jumlahDitabung, uangHarian, uangHariIni, tanggalGajian, pengeluaranBulanan } = useSelector((state) => state.planReducer)
 
     const [loading, setLoading] = useState(true)
@@ -24,15 +23,8 @@ export default function EditNeeds({ navigation }) {
     }
 
     useEffect(() => {
-        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
-            fetchFinance(dispatch, (el) => {
-                if(el.message==="success") {
-                    fetchPlan(dispatch)
-                    setLoading(false)
-                }else{
-                    navigation.navigate("Splash")
-                }
-            })
+        if(nama===null) {
+            navigation.navigate("Splash")
         }else{
             setLoading(false)
         }
@@ -41,7 +33,9 @@ export default function EditNeeds({ navigation }) {
     return (
         <View>
             { loading?
-                <Text>Loading...</Text>:
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
                 <ScrollView contentInsetAdjustmentBehavior="automatic" >
                     <CompEditNeeds data={{ uangTotal, type, jumlahDitabung, uangHarian, uangHariIni, tanggalGajian, pengeluaranBulanan }} onSubmit={handleSubmit} navigation={navigation}/>
                 </ScrollView>

@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, ScrollView, Alert, Button } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { fetchPlan, setupPlanAction } from '../../store/plan/function'
-import { fetchFinance } from '../../store/finance/function'
+import { setupPlanAction } from '../../store/plan/function'
 
 import CompFormSetupPlan from '../../components/Form/CompFormSetupPlan'
 
 export default function SetupPlan({ navigation }) {
     const dispatch = useDispatch()
-    const [loading,setLoading]=useState(true)
-    const [thisMonthLoan,setThisMonthLoan]=useState([])
-    const { amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
+    const [ loading, setLoading ]=useState(true)
+    const [ thisMonthLoan, setThisMonthLoan ]=useState([])
+    const { nama, loan } = useSelector((state) => state.financeReducer)
 
     const handleSubmit = (val) => {
         const {type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan,uangLainnya} = val
@@ -72,32 +71,24 @@ export default function SetupPlan({ navigation }) {
     }
 
     useEffect(() => {
-        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
-            fetchFinance(dispatch, (el) => {
-                if(el.message==="success") {
-                    fetchPlan(dispatch)
-                    setLoading(false)
-                }else{
-                    navigation.navigate("Splash")
-                }
-            })
+        if(nama===null) {
+            navigation.navigate("Splash")
         }else{
+            if(loan.length){
+                const nowDate = new Date().getMonth();
+                const thisMonthLoan = loan.filter((el) => new Date(el.due_date).getMonth() === nowDate)
+                setThisMonthLoan(thisMonthLoan)
+            }
             setLoading(false)
         }
     }, [])
 
-    useEffect(() => {
-        if(loan.length){
-            const nowDate = new Date().getMonth();
-            const thisMonthLoan = loan.filter((el) => new Date(el.due_date).getMonth() === nowDate)
-            setThisMonthLoan(thisMonthLoan)
-        }
-    }, [loan])
-
     return (
         <View>
             {loading?
-            <Text>Loading...</Text>:
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 50 }}> ..... </Text>
+            </View>:
             <ScrollView contentInsetAdjustmentBehavior="automatic" >
                 <CompFormSetupPlan data={{loan:thisMonthLoan}} onSubmit={handleSubmit} navigation={navigation}/>
             </ScrollView>

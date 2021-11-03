@@ -53,8 +53,8 @@ export default function Home({ navigation }) {
                     data: todayPeng
                 })
             }
+            setLoading(false)
         }
-        setLoading(false)
     }, [isFocused])
 
     return (
@@ -92,15 +92,6 @@ export default function Home({ navigation }) {
                 </View>
             </View>
             <View style={{backgroundColor: "#e5e5e5" }}>
-                { !status?
-                    <View style={{ margin: 10 }}>
-                        <Text style={{ fontSize: 17, fontWeight: "500" }}>Anda Belum Mengaktifkan Finansial Plan</Text>
-                        <TouchableOpacity onPress={()=> navigation.navigate("PlanScreenNavigator")} style={{ backgroundColor: '#8a8600', padding: 10, borderRadius: 10 }}>
-                            <Text style={ { color: 'white', fontSize: 15, fontWeight: "bold", alignSelf: 'center' } }>Aktifkan Sekarang</Text>
-                        </TouchableOpacity>
-                    </View>:
-                    <></>
-                }
                 <View style={{ flexDirection:'row' }}>
                     <TouchableOpacity style={{ padding: 10, flex: 2, alignItems:'center' }} onPress={() => { navigation.navigate("FormAmbilCash") }}>
                         <Text><Ionicons name="cash" color="#31572c" size={40} /></Text>
@@ -116,6 +107,15 @@ export default function Home({ navigation }) {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            { !status&&
+                <View style={{ margin: 10 }}>
+                    <Text style={{ fontSize: 17, fontWeight: "500", marginBottom: 5 }}>Anda Belum Mengaktifkan Finansial Plan</Text>
+                    <TouchableOpacity onPress={()=> navigation.navigate("PlanScreenNavigator")} style={{ backgroundColor: '#8a8600', padding: 10, borderRadius: 10 }}>
+                        <Text style={ { color: 'white', fontSize: 15, fontWeight: "bold", alignSelf: 'center' } }>Aktifkan Sekarang</Text>
+                    </TouchableOpacity>
+                </View>
+            }
             
             <TouchableOpacity onPress={ () => navigation.navigate("FormSpend") } style={{backgroundColor: '#31572c', marginTop: 10, padding: 10, borderRadius: 10, marginHorizontal: 10}}>
                 <Text style={ { color: '#bee3db', fontSize: 15, alignSelf: 'center' } }>Spending Form</Text>
@@ -154,7 +154,7 @@ export default function Home({ navigation }) {
                                     </View>
                                 )
                             }):
-                            <Text style={{ marginTop: 5, alignSelf:'center' }}>you don't have yet</Text>
+                            <Text style={{ marginTop: 5, fontSize: 18, alignSelf:'center', fontWeight: '600' }}>you don't have yet</Text>
                         }
                     </View>
                     
@@ -169,26 +169,29 @@ export default function Home({ navigation }) {
                             </TouchableOpacity>
                         </View>
                         {
-                            todayHistPeng.data.length?todayHistPeng.data.map((el, index) => {
-                                return(
-                                    <View key={index} style={{flexDirection:'row', paddingTop: 10, paddingBottom: 5, borderColor:'#8e9399', borderBottomWidth: 1}}>
-                                        <View style={{flex:4}}>
-                                            <Text style={{ fontSize:15, fontWeight:"600" }}>{el.title}</Text>
-                                            <Text style={{ fontSize:13, fontWeight:"300" }}>{moment(el.date).format('LT')}</Text>
+                            todayHistPeng.data.length?
+                            <>
+                                {todayHistPeng.data.map((el, index) => {
+                                    return(
+                                        <View key={index} style={{flexDirection:'row', paddingTop: 10, paddingBottom: 5, borderColor:'#8e9399', borderBottomWidth: 1}}>
+                                            <View style={{flex:4}}>
+                                                <Text style={{ fontSize:15, fontWeight:"600" }}>{el.title}</Text>
+                                                <Text style={{ fontSize:13, fontWeight:"300" }}>{moment(el.date).format('LT')}</Text>
+                                            </View>
+                                            <View style={{flex:2, alignItems: 'flex-end' }}>
+                                                <Text style={{ fontSize:15, fontWeight:"600" }}>{toRupiah(el.amount+el.tax, "Rp. ")}</Text>
+                                                <Text style={{ fontSize:15, fontWeight:"800" }}>{el.type}</Text>
+                                            </View>
                                         </View>
-                                        <View style={{flex:2, alignItems: 'flex-end' }}>
-                                            <Text style={{ fontSize:15, fontWeight:"600" }}>{toRupiah(el.amount+el.tax, "Rp. ")}</Text>
-                                            <Text style={{ fontSize:15, fontWeight:"800" }}>{el.type}</Text>
-                                        </View>
-                                    </View>
-                                )
-                            }):
-                            <Text style={{ marginTop: 5, alignSelf:'center' }}>you don't have yet</Text>
+                                    )
+                                })}
+                                <View style={{ flexDirection: "row" }}>
+                                    <Text style={{ flex: 3, fontSize: 15, fontWeight: '800' }}>Total</Text>
+                                    <Text style={{ flex: 1, fontWeight:"800", fontSize: 15, textAlign: "right" }}>{toRupiah(todayHistPeng.total, "Rp. ")}</Text>
+                                </View>
+                            </>:
+                            <Text style={{ marginTop: 5, fontSize: 18, alignSelf:'center', fontWeight: '600' }}>you don't have yet</Text>
                         }
-                        <View style={{ flexDirection: "row" }}>
-                            <Text style={{ flex: 3, fontSize: 15, fontWeight: '800' }}>Total</Text>
-                            <Text style={{ flex: 1, fontWeight:"800", fontSize: 15, textAlign: "right" }}>{toRupiah(todayHistPeng.total, "Rp. ")}</Text>
-                        </View>
                     </View>
                 </ScrollView>
             }

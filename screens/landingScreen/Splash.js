@@ -18,20 +18,40 @@ export default function Splash({navigation}) {
     const { nama } = useSelector((state) => state.financeReducer)
 
     useEffect(() => {
-        fetchFinance(dispatch)
-        fetchPlan(dispatch)
-        fetchHistPeng(dispatch)
-        fetchHistDom(dispatch)
-        fetchHistDomCash(dispatch)
-        fetchHistTab(dispatch)
-        fetchHistLoan(dispatch)
-    }, [isFocused])
-
-    useEffect(() => {
         if(nama===null) {
-            navigation.navigate("Intro")
+            fetchFinance(dispatch, (el) => {
+                if(el.message==="success") {
+                    fetchPlan(dispatch, _ => {
+                        fetchHistPeng(dispatch, _ => {
+                            fetchHistDom(dispatch, _ => {
+                                fetchHistDomCash(dispatch, _ => {
+                                    fetchHistTab(dispatch, _ => {
+                                        fetchHistLoan(dispatch, _ => {
+                                            navigation.navigate("AppScreenNavigator")
+                                        })
+                                    })
+                                })
+                            })
+                        })
+                    })
+                }else{
+                    navigation.navigate("Intro")
+                }
+            })
         }else{
-            navigation.navigate("AppScreenNavigator")
+            fetchPlan(dispatch, _ => {
+                fetchHistPeng(dispatch, _ => {
+                    fetchHistDom(dispatch, _ => {
+                        fetchHistDomCash(dispatch, _ => {
+                            fetchHistTab(dispatch, _ => {
+                                fetchHistLoan(dispatch, _ => {
+                                    navigation.navigate("AppScreenNavigator")
+                                })
+                            })
+                        })
+                    })
+                })
+            })
         }
     }, [isFocused])
 

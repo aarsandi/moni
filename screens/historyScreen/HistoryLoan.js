@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, FlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
+import { useIsFocused } from "@react-navigation/native";
 
 import HistoryLoanCard from '../../components/Card/HistoryLoanCard'
 import { fetchHistLoan } from '../../store/historyLoan/function'
 
 export default function HistoryLoan() {
     const dispatch = useDispatch()
+    const isFocused = useIsFocused();
+    const { nama } = useSelector((state) => state.financeReducer)
     const dataHistLoan = useSelector((state) => state.historyLoanReducer.allData)
     const [loading, setLoading] = useState(true);
     const [ dataHist , setDataHist ] = useState({
@@ -14,21 +17,31 @@ export default function HistoryLoan() {
     });
 
     useEffect(() => {
-        if(dataHistLoan===null) {
-            fetchHistLoan(dispatch)
+        if(nama===null) {
+            navigation.navigate("Splash")
         }else{
-            setDataHist({
-                data: dataHistLoan
-            })
+            if(dataHistLoan===null){
+                fetchHistLoan(dispatch, _ => {
+                    setDataHist({
+                        data: dataHistLoan
+                    })
+                })
+            }else{
+                setDataHist({
+                    data: dataHistLoan
+                })
+            }
+            setLoading(false)
         }
-        setLoading(false)
-    }, [])
+    }, [isFocused])
 
     return (
         <View>
             {
                 loading?
-                <Text>.........</Text>:
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
                 <View style={styles.container}>
                     {
                         dataHist.data.length?

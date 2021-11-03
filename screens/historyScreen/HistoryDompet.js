@@ -1,34 +1,47 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, FlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
+import { useIsFocused } from "@react-navigation/native";
 
 import HistoryDomCard from '../../components/Card/HistoryDomCard';
 import { fetchHistDom } from '../../store/historyActivityDompet/function'
 
 export default function HistoryDompet() {
     const dispatch = useDispatch()
+    const isFocused = useIsFocused();
+    const { nama } = useSelector((state) => state.financeReducer)
     const dataHistDom = useSelector((state) => state.historyActivityDompetReducer.allData)
-    const [loading, setLoading] = useState(true);
+    const [ loading, setLoading ] = useState(true);
     const [ dataHist , setDataHist ] = useState({
         data: []
     });
 
     useEffect(() => {
-        if(dataHistDom===null) {
-            fetchHistDom(dispatch)
+        if(nama===null) {
+            navigation.navigate("Splash")
         }else{
-            setDataHist({
-                data: dataHistDom
-            })
+            if(dataHistDom===null){
+                fetchHistDom(dispatch, _ => {
+                    setDataHist({
+                        data: dataHistDom
+                    })
+                })
+            }else{
+                setDataHist({
+                    data: dataHistDom
+                })
+            }
+            setLoading(false)
         }
-        setLoading(false)
-    }, [])
+    }, [isFocused])
 
     return (
         <View>
             {
                 loading?
-                <Text>.........</Text>:
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
                 <View style={styles.container}>
                     {
                         dataHist.data.length?

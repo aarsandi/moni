@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, ScrollView, Alert } from 'react-native'
+import { StyleSheet, View, ScrollView, Alert, Text } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
-import { toRupiah } from '../../helpers/NumberToString'
 
 import { inputPenghasilan } from '../../store/app/function'
-import { fetchFinance } from '../../store/finance/function'
 
 import CompFormInputPenghasilan from '../../components/Form/CompFormInputPenghasilan';
 
 export default function FormInputPenghasilan({navigation}) {
     const dispatch = useDispatch()
-    const { amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const { nama, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
     const [loading, setLoading] = useState(true)
     
     const handleSubmit = (val) => {
@@ -32,14 +30,8 @@ export default function FormInputPenghasilan({navigation}) {
     }
     
     useEffect(() => {
-        if(amountDompet===null, amountRealDompet===null) {
-            fetchFinance(dispatch, (el) => {
-                if(el.message==="success") {
-                    setLoading(false)
-                }else{
-                    navigation.navigate("Splash")
-                }
-            })
+        if(nama===null) {
+            navigation.navigate("Splash")
         }else{
             setLoading(false)
         }
@@ -47,9 +39,15 @@ export default function FormInputPenghasilan({navigation}) {
 
     return (
         <View>
-            <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                <CompFormInputPenghasilan data={{amountDompet, amountRealDompet}} onSubmit={handleSubmit} navigation={navigation} />
-            </ScrollView>
+            {
+                loading?
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
+                <ScrollView contentInsetAdjustmentBehavior="automatic" >
+                    <CompFormInputPenghasilan data={{amountDompet, amountRealDompet}} onSubmit={handleSubmit} navigation={navigation} />
+                </ScrollView>
+            }
         </View>
     )
 }

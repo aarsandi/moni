@@ -66,8 +66,8 @@ export default function Plan({ navigation }) {
                     setDataFinance(calcFinance)
                 }
             }
+            setIsLoading(false)
         }
-        setIsLoading(false)
     }, [isFocused])
 
     return (

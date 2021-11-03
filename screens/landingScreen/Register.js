@@ -9,7 +9,7 @@ export default function Register({navigation}) {
     const dispatch = useDispatch()
     const {isDarkMode} = useSelector((state) => state.appReducer)
     const isFocused = useIsFocused();
-    const { nama, amountTabungan, amountDompet } = useSelector((state) => state.financeReducer)
+    const { nama } = useSelector((state) => state.financeReducer)
     const [dataRegister, setDataRegister] = useState({ nama: "", amountTabungan : "", amountDompet : "", amountRealDompet : "" })
 
     const onHandleChange = (value, field) => {
@@ -35,7 +35,7 @@ export default function Register({navigation}) {
     }
 
     useEffect(() => {
-        if(nama&&amountTabungan&&amountDompet) {
+        if(nama!==null) {
             navigation.navigate("AppScreenNavigator")
         }
     }, [isFocused])

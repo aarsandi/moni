@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, FlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
+import { useIsFocused } from "@react-navigation/native";
 
 import HistoryTabCard from '../../components/Card/HistoryTabCard'
 import { fetchHistTab } from '../../store/historyActivityTabungan/function'
 
 export default function HistoryTabungan() {
     const dispatch = useDispatch()
+    const isFocused = useIsFocused();
+    const { nama } = useSelector((state) => state.financeReducer)
     const dataHistTab = useSelector((state) => state.historyActivityTabunganReducer.allData)
     const [loading, setLoading] = useState(true);
     const [ dataHist , setDataHist ] = useState({
@@ -14,21 +17,31 @@ export default function HistoryTabungan() {
     });
 
     useEffect(() => {
-        if(dataHistTab===null) {
-            fetchHistTab(dispatch)
+        if(nama===null) {
+            navigation.navigate("Splash")
         }else{
-            setDataHist({
-                data: dataHistTab
-            })
+            if(dataHistTab===null){
+                fetchHistTab(dispatch, _ => {
+                    setDataHist({
+                        data: dataHistTab
+                    })
+                })
+            }else{
+                setDataHist({
+                    data: dataHistTab
+                })
+            }
+            setLoading(false)
         }
-        setLoading(false)
-    }, [])
+    }, [isFocused])
 
     return (
         <View>
             {
                 loading?
-                <Text>.........</Text>:
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
                 <View style={styles.container}>
                     {
                         dataHist.data.length?

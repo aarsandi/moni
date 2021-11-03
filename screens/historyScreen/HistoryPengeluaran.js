@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { useIsFocused } from "@react-navigation/native";
 import HistoryListCard from '../../components/Card/HistoryPengCard';
 import SelectDropdown from 'react-native-select-dropdown';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -10,6 +11,8 @@ import { fetchHistPeng } from '../../store/historyPengeluaran/function';
 
 export default function HistoryPengeluaran() {
     const dispatch = useDispatch();
+    const isFocused = useIsFocused();
+    const { nama } = useSelector((state) => state.financeReducer)
     const dataHistPeng = useSelector((state) => state.historyPengeluaranReducer.allData);
     const [ dataHist , setDataHist ] = useState({
         total: 0,
@@ -25,20 +28,8 @@ export default function HistoryPengeluaran() {
         return new Date(d.setDate(diff));
     };
 
-    useEffect(() => {
-        setLoading(true)
-        if(dataHistPeng!==null) {
-            setLoading(false)
-        }else{
-            fetchHistPeng(dispatch)
-            setLoading(false)
-        }
-        setFilterDate("All")
-    }, []);
-
-    useEffect(() => {
-        setLoading(true)
-        if(dataHistPeng!==null) {
+    function listingHistory () {
+        if(dataHistPeng.length) {
             let timeNow = new Date();
             if(filterDate==="Today") {
                 let today = timeNow.setHours(0, 0, 0, 0e2);
@@ -80,14 +71,30 @@ export default function HistoryPengeluaran() {
                 })
             }
         }
-        setLoading(false)
-    }, [filterDate]);
+    }
+
+    useEffect(() => {
+        if(nama===null) {
+            navigation.navigate("Splash")
+        }else{
+            if(dataHistPeng===null){
+                fetchHistPeng(dispatch, _ => {
+                    listingHistory()
+                })
+            }else{
+                listingHistory()
+            }
+            setLoading(false)
+        }
+    }, [isFocused, filterDate])
 
     return (
         <View>
             {
                 loading?
-                <Text style={{ textAlign: 'center', fontSize: 20, fontWeight: '800' }}>...</Text>:
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
                 <View style={styles.container}>
                     {
                         dataHist.data.length?
