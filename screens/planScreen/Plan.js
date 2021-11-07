@@ -30,11 +30,13 @@ export default function Plan({ navigation }) {
         }else{
             fetchPlan(dispatch)
             if(status==="active") {
-                dailyUpdatePlan((el) => {
-                    if(el==="fetch") {
-                        fetchPlan(dispatch)
-                    }
-                })
+                if(updateCron) {
+                    dailyUpdatePlan((el) => {
+                        if(el==="fetch") {
+                            fetchPlan(dispatch)
+                        }
+                    })
+                }
                 if(pengeluaranBulanan.length) {
                     const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
                         return accumulator + item.amount;

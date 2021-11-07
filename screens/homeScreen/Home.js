@@ -20,7 +20,7 @@ export default function Home({ navigation }) {
         data: []
     })
     const { nama, amountTabungan, amountDompet, amountRealDompet, loan } = useSelector((state) => state.financeReducer)
-    const { status } = useSelector((state) => state.planReducer)
+    const { status, updateCron } = useSelector((state) => state.planReducer)
     const dataHistPeng = useSelector((state) => state.historyPengeluaranReducer.allData)
     
     const [loading, setLoading] = useState(true)
@@ -29,7 +29,7 @@ export default function Home({ navigation }) {
         if(nama===null) {
             navigation.navigate("Splash")
         }else{
-            if(status==="active") {
+            if(updateCron) {
                 dailyUpdatePlan((el) => {
                     if(el==="fetch") {
                         fetchPlan(dispatch)
