@@ -158,7 +158,7 @@ export default function Plan({ navigation }) {
                                         </View>
                                     </View>
 
-                                    <View style={{backgroundColor: "#bee3db", margin: 10, borderRadius: 5, padding: 20 }}>
+                                    <View style={{backgroundColor: "#bee3db", margin: 10, borderRadius: 5, paddingHorizontal: 20, paddingTop: 10, paddingBottom: 20 }}>
                                         <View style={{ flexDirection: "row" }}>
                                             <Text style={{ flex: 3, fontSize: 15, fontWeight: '800' }}>Upcoming Monthly Payment</Text>
                                             <TouchableOpacity

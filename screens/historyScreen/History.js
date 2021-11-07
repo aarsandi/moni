@@ -14,7 +14,7 @@ export default function History({ navigation }) {
 
     return (
         <View style={{ padding: 10 }}>
-            <TouchableOpacity style={{ flexDirection:'row', paddingTop: 20 }} onPress={() => navigation.navigate("HistoryPengeluaran")}>
+            <TouchableOpacity style={{ flexDirection:'row', paddingTop: 10 }} onPress={() => navigation.navigate("HistoryPengeluaran")}>
                 <Text style={styles.buttonTitle}>History Pengeluaran</Text>
                 <Text style={{ flex:1, textAlign: 'right' }}><Ionicons name="chevron-forward" color="#31572c" size={30} /></Text>
             </TouchableOpacity>

@@ -125,7 +125,7 @@ export default function Home({ navigation }) {
                 loading?
                 <Text style={{ marginTop: 5, alignSelf:'center', fontSize: 50 }}> ..... </Text>:
                 <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                    <View style={{backgroundColor: "#bee3db", margin: 10, borderRadius: 5, padding: 20 }}>
+                    <View style={{backgroundColor: "#bee3db", margin: 10, borderRadius: 5, paddingHorizontal: 20, paddingTop: 10, paddingBottom: 20 }}>
                         <View style={{ flexDirection: "row" }}>
                             <Text style={{ flex: 3, fontSize: 15, fontWeight: '800' }}>Upcoming Loan Payment</Text>
                             <TouchableOpacity
@@ -158,7 +158,7 @@ export default function Home({ navigation }) {
                         }
                     </View>
                     
-                    <View style={{backgroundColor: "#bee3db", margin: 10, borderRadius: 5, padding: 20 }}>
+                    <View style={{backgroundColor: "#bee3db", margin: 10, borderRadius: 5, paddingHorizontal: 20, paddingTop: 10, paddingBottom: 20 }}>
                         <View style={{ flexDirection: "row" }}>
                             <Text style={{ flex: 3, fontSize: 15, fontWeight: '800' }}>Recent Spending</Text>
                             <TouchableOpacity
