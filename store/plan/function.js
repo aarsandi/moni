@@ -26,7 +26,7 @@ export async function fetchPlan(dispatch, cb) {
 export async function setupPlanAction(val, dispatch, cb) {
     try {
         const {type,uangTotal,jumlahDitabung,uangHarian,tanggalGajian,pengeluaranBulanan} = val
-        const result = {status:"active",type,uangTotal,jumlahDitabung,uangHarian,uangHariIni:0,uangHarianLebih:0,tanggalGajian,pengeluaranBulanan,updateCron:null}
+        const result = {status:"active",type,uangTotal,jumlahDitabung,uangHarian,uangHariIni:0,uangHarianLebih:0,uangHarianExtra:0,tanggalGajian,pengeluaranBulanan,updateCron:null}
         
         await AsyncStorage.setItem('DATAPLAN', JSON.stringify(result))
         dispatch(setDataPlan(result))
@@ -53,5 +53,5 @@ export async function updatePlan(dispatch, val, cb) {
 export async function resetPlan(dispatch, cb) {
     await AsyncStorage.removeItem('DATAPLAN')
     dispatch(resetDataPlan())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

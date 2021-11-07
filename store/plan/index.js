@@ -1,13 +1,14 @@
 const initialState = {
     status: null, // "null||active"||"completed"||"failed"
-    type: null, // "Gaji"||"Bulanan"
+    type: null, // "Payday"||"Monthly"
     uangTotal: null, // jika typenya gaji ? maka dari input gajiny : maka dari (dompet+dompetReal)
     jumlahDitabung: null,
     uangHarian: null, // uang harian fix bisa dirubah
     uangHariIni: null, // uang sisa hari ini direset tiap jam 23.30
-    uangHarianLebih: null, // uang yang harus diirit (jika uang harian lebih dari batas nambah ini) -> uangHarianLebih=uangHariIni-uangHarian
+    uangHarianLebih: null, // uang harian yang harus diirit (jika uang harian lebih dari batas nambah ini) -> uangHarianLebih=uangHariIni-uangHarian
+    uangHarianExtra: null, // uang harian yang kelebihan (jika uang harian kurang dari batas nambah ini jika tidak ada uangHarianLebih jika ada kurangi uangHarianLebih)
     tanggalGajian: null,
-    pengeluaranBulanan: [], // [{title: "", amount: "", due_date: new Date()}]
+    pengeluaranBulanan: [], // [{title: "", amount: "", due_date: new Date(), isLoang: false||true}]
     updateCron: null // ini tanggal update harian
 
     // uangBulanan: null, // ini ambil dari : total pengeluaranBulanan (bisa di rubah jika ditambah pengeluaran perbulanny)
@@ -26,6 +27,7 @@ function planReducer(state = initialState, action) {
             uangHarian: payload.uangHarian,
             uangHariIni: payload.uangHariIni,
             uangHarianLebih: payload.uangHarianLebih,
+            uangHarianExtra: payload.uangHarianExtra,
             tanggalGajian: payload.tanggalGajian,
             pengeluaranBulanan: payload.pengeluaranBulanan,
             updateCron: payload.updateCron
@@ -49,6 +51,7 @@ function planReducer(state = initialState, action) {
             uangHarian: null,
             uangHariIni: null,
             uangHarianLebih: null,
+            uangHarianExtra: null,
             tanggalGajian: null,
             pengeluaranBulanan: [],
             updateCron: null

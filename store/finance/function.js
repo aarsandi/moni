@@ -111,5 +111,5 @@ export async function updateFinance(dispatch, val, cb) {
 export async function resetFinance(dispatch, cb) {
     await AsyncStorage.removeItem('DATAFINANCE')
     dispatch(resetDataFinance())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

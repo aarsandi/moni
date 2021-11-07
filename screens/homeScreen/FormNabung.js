@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
+import { StyleSheet, View, ScrollView, Alert, Text } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
-import { toRupiah } from '../../helpers/NumberToString'
 
-import { useIsFocused } from "@react-navigation/native";
 import { inputNabung } from '../../store/app/function'
 import { fetchPlan, updatePlan } from '../../store/plan/function';
-import { fetchFinance } from '../../store/finance/function'
 
 import CompFormNabung from "../../components/Form/CompFormNabung"
 import { leftDaysinMonth } from '../../helpers/calcDate'
@@ -14,9 +11,8 @@ import { leftDaysinMonth } from '../../helpers/calcDate'
 export default function FormNabung({route, navigation}) {
     const dispatch = useDispatch()
     const { isPlan } = route.params;
-    const isFocused = useIsFocused();
-    const { amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
-    const { status,uangTotal,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)   
+    const { nama, amountTabungan, amountDompet, amountRealDompet } = useSelector((state) => state.financeReducer)
+    const { status,uangTotal,type,jumlahDitabung,uangHarian,uangHariIni,tanggalGajian,pengeluaranBulanan } = useSelector((state) => state.planReducer)   
     
     const [ loading, setLoading ] = useState(true)
     const [dataFinance, setDataFinance] = useState({
@@ -60,69 +56,63 @@ export default function FormNabung({route, navigation}) {
                         }
                     })
                 }
-                
-                
             },
             style: "ok",
         }], { cancelable:true })
     }
-    
+
     useEffect(() => {
-        if(amountTabungan===null, amountDompet===null, amountRealDompet===null) {
-            fetchFinance(dispatch, (el) => {
-                if(el.message==="success") {
-                    fetchPlan(dispatch)
-                    setLoading(false)
-                }else{
-                    navigation.navigate("Splash")
-                }
-            })
+        if(nama===null) {
+            navigation.navigate("Splash")
         }else{
+            fetchPlan(dispatch)
+            if(status==="active") {
+                if(isPlan) {
+                    if(pengeluaranBulanan.length) {
+                        const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
+                            return accumulator + item.amount;
+                        }, 0)
+                        let calcFinance = {
+                            totalBulanan: resTotBulanan,
+                            totalSisa: 0,
+                            jumlahDitabung: jumlahDitabung
+                        }
+                        const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+                        const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
+                        calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
+                        setDataFinance(calcFinance)
+                    }else{
+                        let calcFinance = {
+                            totalBulanan: 0,
+                            totalSisa: 0,
+                            jumlahDitabung: jumlahDitabung
+                        }
+                        const dateComp = type === "Payday" ? leftDaysinMonth(new Date(tanggalGajian)) : leftDaysinMonth()
+                        const resultTotalHarian = (uangHarian*dateComp)+uangHariIni
+                        calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
+                        setDataFinance(calcFinance)
+                    }
+                }
+            }
             setLoading(false)
         }
     }, [])
 
-    useEffect(() => {
-        if(status) {
-            if(isPlan) {
-                if(pengeluaranBulanan.length) {
-                    const resTotBulanan = pengeluaranBulanan.reduce(function (accumulator, item) {
-                        return accumulator + item.amount;
-                    }, 0)
-                    let calcFinance = {
-                        totalBulanan: resTotBulanan,
-                        totalSisa: 0,
-                        jumlahDitabung: jumlahDitabung
-                    }
-                    const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
-                    calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
-                    setDataFinance(calcFinance)
-                }else{
-                    let calcFinance = {
-                        totalBulanan: 0,
-                        totalSisa: 0,
-                        jumlahDitabung: jumlahDitabung
-                    }
-                    const resultTotalHarian = (uangHarian*leftDaysinMonth(new Date(tanggalGajian)))+uangHariIni
-                    calcFinance.totalSisa = uangTotal-(resultTotalHarian+jumlahDitabung+calcFinance.totalBulanan)
-                    setDataFinance(calcFinance)
-                }
-            }            
-        }
-    }, [isFocused])
-
     return (
         <View>
-            <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                <Text style={ { fontSize: 20, fontWeight: 'bold' } }>Form Nabung</Text>
-                <Text>Tabungan anda sekarang: {toRupiah(amountTabungan, "Rp. ")}</Text>
-                <Text>Uang Total Plan anda sekarang: {toRupiah(uangTotal, "Rp. ")}</Text>
-                {
-                    isPlan?
-                    <CompFormNabung data={{amountTabungan, amountDompet, amountRealDompet, uangTotal, jumlahDitabung:jumlahDitabung}} onSubmit={handleSubmit} navigation={navigation}/>:
-                    <CompFormNabung data={{amountTabungan, amountDompet, amountRealDompet, uangTotal, jumlahDitabung:null}} onSubmit={handleSubmit} navigation={navigation}/>
-                }
-            </ScrollView>
+            {
+                loading?
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
+                <ScrollView contentInsetAdjustmentBehavior="automatic" >
+                    {
+                        isPlan?
+                        <CompFormNabung data={{amountTabungan, amountDompet, amountRealDompet, uangTotal, jumlahDitabung:jumlahDitabung}} onSubmit={handleSubmit} navigation={navigation}/>:
+                        <CompFormNabung data={{amountTabungan, amountDompet, amountRealDompet, uangTotal, jumlahDitabung:null}} onSubmit={handleSubmit} navigation={navigation}/>
+                    }
+                </ScrollView>
+            }
         </View>
     )
 }

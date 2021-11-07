@@ -7,7 +7,7 @@ import { useIsFocused } from "@react-navigation/native";
 // Sreens
 import HomeScreenNavigator from "./HomeScreenNavigator"
 import PlanScreenNavigator from "./PlanScreenNavigator"
-import SettingScreen from "../settingScreen/setting"
+import SettingScreenNavigator from "./SettingScreenNavigator"
 import HistoryScreenNavigator from "./HistoryScreenNavigator"
 
 export default function AppScreenNavigator({ navigation }) {
@@ -30,7 +30,7 @@ export default function AppScreenNavigator({ navigation }) {
                         iconName = focused ? 'home' : 'home-outline';
                     } else if (route.name === 'PlanScreenNavigator') {
                         iconName = focused ? 'reader' : 'reader-outline';
-                    } else if (route.name === 'SettingScreen') {
+                    } else if (route.name === 'SettingScreenNavigator') {
                         iconName = focused ? 'settings' : 'settings-outline';
                     } else if (route.name === 'HistoryScreenNavigator') {
                         iconName = focused ? 'file-tray-full' : 'file-tray-full-outline';
@@ -46,7 +46,7 @@ export default function AppScreenNavigator({ navigation }) {
             <Tab.Screen name="HomeScreenNavigator" component={HomeScreenNavigator} options={{ title: 'Home', headerShown: false }} />
             <Tab.Screen name="PlanScreenNavigator" component={PlanScreenNavigator} options={{ title: 'Plan', headerShown: false }} />
             <Tab.Screen name="HistoryScreenNavigator" component={HistoryScreenNavigator} options={{ title: 'History', headerShown: false }} />
-            <Tab.Screen name="SettingScreen" component={SettingScreen} options={{ title: 'Setting' }} />
+            <Tab.Screen name="SettingScreenNavigator" component={SettingScreenNavigator} options={{ title: 'Setting', headerShown: false  }} />
         </Tab.Navigator>
     )
 }

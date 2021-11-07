@@ -3,7 +3,7 @@ import { useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { setIsDarkMode } from '../../store/app/function';
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 // Sreens
 import AppScreenNavigator from './AppScreenNavigator';
@@ -14,7 +14,6 @@ import { navigationRef } from '../../helpers/rootNavigation';
 
 export default function LandingScreenNavigator() {
   const Stack = createNativeStackNavigator();
-  const {isDarkMode} = useSelector((state) => state.appReducer)
   const darkMode = useColorScheme();
   const dispatch = useDispatch()
 

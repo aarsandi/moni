@@ -7,16 +7,16 @@ import App from './App';
 import {name as appName} from './app.json';
 import PushNotification from "react-native-push-notification";
 import CronJob from "react-native-cron-job";
-import { dailyUpdateCron } from './helpers/cronjob'
+import { dailyUpdatePlan } from './helpers/cronjob'
 import * as RootNavigation from './helpers/rootNavigation';
 
 const CronJobTask = async () => {
     // Do your task here.
-    dailyUpdateCron()
+    dailyUpdatePlan()
     // Be sure to call completeTask at the end.
     CronJob.completeTask();
 };
-CronJob.startCronJob(23,0)
+CronJob.startCronJob(0,15)
 
 PushNotification.configure({
     onNotification: function (notification) {

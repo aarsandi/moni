@@ -25,28 +25,24 @@ export async function fetchHistLoan(dispatch, cb) {
 }
 
 export async function addHistLoan(dispatch, val, cb) {
-    try {
-        const { title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date = Date.parse(new Date()) } = val
-        const dataHistLoan = await AsyncStorage.getItem('DATAHISTLOAN')
-        if(dataHistLoan) {
-            const result = JSON.parse(dataHistLoan)
-            const newResult = [{id:result.length+1, title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date}].concat(result)
-            await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify(newResult))
-            dispatch(setDataHistLoan(newResult))
-            cb({message: "success"})
-        }else{ 
-            const newResult = [{id:1, title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date}]
-            await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify(newResult))
-            dispatch(setDataHistLoan(newResult))
-            cb({message: "success"})
-        }
-    } catch(err) {
-        cb({message: "error"})
+    const { title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date = Date.parse(new Date()) } = val
+    const dataHistLoan = await AsyncStorage.getItem('DATAHISTLOAN')
+    if(dataHistLoan) {
+        const result = JSON.parse(dataHistLoan)
+        const newResult = [{id:result.length+1, title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date}].concat(result)
+        await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify(newResult))
+        dispatch(setDataHistLoan(newResult))
+        cb({message: "success"})
+    }else{ 
+        const newResult = [{id:1, title, detail, type, amount, tax, tenor, balanceAfr, balanceBfr, date}]
+        await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify(newResult))
+        dispatch(setDataHistLoan(newResult))
+        cb({message: "success"})
     }
 }
 
 export async function resetHistLoan(dispatch, cb) {
     await AsyncStorage.removeItem('DATAHISTLOAN')
     dispatch(resetDataHistLoan())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

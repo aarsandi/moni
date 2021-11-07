@@ -5,6 +5,7 @@ import SelectDropdown from 'react-native-select-dropdown'
 import DatePicker from 'react-native-date-picker'
 import moment from 'moment'
 import { toRupiah } from '../../helpers/NumberToString'
+import { leftDaysinMonth } from '../../helpers/calcDate'
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -18,8 +19,8 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
     const [inputNeeds, setInputNeeds] = useState(false)
 
     // data
-    const [dataInput, setDataInput] = useState({ type:"", uangTotal: "", jumlahDitabung: "", uangHarian: "", uangBulanan: "0", uangLainnya: "", tanggalGajian: new Date()})
-    const [dataNeed, setDataNeed] = useState({ title: "", amount: "", due_date: new Date() })
+    const [dataInput, setDataInput] = useState({ type:"", uangTotal: "", jumlahDitabung: "", uangHarian: "", uangBulanan: "0", uangLainnya: "", daysLeft: "", totalMonthlyDaily: "", tanggalGajian: new Date()})
+    const [dataNeed, setDataNeed] = useState({ title: "", amount: "", due_date: new Date(), loanId: null })
     const [monthlyNeeds, setMonthlyNeeds] = useState([])
 
     const handleSubmit = () => {
@@ -51,7 +52,7 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
         })
     },[navigation]);
     
-    React.useLayoutEffect(() => {
+    React.useEffect(() => {
         if(dataInput.type!==""&&dataInput.uangTotal!==""&&dataInput.jumlahDitabung!==""&&dataInput.uangHarian!==""&&dataInput.uangBulanan!==""&&dataInput.uangLainnya!=="") {
             navigation.setOptions({
                 headerRight: () => (
@@ -78,6 +79,13 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
         })
     }
 
+    const handleChangeInputMany = (value) => {
+        setDataInput({
+            ...dataInput,
+            ...value
+        })
+    }
+
     const handleChangeNeed = (value, field) => {
         setDataNeed({
             ...dataNeed,
@@ -95,17 +103,17 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
                 handleChangeInput(String(result), 'uangBulanan')
                 setMonthlyNeeds([
                     ...monthlyNeeds,
-                    { id: monthlyNeeds[monthlyNeeds.length-1].id+1, title: dataNeed.title, amount: Number(dataNeed.amount), due_date: Date.parse(dataNeed.due_date) }
+                    { id: monthlyNeeds[monthlyNeeds.length-1].id+1, title: dataNeed.title, amount: Number(dataNeed.amount), due_date: Date.parse(dataNeed.due_date), loanId: null }
                 ])
             }else{
                 handleChangeInput(String(dataNeed.amount), 'uangBulanan')
                 setMonthlyNeeds([
                     ...monthlyNeeds,
-                    { id: 1, title: dataNeed.title, amount: Number(dataNeed.amount), due_date: Date.parse(dataNeed.due_date) }
+                    { id: 1, title: dataNeed.title, amount: Number(dataNeed.amount), due_date: Date.parse(dataNeed.due_date), loanId: null }
                 ])
             }
             setInputNeeds(false)
-            setDataNeed({ title: "", amount: "", due_date: new Date() })
+            setDataNeed({ title: "", amount: "", due_date: new Date(), loanId: null })
         }
     }
 
@@ -116,7 +124,7 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
             totalAmount = totalAmount+el[i].amountPay[0].amount
             needs = [
                 ...needs,
-                {id: i, title:el[i].title, amount:el[i].amountPay[0].amount, due_date:el[i].due_date}
+                {id: i+1, title:el[i].title, amount:el[i].amountPay[0].amount, due_date:el[i].due_date, loanId: el[i].id}
             ]
         }
         setMonthlyNeeds([
@@ -134,25 +142,28 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
     }
 
     useEffect(() => {
-        if(dataInput.uangTotal!==""&&dataInput.jumlahDitabung!==""&&dataInput.uangBulanan!==""&&dataInput.uangHarian!=="") {
-            let date = new Date();
-            let time = new Date(date.getTime());
-            time.setMonth(date.getMonth() + 1);
-            time.setDate(0);
-            let days =time.getDate() > date.getDate() ? time.getDate() - date.getDate() : 0;
-            const CalcUangSisa = (Number(dataInput.uangTotal)-Number(dataInput.jumlahDitabung)-Number(dataInput.uangBulanan))-(Number(dataInput.uangHarian)*(days+1))
-            handleChangeInput(String(CalcUangSisa), 'uangLainnya')
-        }
-    }, [dataInput.uangTotal, dataInput.jumlahDitabung, dataInput.uangBulanan, dataInput.uangHarian])
-
-    useEffect(() => {
-        if(dataInput.type==="Bulanan") {
+        if(dataInput.type==="Monthly") {
             const nowDate = new Date()
             handleChangeInput(new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0, 23), 'tanggalGajian')
         }else{
             handleChangeInput(new Date(), 'tanggalGajian')
         }
-    }, [dataInput.type])
+    }, [dataInput.type, dataInput.uangBulanan])
+
+    // calculate uang sisa dan daily total
+    useEffect(() => {
+        if(dataInput.uangTotal!==""&&dataInput.jumlahDitabung!==""&&dataInput.uangBulanan!==""&&dataInput.uangHarian!=="") {
+            let daysLeft = 0
+            if(dataInput.type==="Monthly") {
+                daysLeft = leftDaysinMonth()
+            } else {
+                daysLeft = leftDaysinMonth(dataInput.tanggalGajian)
+            }
+            const totalMonthlyDaily = Number(dataInput.uangHarian)*(daysLeft+1)
+            const CalcUangSisa = Number(dataInput.uangTotal)-Number(dataInput.jumlahDitabung)-Number(dataInput.uangBulanan)-totalMonthlyDaily
+            handleChangeInputMany({uangLainnya: String(CalcUangSisa), daysLeft: String(daysLeft+1), totalMonthlyDaily: String(totalMonthlyDaily)})
+        }
+    }, [ dataInput.type, dataInput.tanggalGajian, dataInput.uangTotal, dataInput.jumlahDitabung, dataInput.uangBulanan, dataInput.uangHarian])
 
     useEffect(() => {
         if(!monthlyNeeds.length&&loan.length&&dataInput.type!=="") {
@@ -174,16 +185,16 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
 
     return (
         <View style={{paddingHorizontal:18, paddingTop: 18}}>
-            <Text style={styles.formTitle}>Tipe Plan*</Text>
+            <Text style={styles.formTitle}>Plan Type*</Text>
             <SelectDropdown defaultButtonText="Choose Plan" buttonStyle={{ width: '100%' }} renderDropdownIcon={() => <Text><Ionicons name="chevron-down" color="#31572c" size={30} /></Text>}
-                data={["Gaji", "Bulanan"]} onSelect={(selectedItem) => { handleChangeInput(selectedItem, 'type') }}/>
+                data={["Payday", "Monthly"]} onSelect={(selectedItem) => { handleChangeInput(selectedItem, 'type') }}/>
             {
                 dataInput.type!==""&&
                 <>
                     {
-                        dataInput.type==="Gaji"&&
+                        dataInput.type==="Payday"&&
                         <>
-                            <Text style={ styles.formTitle }>Tanggal Gajian :</Text>
+                            <Text style={ styles.formTitle }>Payday Date :</Text>
                             <TouchableWithoutFeedback onPress={() => setOpenGaji(true)}>
                                 <View><View pointerEvents="none">
                                     <TextInput
@@ -195,9 +206,10 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
                                 </View></View>
                             </TouchableWithoutFeedback>
                             <DatePicker modal open={openGaji} date={dataInput.tanggalGajian} mode="date"
+                                maximumDate={new Date()}
                                 onConfirm={(date) => {
                                     setOpenGaji(false)
-                                    handleChangeInput(date, 'tanggalGajian')
+                                    handleChangeInput(new Date(date.setHours(0, 0, 0, 0e2)), 'tanggalGajian')
                                 }}
                                 onCancel={() => {
                                     setOpenGaji(false)
@@ -207,7 +219,7 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
                     }
                     <View style={{flexDirection:'row' }}>
                         <View style={{flex:1, paddingRight: 10}}>
-                            <Text style={styles.formTitle}>Penghasilan Perbulan</Text>
+                            <Text style={styles.formTitle}>Salary Amount</Text>
                             <MaskInput keyboardType='number-pad' style={styles.formInput}
                                 value={dataInput.uangTotal} onChangeText={(masked, unmasked, obfuscated) => { handleChangeInput(unmasked, 'uangTotal') }}
                                 mask={createNumberMask({
@@ -217,7 +229,7 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
                                 })}
                             />
                             
-                            <Text style={ styles.formTitle }>Jumlah Ditabung</Text>
+                            <Text style={ styles.formTitle }>Saving Amount</Text>
                             <MaskInput keyboardType='number-pad'  style={styles.formInput}
                                 value={dataInput.jumlahDitabung} onChangeText={(masked, unmasked, obfuscated) => { handleChangeInput(unmasked, 'jumlahDitabung') }}
                                 mask={createNumberMask({
@@ -227,7 +239,8 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
                                 })}
                             />
 
-                            <Text style={ styles.formTitle }>Uang Harian</Text>
+                            <Text style={ styles.formTitle }>Daily Amount</Text>
+                            <Text style={{ ...styles.formTitle, fontSize: 12 }}>days left: { dataInput.daysLeft?dataInput.daysLeft:"0"} days</Text>
                             <MaskInput keyboardType='number-pad' style={styles.formInput}
                                 value={dataInput.uangHarian} onChangeText={(masked, unmasked, obfuscated) => { handleChangeInput(unmasked, 'uangHarian') }}
                                 mask={createNumberMask({
@@ -239,9 +252,11 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
                         </View>
 
                         <View style={{flex:1, marginLeft: 10}}>
-                            <Text style={ styles.formTitle }>Total Bulanan</Text>
+                            <Text style={ styles.formTitle }>Monthly Spending Total</Text>
                             <TextInput style={{marginBottom: 14}} editable={false} value={toRupiah(dataInput.uangBulanan)} placeholder="Rp. 0"/>
-                            <Text style={ styles.formTitle }>Uang Lainnya</Text>
+                            <Text style={ styles.formTitle }>Monthly Daily Total</Text>
+                            <TextInput style={{marginBottom: 14}} editable={false} value={toRupiah(dataInput.totalMonthlyDaily)} placeholder="Rp. 0"/>
+                            <Text style={ styles.formTitle }>Other Amount</Text>
                             <TextInput style={{marginBottom: 10}} editable={false} value={toRupiah(dataInput.uangLainnya)} placeholder="Rp. 0"/>
                         </View>
                     </View>
@@ -293,6 +308,8 @@ export default function CompFormSetupPlan({data, onSubmit, navigation}) {
                                             </View></View>
                                         </TouchableWithoutFeedback>
                                         <DatePicker modal open={openBulanan} date={dataNeed.due_date} mode="date"
+                                            minimumDate={new Date()}
+                                            maximumDate={new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)}
                                             onConfirm={(date) => {
                                                 setOpenBulanan(false)
                                                 handleChangeNeed(date, 'due_date')
