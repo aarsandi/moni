@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, Alert, ScrollView } from 'react-native'
+import { StyleSheet, View, Alert, ScrollView, Text } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
 import CompFormLoan from '../../components/Form/CompFormLoan'
-import { fetchFinance } from '../../store/finance/function'
 import { inputPengajuanLoan } from '../../store/app/function'
 
 export default function FormLoan({ navigation }) {
     const dispatch = useDispatch()
-    const { amountDompet, amountRealDompet, amountTabungan } = useSelector((state) => state.financeReducer)
+    const { nama,amountDompet, amountRealDompet, amountTabungan } = useSelector((state) => state.financeReducer)
     const [loading, setLoading] = useState(true)
 
     const handleSubmit = (val) => {
@@ -32,27 +31,24 @@ export default function FormLoan({ navigation }) {
     }
 
     useEffect(() => {
-        if(amountDompet===null&&amountRealDompet===null&&amountTabungan===null) {
-            fetchFinance(dispatch, (el) => {
-                if(el.message !== "success") {
-                    Alert.alert("Error", "Error Function", [], { cancelable:true })
-                }
-            })
+        if(nama===null) {
+            navigation.navigate("Splash")
+        }else{
+            setLoading(false)
         }
-        setLoading(false)
     }, [])
 
     return (
         <View>
-            <ScrollView contentInsetAdjustmentBehavior="automatic" >
-                <Text style={{fontSize: 20}}>Form Pinjaman</Text>
-                <Text style={{fontSize: 15}}>Tabungan: {amountTabungan}</Text>
-                <Text style={{fontSize: 15}}>Rekening: {amountDompet}</Text>
-                {
-                    !loading&&
-                    <CompFormLoan data={{amountDompet, amountRealDompet, amountTabungan}} onSubmit={handleSubmit} navigation={navigation}/>
-                }
-            </ScrollView>
+            {
+                loading?
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 50 }}> ..... </Text>
+                </View>:
+                <ScrollView contentInsetAdjustmentBehavior="automatic" >
+                    <CompFormLoan data={{amountDompet, amountTabungan}} onSubmit={handleSubmit} navigation={navigation}/>
+                </ScrollView>
+            }
         </View>
     )
 }

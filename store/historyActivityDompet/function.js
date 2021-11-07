@@ -16,11 +16,11 @@ export async function fetchHistDom(dispatch, cb) {
     if(dataHistDom) {
         const result = JSON.parse(dataHistDom)
         dispatch(setDataHistDom(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{ 
         await AsyncStorage.setItem('DATAHISTDOM', JSON.stringify([]))
-        dispatch(setDataHistDom([]))
-        cb({message: "success"})
+        dispatch(resetDataHistDom())
+        cb&&cb({message: "error"})
     }
 }
 
@@ -44,5 +44,5 @@ export async function addHistDom(dispatch, val, cb) {
 export async function resetHistDom(dispatch, cb) {
     await AsyncStorage.removeItem('DATAHISTDOM')
     dispatch(resetDataHistDom())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

@@ -13,14 +13,19 @@ import FormBayarHutang from '../homeScreen/FormBayarHutang';
 export default function HomeScreenNavigator() {
     const Stack = createNativeStackNavigator();
     return (
-        <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" component={Home} options={{ title: 'Home' }}  />
-            <Stack.Screen name="FormSpend" component={FormSpend} options={{ title: ' ' }}  />
-            <Stack.Screen name="FormAmbilCash" component={FormAmbilCash} options={{ title: ' ' }}  />
-            <Stack.Screen name="FormInputPenghasilan" component={FormInputPenghasilan} options={{ title: ' ' }}  />
-            <Stack.Screen name="FormLoan" component={FormLoan} options={{ title: ' ' }}  />
-            <Stack.Screen name="FormNabung" component={FormNabung} options={{ title: ' ' }}  />
-            <Stack.Screen name="FormBayarHutang" component={FormBayarHutang} options={{ title: ' ' }}  />
+        <Stack.Navigator initialRouteName="Home" screenOptions={{
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#14213d'
+            }
+        }}>
+            <Stack.Screen name="Home" component={Home} options={{ title: 'Moni' }} />
+            <Stack.Screen name="FormSpend" component={FormSpend} options={{ title: 'Form Pengeluaran' }} />
+            <Stack.Screen name="FormAmbilCash" component={FormAmbilCash} options={{ title: 'Form Ambil Cash' }} />
+            <Stack.Screen name="FormInputPenghasilan" component={FormInputPenghasilan} options={{ title: 'Form Penghasilan' }} />
+            <Stack.Screen name="FormLoan" component={FormLoan} options={{ title: 'Form Pinjaman' }} />
+            <Stack.Screen name="FormNabung" component={FormNabung} options={{ title: 'Form Nabung' }} />
+            <Stack.Screen name="FormBayarHutang" component={FormBayarHutang} options={{ title: 'Form Bayar Hutang' }} />
         </Stack.Navigator>
     )
 }

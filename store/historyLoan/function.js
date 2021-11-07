@@ -16,11 +16,11 @@ export async function fetchHistLoan(dispatch, cb) {
     if(dataHistLoan) {
         const result = JSON.parse(dataHistLoan)
         dispatch(setDataHistLoan(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{ 
         await AsyncStorage.setItem('DATAHISTLOAN', JSON.stringify([]))
-        dispatch(setDataHistLoan([]))
-        cb({message: "success"})
+        dispatch(resetDataHistLoan())
+        cb&&cb({message: "error"})
     }
 }
 
@@ -44,5 +44,5 @@ export async function addHistLoan(dispatch, val, cb) {
 export async function resetHistLoan(dispatch, cb) {
     await AsyncStorage.removeItem('DATAHISTLOAN')
     dispatch(resetDataHistLoan())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

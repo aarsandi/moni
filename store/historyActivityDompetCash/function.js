@@ -16,11 +16,11 @@ export async function fetchHistDomCash(dispatch, cb) {
     if(dataHistDomCash) {
         const result = JSON.parse(dataHistDomCash)
         dispatch(setDataHistDomCash(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{ 
         await AsyncStorage.setItem('DATAHISTDOMCASH', JSON.stringify([]))
-        dispatch(setDataHistDomCash([]))
-        cb({message: "success"})
+        dispatch(resetDataHistDomCash())
+        cb&&cb({message: "error"})
     }
 }
 
@@ -35,14 +35,14 @@ export async function addHistDomCash(dispatch, val, cb) {
         cb({message: "success"})
     }else{ 
         const newResult = [{id:1, title, type, amount, balanceAfr, balanceBfr, date}]
-        await AsyncStorage.setItem('DATAHISTDOM', JSON.stringify(newResult))
+        await AsyncStorage.setItem('DATAHISTDOMCASH', JSON.stringify(newResult))
         dispatch(setDataHistDomCash(newResult))
         cb({message: "success"})
-    }
+    }    
 }
 
 export async function resetHistDomCash(dispatch, cb) {
     await AsyncStorage.removeItem('DATAHISTDOMCASH')
     dispatch(resetDataHistDomCash())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }

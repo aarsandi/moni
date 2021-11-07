@@ -10,28 +10,19 @@ import AppScreenNavigator from './AppScreenNavigator';
 import Intro from '../landingScreen/Intro';
 import Register from '../landingScreen/Register';
 import Splash from '../landingScreen/Splash';
-
-import PushNotification from "react-native-push-notification";
+import { navigationRef } from '../../helpers/rootNavigation';
 
 export default function LandingScreenNavigator() {
   const Stack = createNativeStackNavigator();
   const darkMode = useColorScheme();
   const dispatch = useDispatch()
 
-  const createChannelNotification = () => {
-    PushNotification.createChannel({
-      channelId: "coba",
-      channelName: "coba"
-    })
-  }
-
   useEffect(() => {
-    createChannelNotification()
-    dispatch(setIsDarkMode(darkMode === 'dark'))
+    dispatch(setIsDarkMode(darkMode === 'dark' ? '#000000':'#ffffff'))
   }, [darkMode])
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Splash" component={Splash} />
         <Stack.Screen name="AppScreenNavigator" component={AppScreenNavigator} />

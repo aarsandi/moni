@@ -1,7 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-
-import { fetchFinance, updateFinance, resetFinance, addLoan, updateLoan, removeLoan } from '../finance/function'
-import { fetchPlan, updatePlan, resetPlan } from '../plan/function'
+import { updateFinance, addLoan, updateLoan, removeLoan } from '../finance/function'
+import { updatePlan } from '../plan/function'
 import { addHistPeng } from '../historyPengeluaran/function'
 import { addHistDom } from '../historyActivityDompet/function'
 import { addHistDomCash } from '../historyActivityDompetCash/function'
@@ -121,7 +119,7 @@ export async function inputPenghasilan(dispatch, val, cb) {
         updateFinance(dispatch, {amountDompet: amountDompetAft}, (el) => {
             if(el.message === "success") {
                 addHistDom(dispatch, {
-                    title: "Penghasilan",type:"Pemasukan",amount:amountDompetAft-amountDompet,
+                    title: "Penghasilan",type:"Pemasukan",amount:amount,
                     balanceAfr: amountDompetAft, balanceBfr:amountDompet
                 }, (el) => {
                     if(el.message === "success") {
@@ -156,7 +154,8 @@ export async function inputPenghasilan(dispatch, val, cb) {
 
 export async function inputPayLoan(dispatch, val, cb) {
     const {
-        title,detail,amount,type,amountRealDompet,amountTabungan,amountDompet,taxPengirim,taxPenerima,amountTabunganAft,amountDompetAft,selectedLoan
+        title,detail,amount,type,amountRealDompet,amountTabungan,amountDompet,taxPengirim,amountTabunganAft,amountDompetAft,selectedLoan,
+        pengeluaranBulanan,uangTotal
     } = val
     if(type === "Cash") {
         addHistPeng(dispatch, {
@@ -178,7 +177,7 @@ export async function inputPayLoan(dispatch, val, cb) {
                     balanceBfr: amountRealDompet
                 }, (el) => {
                     if(el.message==="success") {
-                        selectedLoan.amountPay.shift()
+                        selectedLoan.amountPay.splice(0, 1)
                         if(selectedLoan.amountPay.length) {
                             selectedLoan.due_date = selectedLoan.amountPay[0].due_date
                             updateLoan(dispatch, {
@@ -186,7 +185,20 @@ export async function inputPayLoan(dispatch, val, cb) {
                                 amountRealDompet: amountRealDompet-amount
                             }, (el) => {
                                 if(el.message === "success") {
-                                    cb({message: "success"})
+                                    if(pengeluaranBulanan) {
+                                        updatePlan(dispatch, {
+                                            uangTotal:uangTotal-(amount+taxPengirim),
+                                            pengeluaranBulanan:pengeluaranBulanan
+                                        }, (el) => {
+                                            if(el.message==="success"){
+                                                cb({message: "success"})
+                                            }else{
+                                                cb({message: "error"})
+                                            }
+                                        })
+                                    }else{
+                                        cb({message: "success"})
+                                    }
                                 }else {
                                     cb({message: "error"})
                                 }
@@ -198,7 +210,20 @@ export async function inputPayLoan(dispatch, val, cb) {
                                 amountRealDompet: amountRealDompet-amount
                             }, (el) => {
                                 if(el.message === "success") {
-                                    cb({message: "success"})
+                                    if(pengeluaranBulanan) {
+                                        updatePlan(dispatch, {
+                                            uangTotal:uangTotal-(amount+taxPengirim),
+                                            pengeluaranBulanan:pengeluaranBulanan
+                                        }, (el) => {
+                                            if(el.message==="success"){
+                                                cb({message: "success"})
+                                            }else{
+                                                cb({message: "error"})
+                                            }
+                                        })
+                                    }else{
+                                        cb({message: "success"})
+                                    }
                                 }else{
                                     cb({message: "error"})                            
                                 }
@@ -213,6 +238,7 @@ export async function inputPayLoan(dispatch, val, cb) {
             }
         })
     }else if(type === "Tabungan"){
+        cb({message: "success"})
         addHistPeng(dispatch, {
             title: title,
             detail: detail,
@@ -225,7 +251,7 @@ export async function inputPayLoan(dispatch, val, cb) {
         }, (el) => {
             if(el.message==="success") {
                 addHistDom(dispatch, {
-                    title: title,
+                    title: "Pinjaman",
                     type: "Pengeluaran",
                     amount: amountDompet-amountDompetAft,
                     balanceAfr: amountDompetAft,
@@ -233,14 +259,14 @@ export async function inputPayLoan(dispatch, val, cb) {
                 }, (el) => {
                     if(el.message==="success") {
                         addHistTab(dispatch, {
-                            title: title,
+                            title: "Pinjaman",
                             type: "Pemasukan",
                             amount: amountTabunganAft-amountTabungan,
                             balanceAfr: amountTabunganAft,
                             balanceBfr: amountTabungan
                         }, (el) => {
                             if(el.message==="success") {
-                                selectedLoan.amountPay.shift()
+                                selectedLoan.amountPay.splice(0, 1)
                                 if(selectedLoan.amountPay.length) {
                                     selectedLoan.due_date = selectedLoan.amountPay[0].due_date
                                     updateLoan(dispatch, {
@@ -249,7 +275,20 @@ export async function inputPayLoan(dispatch, val, cb) {
                                         amountTabungan: amountTabunganAft
                                     }, (el) => {
                                         if(el.message === "success") {
-                                            cb({message: "success"})
+                                            if(pengeluaranBulanan) {
+                                                updatePlan(dispatch, {
+                                                    uangTotal:uangTotal-(amount+taxPengirim),
+                                                    pengeluaranBulanan:pengeluaranBulanan
+                                                }, (el) => {
+                                                    if(el.message==="success"){
+                                                        cb({message: "success"})
+                                                    }else{
+                                                        cb({message: "error"})
+                                                    }
+                                                })
+                                            }else{
+                                                cb({message: "success"})
+                                            }
                                         }else {
                                             cb({message: "error"})
                                         }
@@ -262,7 +301,20 @@ export async function inputPayLoan(dispatch, val, cb) {
                                         amountTabungan: amountTabunganAft
                                     }, (el) => {
                                         if(el.message === "success") {
-                                            cb({message: "success"})
+                                            if(pengeluaranBulanan) {
+                                                updatePlan(dispatch, {
+                                                    uangTotal:uangTotal-(amount+taxPengirim),
+                                                    pengeluaranBulanan:pengeluaranBulanan
+                                                }, (el) => {
+                                                    if(el.message==="success"){
+                                                        cb({message: "success"})
+                                                    }else{
+                                                        cb({message: "error"})
+                                                    }
+                                                })
+                                            }else{
+                                                cb({message: "success"})
+                                            }
                                         }else{
                                             cb({message: "error"})                            
                                         }
@@ -401,15 +453,14 @@ export async function inputPengajuanLoan(dispatch, val, cb) {
 export async function inputNabung(dispatch, val, cb) {
     const {
         amountRealDompet,amountTabungan,amountDompet,amountTabunganAft,amountDompetAft,
-        title,type,amount,taxPengirim,taxPenerima
+        title,type,amount,taxPengirim
     } = val
-    cb({message: "success"})
     
     if(type === "Rekening"){
         updateFinance(dispatch, {amountDompet: amountDompetAft, amountTabungan: amountTabunganAft}, (el) => {
             if(el.message === "success") {
                 addHistDom(dispatch, {
-                    title: title,
+                    title: "Nabung",
                     type:"Pengeluaran",
                     amount:amountDompet-amountDompetAft,
                     balanceAfr: amountDompetAft,
@@ -417,7 +468,7 @@ export async function inputNabung(dispatch, val, cb) {
                 }, (el) => {
                     if(el.message === "success") {
                         addHistTab(dispatch, {
-                            title: title,
+                            title: "Nabung",
                             type: "Pemasukan",
                             amount: amountTabunganAft-amountTabungan,
                             balanceAfr: amountTabunganAft,
@@ -456,7 +507,7 @@ export async function inputNabung(dispatch, val, cb) {
         updateFinance(dispatch, {amountRealDompet: amountRealDompet-amount, amountTabungan:amountTabunganAft}, (el) => {
             if(el.message === "success") {
                 addHistDomCash(dispatch, {
-                    title: title,
+                    title: "Nabung",
                     type:"Pengeluaran",
                     amount:amount,
                     balanceAfr: amountRealDompet-amount,
@@ -464,7 +515,7 @@ export async function inputNabung(dispatch, val, cb) {
                 }, (el) => {
                     if(el.message === "success") {
                         addHistTab(dispatch, {
-                            title: title,
+                            title: "Nabung",
                             type: "Pemasukan",
                             amount: amountTabunganAft-amountTabungan,
                             balanceAfr: amountTabunganAft,
@@ -516,7 +567,7 @@ export async function inputPengeluaran(dispatch, val, cb) {
                 addHistPeng(dispatch, inputHistPeng, (el) => {
                     if(el.message === "success") {
                         addHistDomCash(dispatch, {
-                            title: title,
+                            title: `Pengeluaran ${type}`,
                             type: "Pengeluaran",
                             amount: amount,
                             balanceAfr: amountRealDompet-amount,
@@ -542,7 +593,7 @@ export async function inputPengeluaran(dispatch, val, cb) {
                 addHistPeng(dispatch, inputHistPeng, (el) => {
                     if(el.message === "success") {
                         addHistDom(dispatch, {
-                            title: title,
+                            title: `Pengeluaran ${type}`,
                             type:"Pengeluaran",
                             amount:amount+tax,
                             balanceAfr:amountDompetAft,
@@ -568,7 +619,7 @@ export async function inputPengeluaran(dispatch, val, cb) {
                 addHistPeng(dispatch, inputHistPeng, (el) => {
                     if(el.message === "success") {
                         addHistTab(dispatch, {
-                            title: title,
+                            title: `Pengeluaran ${type}`,
                             type: "Pengeluaran",
                             amount: amount+tax,
                             balanceAfr: amountTabunganAft,

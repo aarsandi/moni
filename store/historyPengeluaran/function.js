@@ -16,11 +16,11 @@ export async function fetchHistPeng(dispatch, cb) {
     if(dataHistPeng) {
         const result = JSON.parse(dataHistPeng)
         dispatch(setDataHistPeng(result))
-        cb({message: "success"})
+        cb&&cb({message: "success"})
     }else{ 
         await AsyncStorage.setItem('DATAHISTPENG', JSON.stringify([]))
-        dispatch(setDataHistPeng([]))
-        cb({message: "success"})
+        dispatch(resetDataHistPeng())
+        cb&&cb({message: "error"})
     }
 }
 
@@ -44,5 +44,5 @@ export async function addHistPeng(dispatch, val, cb) {
 export async function resetHistPeng(dispatch, cb) {
     await AsyncStorage.removeItem('DATAHISTPENG')
     dispatch(resetDataHistPeng())
-    cb({message: "success"})
+    cb&&cb({message: "success"})
 }
