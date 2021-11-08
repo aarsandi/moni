@@ -16,7 +16,7 @@ const CronJobTask = async () => {
     // Be sure to call completeTask at the end.
     CronJob.completeTask();
 };
-CronJob.startCronJob(0,15)
+CronJob.startCronJob(10,15)
 
 PushNotification.configure({
     onNotification: function (notification) {
